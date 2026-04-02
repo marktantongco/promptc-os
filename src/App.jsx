@@ -38,7 +38,7 @@ const ZONES=[
   {id:"activate",label:"⚡ ACTIVATE",sub:"Copy-paste to AI",tier:1},
   {id:"build",   label:"🏗 BUILD",   sub:"Reference library, Frameworks",tier:2},
   {id:"builder", label:"🔨 BUILDER", sub:"Interactive prompt composers.",tier:2},
-  {id:"playbook",label:"📋 PLAYBOOK",sub:"21 workflows. Step-by-step.",tier:2},
+  {id:"playbook",label:"📋 PLAYBOOK",sub:"22 workflows. Step-by-step.",tier:2},
   {id:"strategy",label:"📊 STRATEGY",sub:"Business intelligence, Monetize.",tier:2},
   {id:"validate",label:"✅ VALIDATE",sub:"Score, lint, refine.",tier:3},
   {id:"meta",    label:"🔄 META",    sub:"Optimize prompts. Self-improve.",tier:3},
@@ -1171,12 +1171,32 @@ const WF=[
     {a:"Dolphin",t:"Design the creative interaction layer",items:["Interactive composers: chain builder, layer composer, live prompt generator","Copy-ready output on every single item — modifier, template, vocab term, workflow","Animation system: zone enter, section pop, copy flash, hover scale","Misconception vs correct views for educational depth","Selectable keyword pickers for ambiguous prompt variables"]},
     {a:"Ant",   t:"Polish, fix, and ship",items:["Initialization order: declare all consts before they are referenced","Remove bare HTML tags (<title><meta><link>) from JSX returns","Verify fragment pairs <>...</> are balanced","Test clipboard copy in sandboxed iframe environments","Verify all template literal backticks are balanced across brand/prompt strings","Deploy: Vite build → Vercel (30 seconds)"]},
   ]},
+  {id:20,cat:"📝 Content",title:"Advanced Content Writing",purpose:"Create professional-grade written content with AI",best:"Long-form articles, whitepapers, case studies",chain:["Owl","Eagle","Rabbit","Ant"],out:"Publication-ready content with SEO optimization",steps:[
+    {a:"Owl",   t:"Analyze requirements",items:["Audience persona definition","Content goals and KPIs","Competitive content gap analysis","Tone and voice calibration"]},
+    {a:"Eagle", t:"Structure the content",items:["Outline with H2/H3 hierarchy","Key arguments and evidence mapping","Data points and statistics sourcing","Internal linking strategy"]},
+    {a:"Rabbit",t:"Generate variations",items:["3 alternative openings/hooks","2 different angle perspectives","Multiple CTA variations","Title and headline options (5+)"]},
+    {a:"Ant",   t:"Write and polish",items:["Section-by-section writing","SEO keyword integration","Readability optimization (Flesch score)","Final proofread and formatting"]},
+  ]},
+  {id:21,cat:"💡 Strategy",title:"Brainstorming Session",purpose:"Structured brainstorming for breakthrough ideas",best:"Product ideation, marketing strategy, problem solving",chain:["Rabbit","Dolphin","Owl","Eagle"],out:"Prioritized idea list with implementation roadmap",steps:[
+    {a:"Rabbit", t:"Generate volume",items:["10+ raw ideas (no filtering)","Wild card ideas encouraged","Cross-industry inspiration","What-if scenarios"]},
+    {a:"Dolphin",t:"Creative enhancement",items:["Combine unexpected pairs","Flip assumptions","Apply from different domains","Add playful constraints"]},
+    {a:"Owl",   t:"Critical analysis",items:["Feasibility scoring (1-10)","Impact assessment","Resource requirements","Risk identification"]},
+    {a:"Eagle", t:"Prioritize and roadmap",items:["Impact vs effort matrix","Quick wins vs long-term plays","Dependencies mapping","90-day action plan"]},
+  ]},
   {id:22,cat:"🔧 Automation",title:"Privacy-First Automation",purpose:"Set up automated workflows with privacy compliance",best:"Data-sensitive industries",chain:["Owl","Beaver","Ant","Dolphin"],out:"Complete privacy-compliant automation system",steps:[
     {a:"Owl",t:"Assess privacy requirements",items:["Data classification (PII, sensitive, public)","Compliance framework (GDPR, SOC2)","Data flow mapping","Consent management needs"]},
     {a:"Beaver",t:"Build secure infrastructure",items:["Self-hosted n8n on Render ($0.25/mo)","Environment variable security","Encryption at rest and in transit","Row-level security policies"]},
     {a:"Ant",t:"Implement step by step",items:["Client-side PII sanitization","Synthetic data replacement","Encrypted storage layer","Access control implementation"]},
     {a:"Dolphin",t:"Add intelligent features",items:["Automated PII detection and redaction","Consent-aware workflow routing","Audit trail generation","Privacy impact assessment automation"]},
   ]},
+];
+const TECH_STACKS=[
+  {stack:"Next.js Full-Stack",tier:"Production",items:[{l:"Framework",v:"Next.js 15 (App Router)"},{l:"Language",v:"TypeScript 5.x"},{l:"Styling",v:"Tailwind CSS 4"},{l:"UI Kit",v:"shadcn/ui"},{l:"Animation",v:"Framer Motion / GSAP"},{l:"ORM",v:"Prisma / Drizzle"},{l:"Auth",v:"NextAuth.js / Clerk"},{l:"Deploy",v:"Vercel / Docker"}]},
+  {stack:"AI + LLM App",tier:"Advanced",items:[{l:"Core",v:"Next.js + Python FastAPI"},{l:"LLM SDK",v:"OpenAI / Anthropic SDK"},{l:"Vector DB",v:"Pinecone / Supabase pgvector"},{l:"Embeddings",v:"OpenAI text-embedding-3"},{l:"Streaming",v:"Server-Sent Events / WebSocket"},{l:"UI",v:"React + Tailwind + shadcn/ui"},{l:"Caching",v:"Redis / Upstash"},{l:"Deploy",v:"Vercel + Railway"}]},
+  {stack:"SaaS MVP",tier:"Production",items:[{l:"Frontend",v:"Next.js 15 + Tailwind"},{l:"Backend",v:"Supabase (DB + Auth + Storage)"},{l:"Payments",v:"Stripe / LemonSqueezy"},{l:"Email",v:"Resend / SendGrid"},{l:"Analytics",v:"PostHog / Plausible"},{l:"Error Tracking",v:"Sentry"},{l:"CI/CD",v:"GitHub Actions"},{l:"Deploy",v:"Vercel"}]},
+  {stack:"Mobile App",tier:"Production",items:[{l:"Framework",v:"React Native / Expo SDK 52"},{l:"Language",v:"TypeScript"},{l:"Navigation",v:"Expo Router"},{l:"State",v:"Zustand / React Query"},{l:"Backend",v:"Supabase"},{l:"Push",v:"Expo Notifications"},{l:"Payments",v:"RevenueCat / Stripe"},{l:"Deploy",v:"Expo EAS / TestFlight"}]},
+  {stack:"Content / Blog",tier:"Simple",items:[{l:"Framework",v:"Next.js 15 (SSG)"},{l:"CMS",v:"MDX / Sanity / Notion API"},{l:"Styling",v:"Tailwind CSS"},{l:"SEO",v:"Next.js Metadata API"},{l:"Analytics",v:"Vercel Analytics / Plausible"},{l:"Comments",v:"Giscus / Disqus"},{l:"Newsletter",v:"Resend + Buttondown"},{l:"Deploy",v:"Vercel"}]},
+  {stack:"Dashboard / Admin",tier:"Production",items:[{l:"Framework",v:"Next.js + React"},{l:"Charts",v:"Recharts / Tremor / Nivo"},{l:"Tables",v:"TanStack Table"},{l:"State",v:"React Query + Zustand"},{l:"Backend",v:"Supabase / tRPC"},{l:"Auth",v:"Clerk / NextAuth.js"},{l:"Export",v:"PapaParse / xlsx"},{l:"Deploy",v:"Vercel"}]},
 ];
 
 // ─── NEW: Strategy & Meta Data ────────────────────────────────────────────────────
@@ -1315,6 +1335,7 @@ const BNAV=[
   {id:"tools",label:"🛠 Tools"},
   {id:"database",label:"🗄 Database"},
   {id:"monetize",label:"💰 Monetize"},
+  {id:"techstack",label:"🔧 Tech Stack"},
 ];
 
 function Build(){
@@ -1663,6 +1684,21 @@ function Build(){
               <span style={{fontSize:13,color:C.am,fontFamily:C.mn,fontWeight:600}}>{g.rev}</span>
             </div>
             <div style={{fontSize:11,color:C.di}}>Focus: {g.focus}</div>
+          </div>)}
+        </div>
+      </Card>
+    </div>}
+    {s==="techstack"&&<div style={{display:"grid",gap:14}}>
+      <Card accent={C.vi}><Lbl text="Production-ready stack configurations for every use case" color={C.vi}/><H3>Recommended Tech Stacks</H3>
+        <div style={{display:"grid",gap:12}}>
+          {TECH_STACKS.map((ts,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:10,padding:"14px 16px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+              <span style={{fontSize:14,fontWeight:700,color:C.tx}}>{ts.stack}</span>
+              <span style={{fontSize:10,fontFamily:C.mn,padding:"2px 8px",borderRadius:10,background:ts.tier==="Production"?C.gn+"18":ts.tier==="Advanced"?C.am+"18":C.mu+"18",color:ts.tier==="Production"?C.gn:ts.tier==="Advanced"?C.am:C.mu}}>{ts.tier}</span>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:6}}>
+              {ts.items.map((it,j)=><div key={j} style={{display:"flex",gap:8}}><span style={{fontSize:11,color:C.di,fontFamily:C.mn,minWidth:65}}>{it.l}</span><span style={{fontSize:11,color:C.mu}}>{it.v}</span></div>)}
+            </div>
           </div>)}
         </div>
       </Card>
@@ -2180,7 +2216,7 @@ export default function App(){
       <div style={{borderBottom:`1px solid ${C.bdr}`,padding:"clamp(10px,2vw,16px) clamp(12px,2.5vw,22px) 0",position:"sticky",top:0,background:C.bg+"f0",zIndex:100,backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)"}}>
         <div style={{maxWidth:980,margin:"0 auto"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4}}>
-            <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:C.fa,letterSpacing:"0.15em"}}>promptc OS · v2026.3 · powerUP</div>
+            <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:C.fa,letterSpacing:"0.15em"}}>promptc OS · v2026.5 · powerUP</div>
             <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:col,letterSpacing:"0.1em",animation:"glowPulse 2s ease infinite"}}>{ZONES.find(z=>z.id===zone)?.label}</div>
           </div>
           <h1 style={{margin:"0 0 12px",fontSize:"clamp(18px,3.5vw,28px)",fontWeight:900,letterSpacing:"0.03em",fontFamily:C.hd,lineHeight:1,transition:"color 0.4s"}}>
