@@ -2,24 +2,16 @@
 
 # promptc OS
 
-**The Complete AI Prompt Engineering Master Reference**
+**The Complete AI Prompt Engineering Operating System**
 
-[![Deploy with Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel&logoColor=white)](https://vercel.com/new/clone?repository-url=https://github.com/marktantongco/promptc-os&project-name=promptc-os)
-[![GitHub Pages](https://img.shields.io/badge/GitHub-Pages-222?logo=github&logoColor=white)](https://marktantongco.github.io/promptc-os/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![GitHub Pages](https://img.shields.io/badge/GitHub-Pages-000?style=flat&logo=github)](https://marktantongco.github.io/promptc-os/)
+[![Vercel](https://img.shields.io/badge/Vercel-Live-000?style=flat&logo=vercel)](https://promptc-os-v5.vercel.app)
+[![Version](https://img.shields.io/badge/v2026.6-FFB000?style=flat)]()
+[![License](https://img.shields.io/badge/License-MIT-4DFFFF?style=flat)](LICENSE)
 
-<p>
-  <strong>v2026.5</strong> — powerUP Edition
-</p>
-<p>
-  <em>One reference to rule them all. Copy, paste, build better prompts.</em>
-</p>
+*7 zones. 19 workflows. 2257 lines. Zero dependencies beyond React.*
 
-<img src="https://img.shields.io/badge/React-18.3-61DAFB?logo=react" alt="React"/>
-<img src="https://img.shields.io/badge/Vite-5.4-646CFF?logo=vite" alt="Vite"/>
-<img src="https://img.shields.io/badge/Zero_Dependencies-✓-22c55e" alt="Zero Deps"/>
-<img src="https://img.shields.io/badge/Bundle-89KB_gzip-blue" alt="Bundle Size"/>
-<img src="https://img.shields.io/badge/7_Zones-7C5CFF" alt="7 Zones"/>
+The definitive reference for AI prompt engineering — system prompts, thinking frameworks, brand identity systems, validation tools, and monetization blueprints, all in one dark-mode interface designed for copy-paste speed.
 
 </div>
 
@@ -29,151 +21,229 @@
 
 | Platform | URL |
 |----------|-----|
-| **GitHub Pages** | [marktantongco.github.io/promptc-os](https://marktantongco.github.io/promptc-os/) |
-| **Vercel** | [promptcos.vercel.app](https://promptcos.vercel.app) |
+| GitHub Pages | [marktantongco.github.io/promptc-os](https://marktantongco.github.io/promptc-os/) |
+| Vercel | [promptc-os-v5.vercel.app](https://promptc-os-v5.vercel.app) |
+
+---
+
+## What Is promptc OS?
+
+promptc OS is a single-page React application that serves as a complete operating system for AI prompt engineering. It organizes the entire discipline of prompt engineering into 7 navigable zones, each color-coded with its own accent, containing production-ready prompts that you copy directly into your AI conversations.
+
+Unlike scattered prompt libraries, promptc OS provides a structured mental model: **USE → BUILD → OPTIMIZE**. First you activate with system prompts, then you build with frameworks and thinking modes, then you validate quality and optimize with meta-prompts.
+
+The entire application is a single `App.jsx` file (2,257 lines) with zero external runtime dependencies beyond React. It builds to a 90KB gzipped bundle that loads instantly.
+
+---
+
+## The 7 Zones
+
+### Tier 1 — USE: Copy-paste to AI
+
+| Zone | Accent | Purpose |
+|------|--------|---------|
+| ⚡ **ACTIVATE** | `#4DFFFF` Cyan | Master system prompt, advocate mode, 10 modifiers, 7 task prompts, 18 templates, 6 brand identity systems |
+
+### Tier 2 — BUILD: Reference library & frameworks
+
+| Zone | Accent | Purpose |
+|------|--------|---------|
+| 🏗 **BUILD** | `#FF6B00` Orange | 7 animal thinking modes, 6 recommended chains, 8-layer architecture, 5 enhancement protocols, 10 web app personas, 4 JSON output techniques, 28 design vocabulary terms, 12 synergy combos, 4 typography pairings |
+| 🔨 **BUILDER** | `#FF4FD8` Magenta | Interactive workflow chain builder, 8-layer prompt composer, web app prompt generator, prompt diff analyzer |
+| 📋 **PLAYBOOK** | `#FFB000` Amber | 19 step-by-step workflows across Design, Dev, Business, Content, Automation, Problem Solving, Data, and AI Product categories |
+| 📊 **STRATEGY** | `#7C5CFF` Violet | Business intelligence, monetization frameworks, competitive analysis tools |
+
+### Tier 3 — OPTIMIZE: Score, lint, refine
+
+| Zone | Accent | Purpose |
+|------|--------|---------|
+| ✅ **VALIDATE** | `#22c55e` Green | 6 lint rules (auto-detectable), 24 word swaps across 3 levels (beginner/misconception/advanced), 17-item quality checklist, 4-dimension prompt quality scorer |
+| 🔄 **META** | `#38bdf8` Sky | Meta-prompts (Universal, Mobile, Web), self-refinement loops, chain-of-thought, self-consistency, tweak protocol |
+
+---
+
+## Core Frameworks
+
+### 8-Layer Prompt Architecture
+
+Every great prompt follows this structure:
+
+| Layer | Name | Purpose | Missing Causes |
+|-------|------|---------|---------------|
+| 01 | **Role** | Who the AI acts as | Generic, shallow responses |
+| 02 | **Context** | Product, audience, platform | Misaligned output |
+| 03 | **Objective** | What success looks like | Aimless generation |
+| 04 | **Constraints** | Quality guardrails | Mediocre, unconstrained output |
+| 05 | **Aesthetic** | Design language / tone | Visually dull or off-brand |
+| 06 | **Planning** | Reason before generating | Structural mistakes |
+| 07 | **Output** | Exact format to deliver | Incomplete or disorganized files |
+| 08 | **Refinement** | Self-critique before final | First-draft quality only |
+
+### 7 Animal Thinking Modes
+
+| Animal | Mode | Best For |
+|--------|------|----------|
+| 🦉 **Owl** | Deep Analysis | Uncovering hidden factors, multi-perspective examination |
+| 🦅 **Eagle** | Big Picture Strategy | Long-term thinking, connecting the dots |
+| 🐜 **Ant** | Break Into Steps | Smallest possible actionable steps |
+| 🐇 **Rabbit** | Multiply Ideas | 10 variations, different angles and audiences |
+| 🐬 **Dolphin** | Creative Solutions | Unconventional approaches others wouldn't consider |
+| 🦫 **Beaver** | Build Systems | Practical step-by-step systems |
+| 🐘 **Elephant** | Cross-Field Connections | Insights from psychology, economics, science, history |
+
+### 19 Playbook Workflows
+
+Organized by category with step-by-step animal mode chains:
+
+- **🎨 Design** (3): Design System Creation, Landing Page Design, Dashboard Design
+- **💻 Development** (3): Full-Stack App Development, API Design, Database Schema Design
+- **📈 Business** (3): Product Roadmap Planning, Market Research, User Onboarding Flow
+- **📝 Content** (3): Blog Content Creation, Video Content Strategy, Email Marketing Campaign
+- **🔧 Automation** (2): Workflow Automation, CI/CD Pipeline Setup
+- **🎯 Problem Solving** (2): Debug Complex Issue, Technical Debt Resolution
+- **📊 Data** (2): Analytics Implementation, Data Pipeline Construction
+- **🤖 AI Product** (1): AI Tool / Product Build
+
+---
+
+## Brand Identity Systems
+
+6 complete brand identity systems with production-ready system prompts:
+
+| Brand | Category | Key Principle |
+|-------|----------|---------------|
+| **powerUP** | Motivational / Creator | Typography-first, white space = intelligence |
+| **SaaS / B2B** | Enterprise Tool | Function before form, WCAG AA minimum |
+| **E-commerce** | Retail / DTC | CTA above fold, price visible without hover |
+| **Fintech** | Finance / Banking | Green = gain ONLY, red = loss ONLY, tabular numbers |
+| **Insurance** | Insurtech / Benefits | Plain language over jargon, green = covered |
+| **Creative Agency** | Design Studio | The work leads, UI never competes with portfolio |
+
+---
+
+## Prompt Validation System
+
+### Word Swap Dictionary (24 entries, 3 levels)
+
+- **Beginner Level**: Replaces vague words like "nice", "cool", "awesome" with specific design terms
+- **Misconception Level**: Corrects misunderstandings like "just add animations" → "define trigger, duration, easing, and purpose first"
+- **Advanced Level**: Production specs like "smooth animation" → `cubic-bezier(0.16,1,0.3,1) 320ms with spring overshoot`
+
+### Prompt Quality Scoring (4 dimensions)
+
+| Dimension | Measures |
+|-----------|----------|
+| **Clarity** | Is the goal unambiguous? No vague language? |
+| **Structure** | Follows ROLE → CONTEXT → OBJECTIVE → OUTPUT? |
+| **Constraints** | Mobile-first? Accessibility? Performance? |
+| **Predictability** | Specifies output format and refinement? |
+
+---
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Framework | React 18 (single `App.jsx`) |
+| Build | Vite 5 |
+| Styling | Inline styles + CSS keyframe animations |
+| Fonts | Google Fonts (Bebas Neue, DM Mono, DM Sans) |
+| Clipboard | Navigator API + textarea fallback for iframes |
+| Bundle Size | 285KB raw / 90KB gzipped |
+| Dependencies | Zero — no UI libraries, no CSS frameworks |
 
 ---
 
 ## Quick Start
 
 ```bash
+# Clone
 git clone https://github.com/marktantongco/promptc-os.git
 cd promptc-os
+
+# Install (React only)
 npm install
+
+# Dev server
 npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
-
----
-
-## 7 Zones — 3-Tier Architecture
-
-```
-TIER 1 (USE)              TIER 2 (BUILD)                              TIER 3 (OPTIMIZE)
-⚡ ACTIVATE               🏗 BUILD · 🔨 BUILDER                        ✅ VALIDATE
-                             📋 PLAYBOOK · 📊 STRATEGY                    🔄 META
-```
-
-### ⚡ ACTIVATE — Copy-paste to AI. Start fast.
-- Master System Prompt (CORE RULES + ADVOCACY + WRITING RULES + SKILLS)
-- Advocate Mode
-- 10 Secret Sauce Modifiers
-- 7 Task-Specific Prompts (YouTube, Coding, Business, Research, SEO Blog, A/B Copy, Tech Docs)
-- 18 Templates (Web App, Mobile, Brand, Landing Page, Dashboard, API, SEO Blog, A/B Test, Tech Docs, Meta Prompts, Brand Systems)
-
-### 🏗 BUILD — Reference library. All frameworks.
-- 🐾 7 Animal Thinking Modes + 6 Mode Chains
-- 8-Layer Prompt Architecture (click any layer for copy-ready snippet)
-- 5 Enhancement Protocols (with How-to-Use toggle)
-- Web App Prompt Generator (live updates on selection)
-- JSON / Structured Output (4 techniques + decision matrix)
-- Typography Pairings
-- Design Vocabulary (Terms + Misconceptions + Synergy Combos)
-- 🛠 **NEW:** Tools Matrix (Free vs Paid comparison)
-- 🗄 **NEW:** Database-Guided Systems (8-layer architecture)
-- 💰 **NEW:** Monetization Framework (revenue + growth projection)
-
-### 🔨 BUILDER — Interactive prompt composers.
-- Workflow Builder + prompt history (last 10)
-- 8-Layer Composer (real-time assembly)
-- Prompt Diff Tool (A vs B → auto-score → WINNER)
-
-### 📋 PLAYBOOK — 22 step-by-step workflows.
-18 workflows across 7 categories (Design, Dev, Business, Content, Automation, Problem Solving, Data), plus 4 new:
-- #20: Market Opportunity Analysis
-- #21: Feature Prioritization (RICE scoring)
-- #22: Privacy-First Automation
-
-### 📊 STRATEGY — Business intelligence. **NEW.**
-- 💰 Monetization Framework (5 revenue streams + growth projection)
-- 📈 Market Opportunity quick-reference
-- ⚙️ RICE Feature Prioritization formula
-- 🔒 Privacy-First Automation blueprint
-
-### ✅ VALIDATE — Score, lint, refine.
-- Prompt Lint Rules (6 automated checks)
-- 23 Word Swaps (Beginner / Misconception / Advanced filters)
-- Quality Checklist (18 items, progress bar)
-- Prompt Scoring (4-dimension slider → grade)
-
-### 🔄 META — Optimize prompts. Self-improve. **NEW.**
-- 🔄 Prompt Optimizer (Precision-Tuned + Coherence-Tuned frameworks)
-- 📋 Prompt Auditor (Quality-focused analysis)
-- 🤖 Custom Prompt Generator (6 categories: Support, Finance, Marketing, Data, Security, Onboarding)
-
----
-
-## Key Features
-
-| Feature | Description |
-|---------|-------------|
-| 7 Animal Thinking Modes | Eagle, Beaver, Ant, Owl, Rabbit, Dolphin, Elephant |
-| Mode Chains | Pre-composed cognitive pipelines for complex goals |
-| 8-Layer Architecture | ROLE → CONTEXT → OBJECTIVE → CONSTRAINTS → AESTHETIC → PLANNING → OUTPUT → REFINEMENT |
-| 5 Enhancement Protocols | Self-Refinement, Chain-of-Thought, Self-Consistency, Tweak Protocol, Prompt Diff |
-| 22 Workflows | Step-by-step guides with animal mode chains |
-| Custom Prompt Generator | 6 categories with configurable fields |
-| Prompt Diff Tool | A/B comparison with 4-dimension auto-scoring |
-| 6 Brand Systems | powerUP, SaaS, E-commerce, Fintech, Insurance, Creative Agency |
-| Tools Matrix | Free vs Paid comparison for 6 recommended tools |
-| Database Systems | 8-layer architecture for data-guided interactive systems |
-| Monetization Framework | Revenue streams + month-by-month growth projection |
-| 3 Meta-Prompt Frameworks | Precision-Tuned, Coherence-Tuned, Quality Auditor |
-
----
-
-## Tech Stack
-
-| Layer | Tool |
-|-------|------|
-| Framework | React 18 |
-| Build | Vite 5 |
-| Styling | Inline styles (zero deps) |
-| Fonts | Bebas Neue + DM Sans + DM Mono (Google Fonts) |
-| Deploy | Vercel + GitHub Pages |
-
-**Bundle:** ~89KB gzip · **Zero runtime dependencies beyond React**
-
----
-
-## v2026.5 Changelog
-
-### New Zones
-- **📊 STRATEGY** — Monetization framework, market analysis, RICE prioritization, privacy-first automation
-- **🔄 META** — 3 meta-prompt frameworks, prompt optimizer/auditor, custom prompt generator (6 categories)
-
-### Expanded Content
-- 3 new task prompts: SEO Blog, A/B Copy, Tech Documentation
-- 3 new templates: SEO Blog Post, A/B Test Copy, Technical Docs
-- Tools Matrix (6 recommended tools with free/paid comparison)
-- Database-Guided Systems (8-layer architecture)
-- Monetization Framework (5 revenue streams + growth projection)
-- 3 new workflows: Market Opportunity (#20), RICE Feature Prioritization (#21), Privacy-First Automation (#22)
-
-### Total
-- **7 zones** (was 5) · **22 workflows** (was 18) · **~2,221 lines** (was 1,910)
 
 ---
 
 ## Deployment
 
 ### GitHub Pages
-Automatically deployed via GitHub Actions on every push to `main`.
+
+The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically builds and deploys to GitHub Pages on every push to `main`.
 
 ### Vercel
-Connected to GitHub repo. Auto-deploys on push.
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel --prod
+```
+
+The `vercel.json` configuration handles SPA routing for client-side navigation.
 
 ---
 
-## Author
+## Project Structure
 
-**Mark Tantongco**
-- GitHub: [@marktantongco](https://github.com/marktantongco)
-- Instagram: [@markytanky](https://instagram.com/markytanky)
+```
+promptc-os/
+├── index.html          # Entry HTML with dark theme meta
+├── src/
+│   ├── main.jsx        # React root mount
+│   └── App.jsx         # Complete application (2,257 lines)
+├── vite.config.js      # Vite config with base path
+├── vercel.json         # SPA routing for Vercel
+├── .github/
+│   └── workflows/
+│       └── deploy.yml  # Auto-deploy to GitHub Pages
+├── LICENSE
+└── README.md
+```
+
+---
+
+## Version History
+
+| Version | Changes |
+|---------|---------|
+| **v2026.6** | Bug fixes, comprehensive README, GitHub + Vercel deployment |
+| **v2026.5** | Added STRATEGY zone, META zone, 3-tier navigation, misconception corrections |
+| **v2026.4** | Added MONETIZE zone with Top 10 prompts, SaaS templates, deploy stacks |
+| **v3** | Initial multi-zone architecture |
+
+---
+
+## Design Philosophy
+
+- **Dark-mode native** — `#0B0D10` void black background
+- **One accent color per zone** — Visual navigation through color
+- **Typography-first** — Bebas Neue (display), DM Mono (code), DM Sans (body)
+- **Copy-first** — Every prompt element has one-click copy with iframe fallback
+- **Zero friction** — No sign-up, no database, no API calls
+- **Offline-capable** — Static SPA, works without internet after first load
+
+---
 
 ## License
 
-[MIT](LICENSE) — use freely, attribution appreciated.
+MIT — Free to use, modify, and distribute.
 
 <div align="center">
-  <sub>Built with precision. Shipped with confidence. promptc OS · powerUP · @markytanky</sub>
+
+**Built with zero external UI dependencies.**
+*Just React, a design system, and a lot of prompt engineering experience.*
+
 </div>
