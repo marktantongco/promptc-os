@@ -1,0 +1,232 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: #0B0D10;
+  --color-foreground: #FFFFFF;
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
+  --color-sidebar-ring: rgba(255,255,255,0.1);
+  --color-sidebar-border: rgba(255,255,255,0.07);
+  --color-sidebar-accent-foreground: #FFFFFF;
+  --color-sidebar-accent: #14161A;
+  --color-sidebar-primary-foreground: #0B0D10;
+  --color-sidebar-primary: #4DFFFF;
+  --color-sidebar-foreground: #FFFFFF;
+  --color-sidebar: #14161A;
+  --color-chart-5: #FFD700;
+  --color-chart-4: #FF4FD8;
+  --color-chart-3: #FFB000;
+  --color-chart-2: #22c55e;
+  --color-chart-1: #4DFFFF;
+  --color-ring: #4DFFFF;
+  --color-input: rgba(255,255,255,0.07);
+  --color-border: rgba(255,255,255,0.07);
+  --color-destructive: #ef4444;
+  --color-accent-foreground: #FFFFFF;
+  --color-accent: #14161A;
+  --color-muted-foreground: #a1a1aa;
+  --color-muted: #14161A;
+  --color-secondary-foreground: #FFFFFF;
+  --color-secondary: #14161A;
+  --color-primary-foreground: #0B0D10;
+  --color-primary: #4DFFFF;
+  --color-popover-foreground: #FFFFFF;
+  --color-popover: #14161A;
+  --color-card-foreground: #FFFFFF;
+  --color-card: #14161A;
+  --radius-sm: calc(0.625rem - 4px);
+  --radius-md: calc(0.625rem - 2px);
+  --radius-lg: 0.625rem;
+  --radius-xl: calc(0.625rem + 4px);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: #0B0D10;
+  --foreground: #FFFFFF;
+  --card: #14161A;
+  --card-foreground: #FFFFFF;
+  --popover: #14161A;
+  --popover-foreground: #FFFFFF;
+  --primary: #4DFFFF;
+  --primary-foreground: #0B0D10;
+  --secondary: #14161A;
+  --secondary-foreground: #FFFFFF;
+  --muted: #14161A;
+  --muted-foreground: #a1a1aa;
+  --accent: #14161A;
+  --accent-foreground: #FFFFFF;
+  --destructive: #ef4444;
+  --border: rgba(255,255,255,0.07);
+  --input: rgba(255,255,255,0.07);
+  --ring: #4DFFFF;
+}
+
+.dark {
+  --background: #0B0D10;
+  --foreground: #FFFFFF;
+  --card: #14161A;
+  --card-foreground: #FFFFFF;
+  --popover: #14161A;
+  --popover-foreground: #FFFFFF;
+  --primary: #4DFFFF;
+  --primary-foreground: #0B0D10;
+  --secondary: #14161A;
+  --secondary-foreground: #FFFFFF;
+  --muted: #14161A;
+  --muted-foreground: #a1a1aa;
+  --accent: #14161A;
+  --accent-foreground: #FFFFFF;
+  --destructive: #ef4444;
+  --border: rgba(255,255,255,0.07);
+  --input: rgba(255,255,255,0.07);
+  --ring: #4DFFFF;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+  body {
+    background: #0B0D10;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+  }
+  ::selection {
+    background: rgba(77,255,255,0.2);
+    color: #FFFFFF;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* Animations */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmerIn {
+  from {
+    opacity: 0;
+    background-position: -200% 0;
+  }
+  to {
+    opacity: 1;
+    background-position: 200% 0;
+  }
+}
+
+@keyframes zoneEnter {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes copyFlash {
+  0% { box-shadow: 0 0 0 0 rgba(77,255,255,0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(77,255,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(77,255,255,0); }
+}
+
+.animate-fade-slide-in {
+  animation: fadeSlideIn 0.4s ease-out forwards;
+}
+
+.animate-pop-in {
+  animation: popIn 0.3s ease-out forwards;
+}
+
+.animate-zone-enter {
+  animation: zoneEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-copy-flash {
+  animation: copyFlash 0.6s ease-out;
+}
+
+/* Utility classes for the promptc theme */
+.font-display {
+  font-family: 'Bebas Neue', sans-serif;
+}
+
+.font-mono-custom {
+  font-family: 'DM Mono', monospace;
+}
+
+.font-body {
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: all 0.2s ease;
+}
+.card-hover:hover {
+  border-color: rgba(255,255,255,0.12);
+  transform: translateY(-1px);
+}
+
+/* Custom focus ring */
+.focus-ring:focus-visible {
+  outline: 2px solid #4DFFFF;
+  outline-offset: 2px;
+}
+
+/* Responsive grid helper */
+.zone-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 768px) {
+  .zone-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .zone-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
