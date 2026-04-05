@@ -1386,7 +1386,7 @@ function Activate(){
       <div style={{overflowX:"auto"}}>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
           <thead><tr>{["Modifier","Effect"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
-          <tbody>{MODS.map(([m,e],i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"7px 10px",color:C.cy,fontFamily:C.mn,fontSize:11}}>{m}<div style={{marginTop:4}}><Cp text={m}/></div></td><td style={{padding:"7px 10px",color:C.mu}}>{e}</td></tr>)}</tbody>
+          <tbody>{MODS.map(([m,e],i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"7px 10px",color:C.cy,fontFamily:C.mn,fontSize:11}}>{m}<div style={{marginTop:4}}><Cp text={m}/></div></td><td style={{padding:"7px 10px",color:C.mu}}>{e}<div style={{marginTop:4}}><Cp text={`${m}\nEffect: ${e}`}/></div></td></tr>)}</tbody>
         </table>
       </div>
     </Card>
@@ -1396,6 +1396,7 @@ function Activate(){
       <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
         {TASKS.map((t,i)=><Pill key={i} label={t.label} active={tT===i} color={C.cy} onClick={()=>setTT(i)}/>)}
       </div>
+      <div style={{display:"flex",justifyContent:"flex-end",marginBottom:8}}><Cp text={TASKS[tT].content} sm={false} label="COPY TASK PROMPT"/></div>
       <Code text={TASKS[tT].content}/>
     </Card>
     <Card>
@@ -1413,6 +1414,7 @@ function Activate(){
         </div>
       ))}
       <div style={{fontSize:12,color:C.di,marginBottom:8,marginTop:4}}>{TMPLS[tM]?.desc}</div>
+      <div style={{display:"flex",justifyContent:"flex-end",marginBottom:8}}><Cp text={TMPLS[tM]?.content||""} sm={false} label="COPY TEMPLATE"/></div>
       <div key={tmplKey} className="anim-pop">
         <Code text={TMPLS[tM]?.content||""} mh={280}/>
       </div>
@@ -1582,6 +1584,7 @@ function Build(){
       <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
         {ENH.map((e,i)=><Pill key={i} label={e.label} active={eT===i} color={C.mg} onClick={()=>setET(i)}/>)}
       </div>
+      <div style={{display:"flex",justifyContent:"flex-end",marginBottom:8}}><Cp text={ENH[eT].content} sm={false} label={`COPY ${ENH[eT].label.toUpperCase()}`}/></div>
       <div style={{display:"flex",gap:6,marginBottom:12}}>
         <Pill label="Prompt Snippet" active={!showHow} color={C.vi} onClick={()=>setShowHow(false)}/>
         <Pill label="📖 How to Use" active={showHow} color={C.am} onClick={()=>setShowHow(true)}/>
@@ -1625,6 +1628,7 @@ function Build(){
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
           {[["FUNCTION","What does the app DO?",C.cy],["DESIGN","What does it LOOK & FEEL like?",C.vi],["TECHNOLOGY","What STACK runs it?",C.am]].map(([l,q,col])=><div key={l} style={{background:C.bg,border:`1px solid ${col}22`,borderRadius:10,padding:"14px",textAlign:"center"}}><div style={{fontSize:10,color:col,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:6}}>{l}</div><div style={{fontSize:12,color:C.mu}}>{q}</div></div>)}
         </div>
+        <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}><Cp text={`THREE LAYERS RULE\n\nFUNCTION: What does the app DO?\nDESIGN: What does it LOOK & FEEL like?\nTECHNOLOGY: What STACK runs it?`} sm={false} label="COPY RULE"/></div>
       </Card>
       <Card>
         <Lbl text="Dolphin Mode — 10 creative UI concepts to spark ideas" color={C.bl}/>
@@ -1664,6 +1668,7 @@ function Build(){
             {JSON_MX.map((r,i)=><div key={i} onClick={()=>{setJMxSel(i);setJMxPrompt(buildJMxP(r));}} style={{display:"flex",justifyContent:"space-between",background:jMxSel===i?`${C.cy}10`:C.bg,border:`1px solid ${jMxSel===i?C.cy+"44":C.bdr}`,borderRadius:8,padding:"9px 12px",cursor:"pointer",transition:"all 0.18s",gap:12,transform:jMxSel===i?"translateX(3px)":"none"}}>
               <span style={{fontSize:12,color:C.mu,flex:1}}>{r.sit}</span>
               <span style={{fontSize:12,color:C.cy,fontFamily:C.mn,whiteSpace:"nowrap"}}>{r.use}</span>
+              <span onClick={e=>e.stopPropagation()}><Cp text={buildJMxP(r)}/></span>
             </div>)}
           </div>
           {jMxPrompt&&<div style={{animation:"popIn 0.2s ease-out"}}>
@@ -1718,8 +1723,8 @@ function Build(){
         <H3>Recommended Tools Matrix</H3>
         <div style={{overflowX:"auto"}}>
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-            <thead><tr>{["Category","Free Tier","Paid Tier","Best For","Complexity"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
-            <tbody>{TOOLS_MATRIX.map((t,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"8px 10px",color:C.vi,fontWeight:600}}>{t.cat}</td><td style={{padding:"8px 10px",color:C.mu}}>{t.free}</td><td style={{padding:"8px 10px",color:C.mu}}>{t.paid}</td><td style={{padding:"8px 10px",color:C.tx}}>{t.best}</td><td style={{padding:"8px 10px",color:t.cx==="Low"?C.gn:C.am}}>{t.cx}</td></tr>)}</tbody>
+            <thead><tr>{["Category","Free Tier","Paid Tier","Best For","Complexity",""].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
+            <tbody>{TOOLS_MATRIX.map((t,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"8px 10px",color:C.vi,fontWeight:600}}>{t.cat}</td><td style={{padding:"8px 10px",color:C.mu}}>{t.free}</td><td style={{padding:"8px 10px",color:C.mu}}>{t.paid}</td><td style={{padding:"8px 10px",color:C.tx}}>{t.best}</td><td style={{padding:"8px 10px",color:t.cx==="Low"?C.gn:C.am}}>{t.cx}</td><td style={{padding:"8px 10px"}}><Cp text={`${t.cat}: ${t.free} / ${t.paid}\nBest: ${t.best}\nComplexity: ${t.cx}`}/></td></tr>)}</tbody>
           </table>
         </div>
       </Card>
@@ -1730,9 +1735,10 @@ function Build(){
         <Lbl text="8 essential layers for database-guided interactive systems" color={C.vi}/>
         <H3>Database-Guided Systems</H3>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:8}}>
-          {DB_LAYERS.map((l,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:9,padding:"11px 13px",display:"flex",gap:10}}>
+          {DB_LAYERS.map((l,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:9,padding:"11px 13px",display:"flex",gap:10,alignItems:"flex-start"}}>
             <span style={{fontSize:18}}>{l.icon}</span>
-            <div><div style={{fontSize:12,fontWeight:700,color:C.tx,marginBottom:2}}>{l.name}</div><div style={{fontSize:11,color:C.mu,lineHeight:1.5}}>{l.desc}</div></div>
+            <div style={{flex:1}}><div style={{fontSize:12,fontWeight:700,color:C.tx,marginBottom:2}}>{l.name}</div><div style={{fontSize:11,color:C.mu,lineHeight:1.5}}>{l.desc}</div></div>
+            <Cp text={`${l.icon} ${l.name}: ${l.desc}`}/>
           </div>)}
         </div>
       </Card>
@@ -1810,9 +1816,12 @@ function Validate(){
       <Lbl text="6 checks to run before generating"/>
       <H3>Prompt Lint Rules</H3>
       <div style={{display:"grid",gap:8,marginBottom:18}}>
-        {LINT.map(r=><div key={r.id} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:9,padding:"10px 13px",display:"flex",gap:10}}>
-          <span style={{fontSize:15}}>{r.auto?"✅":"⚠️"}</span>
-          <div><div style={{fontSize:10,color:C.cy,fontFamily:C.mn,marginBottom:2}}>{r.id}</div><div style={{fontSize:13,color:C.tx,marginBottom:2}}>{r.check}</div><div style={{fontSize:11,color:C.di}}>{r.auto?"Autofix: ":"Requires: "}{r.fix}</div></div>
+        {LINT.map(r=><div key={r.id} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:9,padding:"10px 13px",display:"flex",gap:10,alignItems:"flex-start"}}>
+          <div style={{display:"flex",gap:10,alignItems:"flex-start",flex:1}}>
+            <span style={{fontSize:15}}>{r.auto?"✅":"⚠️"}</span>
+            <div><div style={{fontSize:10,color:C.cy,fontFamily:C.mn,marginBottom:2}}>{r.id}</div><div style={{fontSize:13,color:C.tx,marginBottom:2}}>{r.check}</div><div style={{fontSize:11,color:C.di}}>{r.auto?"Autofix: ":"Requires: "}{r.fix}</div></div>
+          </div>
+          <Cp text={`Lint Rule: ${r.id}\nCheck: ${r.check}\n${r.auto?"Autofix":"Requires"}: ${r.fix}`}/>
         </div>)}
       </div>
 
@@ -1893,6 +1902,7 @@ function Validate(){
         <div style={{fontSize:36,fontWeight:800,fontFamily:C.mn,color:grade.col}}>{avg}</div>
         <div><div style={{fontWeight:700,color:C.tx,marginBottom:2}}>{grade.level}</div><div style={{fontSize:12,color:C.mu}}>{grade.action}</div></div>
       </div>
+      <div style={{display:"flex",justifyContent:"flex-end",marginTop:8}}><Cp text={`Prompt Score: ${avg}/10\nLevel: ${grade.level}\nAction: ${grade.action}\n\nClarity: ${sc.Clarity}/10\nStructure: ${sc.Structure}/10\nConstraints: ${sc.Constraints}/10\nPredictability: ${sc.Predictability}/10`} sm={false} label="COPY SCORES"/></div>
       <div style={{display:"grid",gap:5}}>
         {SSCALE.map((s,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 10px",borderRadius:6,background:grade===s?`${s.col}10`:"transparent",border:`1px solid ${grade===s?s.col+"44":"transparent"}`}}>
           <span style={{fontFamily:C.mn,fontSize:12,color:s.col,minWidth:36}}>{s.r}</span>
@@ -1935,7 +1945,7 @@ function Playbook(){
               <ul style={{margin:0,padding:"0 0 0 12px"}}>{s.items.map((item,j)=><li key={j} style={{fontSize:11,color:C.mu,lineHeight:1.6}}>{item}</li>)}</ul>
             </div>)}
           </div>
-          <div style={{background:C.bg,border:`1px solid ${C.gn}20`,borderRadius:8,padding:"9px 12px",display:"flex",gap:10,marginBottom:11}}><span>✅</span><div><div style={{fontSize:10,color:C.gn,fontFamily:C.mn,marginBottom:2}}>FINAL OUTPUT</div><div style={{fontSize:12,color:C.tx}}>{w.out}</div></div></div>
+          <div style={{background:C.bg,border:`1px solid ${C.gn}20`,borderRadius:8,padding:"9px 12px",display:"flex",gap:10,alignItems:"flex-start",marginBottom:11}}><span>✅</span><div style={{flex:1}}><div style={{fontSize:10,color:C.gn,fontFamily:C.mn,marginBottom:2}}>FINAL OUTPUT</div><div style={{fontSize:12,color:C.tx}}>{w.out}</div></div><Cp text={w.out}/></div>
           <Cp text={mk(w)} sm={false}/>
         </div>}
       </div>);})}
@@ -2163,29 +2173,6 @@ function PromptDiff(){
   return(<Card>
     <Lbl text="Paste two prompts — get a side-by-side quality analysis" color={C.mg}/>
     <H3>Prompt Diff Tool</H3>
-    {(a.trim()||b.trim())&&(
-      <div style={{display:"grid",gap:12,marginBottom:16}}>
-        <div style={{fontSize:10,color:C.mg,fontFamily:C.mn,letterSpacing:"0.1em"}}>📋 FULL PROMPTS — COPY READY</div>
-        {a.trim()&&(
-          <div>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-              <span style={{fontSize:11,color:C.cy,fontFamily:C.mn,fontWeight:600}}>PROMPT A — FULL TEXT</span>
-              <Cp text={a.trim()} sm={false} label="COPY PROMPT A"/>
-            </div>
-            <Code text={a.trim()} mh={200}/>
-          </div>
-        )}
-        {b.trim()&&(
-          <div>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-              <span style={{fontSize:11,color:C.vi,fontFamily:C.mn,fontWeight:600}}>PROMPT B — FULL TEXT</span>
-              <Cp text={b.trim()} sm={false} label="COPY PROMPT B"/>
-            </div>
-            <Code text={b.trim()} mh={200}/>
-          </div>
-        )}
-      </div>
-    )}
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:14}}>
       <TA label="PROMPT A" value={a} onChange={setA} ph="Paste your first prompt here…" rows={6}/>
       <TA label="PROMPT B" value={b} onChange={setB} ph="Paste your second prompt here…" rows={6}/>
@@ -2210,6 +2197,53 @@ function PromptDiff(){
         {sc.miss.length>0&&<div style={{marginTop:10}}><div style={{fontSize:10,color:C.am,fontFamily:C.mn,marginBottom:6}}>MISSING</div>{sc.miss.map((m,i)=><div key={i} style={{fontSize:11,color:C.di,marginBottom:3}}>· {m}</div>)}</div>}
       </div>)}
     </div>}
+    {res&&a.trim()&&(
+      <div style={{marginTop:16,display:"grid",gap:12}}>
+        <div style={{fontSize:10,color:C.cy,fontFamily:C.mn,letterSpacing:"0.1em"}}>📝 PROMPT A — WRITTEN TEXT WITH SCORE</div>
+        <div style={{background:C.bg,border:`1px solid ${res.win==="A"?C.cy+"33":C.bdr}`,borderRadius:10,padding:"12px 16px"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <span style={{fontSize:11,color:C.cy,fontFamily:C.mn}}>Overall: {res.a.ov}/10</span>
+            <Cp text={a.trim()} sm={false} label="COPY PROMPT A"/>
+          </div>
+          <pre style={{margin:0,fontSize:11,color:"#d4d4d8",fontFamily:C.mn,whiteSpace:"pre-wrap",lineHeight:1.6,maxHeight:200,overflowY:"auto"}}>{a.trim()}</pre>
+        </div>
+      </div>
+    )}
+    {res&&b.trim()&&(
+      <div style={{display:"grid",gap:12}}>
+        <div style={{fontSize:10,color:C.vi,fontFamily:C.mn,letterSpacing:"0.1em"}}>📝 PROMPT B — WRITTEN TEXT WITH SCORE</div>
+        <div style={{background:C.bg,border:`1px solid ${res.win==="B"?C.vi+"33":C.bdr}`,borderRadius:10,padding:"12px 16px"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <span style={{fontSize:11,color:C.vi,fontFamily:C.mn}}>Overall: {res.b.ov}/10</span>
+            <Cp text={b.trim()} sm={false} label="COPY PROMPT B"/>
+          </div>
+          <pre style={{margin:0,fontSize:11,color:"#d4d4d8",fontFamily:C.mn,whiteSpace:"pre-wrap",lineHeight:1.6,maxHeight:200,overflowY:"auto"}}>{b.trim()}</pre>
+        </div>
+      </div>
+    )}
+    {(a.trim()||b.trim())&&(
+      <div style={{display:"grid",gap:12,marginTop:16}}>
+        <div style={{fontSize:10,color:C.mg,fontFamily:C.mn,letterSpacing:"0.1em"}}>📋 FULL PROMPTS — COPY READY</div>
+        {a.trim()&&(
+          <div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+              <span style={{fontSize:11,color:C.cy,fontFamily:C.mn,fontWeight:600}}>PROMPT A — FULL TEXT</span>
+              <Cp text={a.trim()} sm={false} label="COPY PROMPT A"/>
+            </div>
+            <Code text={a.trim()} mh={200}/>
+          </div>
+        )}
+        {b.trim()&&(
+          <div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+              <span style={{fontSize:11,color:C.vi,fontFamily:C.mn,fontWeight:600}}>PROMPT B — FULL TEXT</span>
+              <Cp text={b.trim()} sm={false} label="COPY PROMPT B"/>
+            </div>
+            <Code text={b.trim()} mh={200}/>
+          </div>
+        )}
+      </div>
+    )}
   </Card>);
 }
 
@@ -2223,19 +2257,25 @@ function Strategy(){
     <div key={s} className="anim-slide">
     {s==="monetize"&&<div style={{display:"grid",gap:14}}>
       <Card accent={C.vt}><Lbl text="Revenue streams with setup time, potential, and scalability" color={C.vt}/><H3>Revenue Streams Matrix</H3>
-        <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr>{["Stream","Setup","Potential","Scalability","Complexity"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
-        <tbody>{REVENUE.map((r,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"8px 10px",color:C.tx,fontWeight:600}}>{r.stream}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.setup}</td><td style={{padding:"8px 10px",color:C.gn,fontFamily:C.mn}}>{r.potential}</td><td style={{padding:"8px 10px",color:r.scale==="High"?C.gn:C.am}}>{r.scale}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.cx}</td></tr>)}</tbody></table></div>
+        <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr>{["Stream","Setup","Potential","Scalability","Complexity",""].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
+        <tbody>{REVENUE.map((r,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"8px 10px",color:C.tx,fontWeight:600}}>{r.stream}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.setup}</td><td style={{padding:"8px 10px",color:C.gn,fontFamily:C.mn}}>{r.potential}</td><td style={{padding:"8px 10px",color:r.scale==="High"?C.gn:C.am}}>{r.scale}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.cx}</td><td style={{padding:"8px 10px"}}><Cp text={`${r.stream} | ${r.potential} | Setup: ${r.setup} | Scale: ${r.scale} | ${r.cx}`}/></td></tr>)}</tbody></table></div>
       </Card>
       <Card><Lbl text="Month-by-month growth trajectory" color={C.vt}/><H3>Growth Projection</H3>
         <div style={{display:"grid",gap:12}}>{GROWTH.map((g,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.vt}20`,borderRadius:10,padding:"14px"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}><span style={{fontSize:13,fontWeight:700,color:C.tx}}>{g.phase}</span><span style={{fontSize:14,fontWeight:800,color:C.vt,fontFamily:C.mn}}>{g.rev}</span></div>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <span style={{fontSize:13,fontWeight:700,color:C.tx}}>{g.phase}</span>
+            <div style={{display:"flex",gap:8,alignItems:"center"}}>
+              <span style={{fontSize:14,fontWeight:800,color:C.vt,fontFamily:C.mn}}>{g.rev}</span>
+              <Cp text={`Growth: ${g.phase}\nRevenue: ${g.rev}\nFocus: ${g.focus}\nActivities: ${g.act}`}/>
+            </div>
+          </div>
           <div style={{fontSize:11,color:C.mu,marginBottom:4}}>Focus: {g.focus}</div><div style={{fontSize:11,color:C.di}}>Activities: {g.act}</div>
         </div>)}</div>
       </Card>
     </div>}
     {s==="market"&&<Card accent={C.vt}><Lbl text="Use Owl + Elephant + Rabbit + Eagle chain for full analysis" color={C.vt}/><H3>Market Opportunity Analysis</H3>
       <div style={{fontSize:12,color:C.mu,marginBottom:12,lineHeight:1.6}}>Use the <span style={{color:C.vt}}>📋 PLAYBOOK</span> tab → Workflow #20 for the complete step-by-step workflow.</div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:8}}>{[{l:"10 underserved segments",icon:"🎯"},{l:"5 emerging trends",icon:"📈"},{l:"3 competitive advantages",icon:"🏆"},{l:"90-day action plan",icon:"📅"},{l:"Risk assessment matrix",icon:"⚡"},{l:"Resource allocation",icon:"💰"}].map((item,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"10px 12px",display:"flex",gap:10}}><span style={{fontSize:16}}>{item.icon}</span><span style={{fontSize:12,color:C.mu,lineHeight:1.5}}>{item.l}</span></div>)}</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:8}}>{[{l:"10 underserved segments",icon:"🎯"},{l:"5 emerging trends",icon:"📈"},{l:"3 competitive advantages",icon:"🏆"},{l:"90-day action plan",icon:"📅"},{l:"Risk assessment matrix",icon:"⚡"},{l:"Resource allocation",icon:"💰"}].map((item,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"10px 12px",display:"flex",gap:10,alignItems:"flex-start"}}><span style={{fontSize:16}}>{item.icon}</span><span style={{fontSize:12,color:C.mu,lineHeight:1.5,flex:1}}>{item.l}</span><Cp text={item.l}/></div>)}</div>
     </Card>}
     {s==="features"&&<Card accent={C.vt}><Lbl text="RICE scoring: Reach × Impact × Confidence / Effort" color={C.vt}/><H3>Feature Prioritization (RICE)</H3>
       <div style={{fontSize:12,color:C.mu,marginBottom:12,lineHeight:1.6}}>Use the <span style={{color:C.vt}}>📋 PLAYBOOK</span> tab → Workflow #21 for the complete RICE scoring workflow.</div>
@@ -2273,7 +2313,7 @@ function Meta(){
         {res&&<div className="anim-pop"><div style={{fontSize:10,color:C.gn,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:8}}>✓ {s==="optimize"?"OPTIMIZED":"AUDITED"} PROMPT READY</div><Code text={res} mh={400}/></div>}
       </Card>
       <Card><Lbl text="The meta-prompt frameworks" color={C.bl}/><H3>How It Works</H3>
-        <div style={{display:"grid",gap:8}}>{META_PROMPTS.map((m,i)=><div key={i} onClick={()=>{setMp(i);}} style={{background:mp===i?`${C.bl}10`:C.bg,border:`1px solid ${mp===i?C.bl+"44":C.bdr}`,borderRadius:9,padding:"10px 13px",cursor:"pointer",transition:"all 0.15s"}}><div style={{fontSize:12,fontWeight:700,color:C.tx,marginBottom:2}}>{m.label}</div><div style={{fontSize:11,color:C.mu}}>{m.desc}</div></div>)}</div>
+        <div style={{display:"grid",gap:8}}>{META_PROMPTS.map((m,i)=><div key={i} onClick={()=>{setMp(i);}} style={{background:mp===i?`${C.bl}10`:C.bg,border:`1px solid ${mp===i?C.bl+"44":C.bdr}`,borderRadius:9,padding:"10px 13px",cursor:"pointer",transition:"all 0.15s"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}><div><div style={{fontSize:12,fontWeight:700,color:C.tx,marginBottom:2}}>{m.label}</div><div style={{fontSize:11,color:C.mu}}>{m.desc}</div></div><Cp text={m.content}/></div></div>)}</div>
       </Card>
     </div>}
     {s==="custom"&&<div style={{display:"grid",gap:14}}>
