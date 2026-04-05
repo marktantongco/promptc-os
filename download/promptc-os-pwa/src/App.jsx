@@ -1369,6 +1369,287 @@ const SAAS_TEMPLATES=[
   {name:"AI Agent Platform",stack:"Next.js + LangChain + Pinecone + Vercel",prompt:"Build an AI agent platform:\n- Custom agents with system prompts\n- Tool integration: Web, Code, Files\n- Vector knowledge base (PDFs, URLs)\n- Agent marketplace\n- API access\n- Usage tracking and rate limiting\n\nTECH: Next.js + LangChain.js + Pinecone + OpenAI/Anthropic + Stripe + Vercel"},
 ];
 
+// ─── MARKET DATA ──────────────────────────────────────────────────────────────
+const MARKET_SIZE_PROMPT=`You are a market research analyst with 10 years of experience in TAM/SAM/SOM analysis.
+
+TASK: Estimate the market size for [PRODUCT/SERVICE] in [NICHE/INDUSTRY].
+
+STEPS:
+1. Define the Total Addressable Market (TAM)
+   - Global/national market size in dollars
+   - Annual growth rate (CAGR)
+   - Key data sources used
+
+2. Define the Serviceable Addressable Market (SAM)
+   - Geographic segmentation relevant to my reach
+   - Channel-specific segment (web, mobile, in-person)
+   - Realistic accessible percentage of TAM
+
+3. Define the Serviceable Obtainable Market (SOM)
+   - First-year realistic capture target
+   - Growth trajectory (Year 1-3)
+   - Market share goals
+
+4. Competitive Landscape
+   - Top 5 competitors with estimated market share
+   - Gaps in current offerings
+   - Positioning opportunity
+
+5. Validation Signals
+   - Search volume trends (Google Trends data)
+   - Community size (Reddit, Discord, forums)
+   - Funding activity in the space
+   - Consumer willingness to pay indicators
+
+OUTPUT FORMAT:
+Table: TAM | SAM | SOM with dollar values and percentages
+Timeline: Market growth projection 1-5 years
+Risk Factors: Top 3 market risks with mitigation strategies`;
+
+const COMPETITOR_ANALYSIS_PROMPT=`You are a competitive intelligence analyst. Analyze the competitive landscape for [PRODUCT] in [NICHE].
+
+FRAMEWORK — Analyze each competitor across 8 dimensions:
+
+1. PRODUCT FEATURES
+   - Core feature set comparison table
+   - Unique differentiators (what only they have)
+   - Feature gaps you can exploit
+
+2. PRICING STRATEGY
+   - Pricing tiers and models
+   - Free vs paid value boundary
+   - Hidden costs or limitations
+
+3. TARGET AUDIENCE
+   - Primary customer segment
+   - Geographic focus
+   - Enterprise vs SMB vs consumer
+
+4. MARKET POSITIONING
+   - Brand message and value proposition
+   - Marketing channels used
+   - Content strategy and thought leadership
+
+5. TECHNOLOGY STACK
+   - Known tech (job postings, GitHub, builtwith)
+   - Performance indicators (PageSpeed, uptime)
+   - AI/ML capabilities if applicable
+
+6. USER REVIEWS (analyze 50+ reviews)
+   - Top 3 praised features
+   - Top 3 complaints
+   - NPS sentiment estimate
+
+7. BUSINESS MODEL
+   - Revenue model (subscription, transaction, ads)
+   - Estimated ARR/revenue range
+   - Funding stage and investors
+
+8. WEAKNESSES TO EXPLOIT
+   - Feature gaps
+   - Underserved segments
+   - Technical limitations
+   - Poor UX patterns
+
+OUTPUT: Competitor comparison matrix + opportunity score (1-10) for each gap`;
+
+const NICHE_VALIDATION=[
+  {item:"Search volume > 10K/month for primary keyword",check:"Use Google Keyword Planner or Ahrefs free tools"},
+  {item:"Active community exists (Reddit, Discord, forums)",check:"Minimum 500+ active members in related communities"},
+  {item:"Competitors exist but no clear market leader",check:"Top result should NOT dominate all search queries"},
+  {item:"People are already paying for solutions",check:"At least 3 paid competitors with active users"},
+  {item:"Problem has high urgency or frequency",check:"Users encounter the problem weekly or it causes significant pain"},
+  {item:"You have unfair advantage or domain expertise",check:"Personal experience, unique data, or skills competitors lack"},
+  {item:"Market is growing (not shrinking)",check:"CAGR > 5% or positive trend indicators"},
+  {item:"Clear path to first revenue within 60 days",check:"Can validate willingness to pay before building full product"},
+  {item:"No single competitor has > 40% market share",check:"Fragmented market = opportunity for new entrants"},
+  {item:"Distribution channel is accessible",check:"You can reach target audience through organic or paid channels"},
+];
+
+const TARGET_AUDIENCE_PROMPT=`You are a customer research strategist. Build a comprehensive Ideal Customer Profile (ICP) for [PRODUCT].
+
+SECTION 1: DEMOGRAPHICS
+- Age range and gender distribution
+- Income level and education
+- Job title and seniority level
+- Company size (if B2B)
+- Geographic location and language
+
+SECTION 2: PSYCHOGRAPHICS
+- Core motivations and goals
+- Frustrations and pain points (ranked by severity)
+- Values and decision-making criteria
+- Risk tolerance and change resistance
+- Technology adoption profile (early adopter vs late majority)
+
+SECTION 3: BEHAVIOR PATTERNS
+- Where they discover new tools (channels)
+- How they evaluate purchases (research process)
+- Who influences their decisions (peers, reviews, thought leaders)
+- Current tools/solutions they use
+- Frequency of the problem they need solved
+
+SECTION 4: BUYING TRIGGERS
+- Events that create urgency to buy
+- Budget cycle awareness
+- Decision-making timeline
+- Approval process (if B2B)
+
+SECTION 5: MESSAGING MAP
+- Primary value proposition (1 sentence)
+- 3 benefit-driven headlines
+- Objection handling for top 3 concerns
+- Proof points to build trust
+
+OUTPUT: Complete ICP document ready for marketing team use`;
+
+// ─── FEATURES DATA ─────────────────────────────────────────────────────────────
+const MVP_FEATURE_PROMPT=`You are a senior product manager specializing in MVP development.
+
+TASK: Generate the minimum viable feature set for [PRODUCT] targeting [AUDIENCE].
+
+STEP 1: USER JOURNEY MAPPING
+- Define the primary user journey (3-5 steps from sign-up to value)
+- Identify the "aha moment" — when does the user realize value?
+- Map every interaction point along the journey
+
+STEP 2: FEATURE CATEGORIZATION
+For each proposed feature, classify as:
+- MUST HAVE (Core value delivery — ships in V1)
+- SHOULD HAVE (Important but can wait for V1.1)
+- NICE TO HAVE (Deprioritize — evaluate for V2+)
+- WON'T HAVE (Explicitly out of scope — document why)
+
+STEP 3: MVP FEATURE SET
+- Maximum 5 core features for V1
+- Each feature must directly contribute to the "aha moment"
+- Remove any feature that doesn't serve the primary use case
+- Identify the "minimum lovable feature" — the one thing that makes users stay
+
+STEP 4: TECHNICAL SCOPE
+- Implementation complexity for each feature (low/med/high)
+- Dependencies between features
+- Estimated build time per feature
+- Risks and mitigations
+
+STEP 5: VALIDATION PLAN
+- How to test each feature before full build
+- Success metrics for each feature
+- User feedback collection method
+- Go/no-go criteria for each feature
+
+CONSTRAINT: If in doubt, cut the feature. A smaller, polished product beats a bloated MVP.`;
+
+const FEATURE_COMPARISON_TEMPLATE=`FEATURE COMPARISON MATRIX — [PRODUCT CATEGORY]
+
+Instructions: List features down the left column. Add competitor columns. Score each feature as:
+✅ Full Support | ⚠️ Partial | ❌ Missing | 💰 Paid Only | 🔜 Roadmap
+
+COMPETITORS TO ANALYZE:
+1. [Your Product]
+2. [Competitor 1]
+3. [Competitor 2]
+4. [Competitor 3]
+
+FEATURE CATEGORIES:
+
+CATEGORY: CORE FUNCTIONALITY
+| Feature | You | Comp 1 | Comp 2 | Comp 3 |
+|---------|-----|--------|--------|--------|
+| [Feature 1] |     |        |        |        |
+| [Feature 2] |     |        |        |        |
+| [Feature 3] |     |        |        |        |
+
+CATEGORY: USER EXPERIENCE
+| Feature | You | Comp 1 | Comp 2 | Comp 3 |
+|---------|-----|--------|--------|--------|
+| Onboarding |     |        |        |        |
+| Navigation |     |        |        |        |
+| Mobile Experience |  |        |        |        |
+
+CATEGORY: INTEGRATION & EXTENSIBILITY
+| Feature | You | Comp 1 | Comp 2 | Comp 3 |
+|---------|-----|--------|--------|--------|
+| API Access |     |        |        |        |
+| Third-party Integrations |  |        |        |        |
+| Customization Options |   |        |        |        |
+
+CATEGORY: PRICING & VALUE
+| Feature | You | Comp 1 | Comp 2 | Comp 3 |
+|---------|-----|--------|--------|--------|
+| Free Tier Quality |     |        |        |        |
+| Price-to-Value Ratio |    |        |        |        |
+| Enterprise Features |    |        |        |        |
+
+OPPORTUNITY SCORE: Rate each gap (missing feature) by:
+- User demand (1-10): How many users request this?
+- Effort to build (1-10): How complex to implement?
+- Competitive impact (1-10): How much does this differentiate?
+- Priority Score = (Demand × Impact) / Effort`;
+
+// ─── PRIVACY DATA ─────────────────────────────────────────────────────────────
+const GDPR_CHECKLIST=[
+  {item:"Lawful basis for processing data",desc:"Document GDPR Article 6 basis (consent, legitimate interest, contract, legal obligation, vital interest, public task)",action:"Create a Data Processing Register listing every data flow with its legal basis"},
+  {item:"Privacy policy with clear language",desc:"Write at 8th-grade reading level. Explain what you collect, why, how long you keep it, and user rights in plain English",action:"Use terms like 'we collect' instead of 'the processor shall' — every user must understand their rights"},
+  {item:"Cookie consent management",desc:"Cookie banner must block non-essential cookies until explicit consent. Categories: necessary, preferences, analytics, marketing",action:"Implement cookie scanner + consent management tool. Auto-reject non-essential if no consent given"},
+  {item:"Data Subject Access Rights (DSAR)",desc:"Users can request: access, rectification, erasure, portability, restriction, objection. Must respond within 30 days",action:"Build self-service data export (JSON/CSV) and account deletion flow that also removes third-party data"},
+  {item:"Data breach notification process",desc:"72-hour notification to supervisory authority if breach risks user rights. Document incident response plan",action:"Create breach response template: detection → containment → assessment → notification → post-mortem"},
+  {item:"Data Protection Impact Assessment (DPIA)",desc:"Required for high-risk processing: profiling, health data, large-scale monitoring, biometric processing",action:"Complete DPIA before launching features that use AI profiling, location tracking, or behavioral analysis"},
+  {item:"Data Processing Agreement (DPA) with vendors",desc:"Every third-party service processing user data needs a signed DPA. Include subprocessors list",action:"Audit all vendors: Supabase, Vercel, AI providers, analytics. Get DPAs for each"},
+  {item:"Right to be forgotten implementation",desc:"When a user deletes their account, cascade the deletion to all systems: primary DB, backups, logs, analytics, AI training data",action:"Build deletion pipeline that triggers removal across all services within 72 hours"},
+  {item:"Privacy by design in development",desc:"Build PII detection into CI/CD pipeline. Sanitize logs. Encrypt PII at collection. Minimize data collection",action:"Add PII scanning to build process. Flag any new fields that collect email, name, phone, address, IP"},
+  {item:"Record of processing activities (ROPA)",desc:"Maintain a living document listing all data processing: purpose, categories, recipients, retention, security measures",action:"Create ROPA template and review quarterly. Update when adding new features or vendors"},
+];
+
+const DATA_CLASSIFICATION=[
+  {level:"PII — Personally Identifiable",color:C.rd,examples:"Name, email, phone, address, SSN, IP address, biometric data",handling:"Encrypt at collection (AES-256). Store in isolated DB. Access logs mandatory. Auto-purge after retention period.",retention:"As long as needed for service + 30 days grace. Then permanently delete."},
+  {level:"Sensitive — Special Category",color:C.or,examples:"Health data, financial records, political opinions, religious beliefs, racial/ethnic origin, sexual orientation",handling:"Additional encryption layer. Explicit consent required. Never share with third parties. Anonymize for analytics.",retention:"Minimum necessary. Strict purpose limitation. Review every 90 days."},
+  {level:"Confidential — Business",color:C.am,examples:"API keys, internal metrics, revenue data, source code, business strategy, vendor contracts",handling:"Role-based access only. Encrypt at rest and in transit. Audit trail for all access. Watermark documents.",retention:"Per business need. No automatic purge — manual review required."},
+  {level:"Internal — Operational",color:C.cy,examples:"User preferences, feature usage patterns, session data, non-identifying analytics",handling:"Standard security. Aggregate for reporting. Anonymize after 30 days. No encryption required but recommended.",retention:"90 days raw, then aggregate and anonymize. Keep aggregates indefinitely."},
+  {level:"Public — Shareable",color:C.gn,examples:"Marketing copy, public docs, product features, pricing, testimonials (with consent)",handling:"No restrictions. Ensure testimonials have documented consent. Version control for changes.",retention:"Indefinite. Archive outdated versions for reference."},
+];
+
+const PRIVACY_TECH_STACK=`PRIVACY-FIRST TECH STACK — Solo AI Product
+
+HOSTING & DEPLOY
+├── Vercel (Frontend) — SOC 2 Type II, GDPR compliant, EU data residency option
+├── Supabase (Database + Auth) — Self-hostable, RLS policies, HIPAA-ready
+├── Render (Backend services) — SOC 2, encrypted env vars, private networking
+└── Cloudflare (CDN + Workers) — Privacy Pass, no logging by default, D1 encryption
+
+AUTHENTICATION
+├── Supabase Auth — Row-Level Security, email/password + OAuth
+├── Clerk — Enterprise SSO, MFA, session management
+└── NextAuth.js — Self-hosted, customizable, session tokens (not cookies for API)
+
+DATA ENCRYPTION
+├── pgcrypto (PostgreSQL) — Encrypt PII columns at rest
+├── TLS 1.3 — All connections encrypted in transit (enforced)
+├── AES-256-GCM — For secrets, API keys, sensitive user data
+└── Vercel Edge Config — Encrypted secrets, no plaintext in env vars
+
+ANALYTICS (PRIVACY-FIRST)
+├── Umami (Self-hosted) — No cookies, GDPR compliant, open source
+├── Plausible — Cookieless, no personal data, AGPL license
+├── PostHog (Self-hosted) — Session replay with anonymization controls
+└── Simple Analytics — EU-hosted, no tracking cookies, privacy by design
+
+AI / LLM PRIVACY
+├── Ollama (Local) — Run models locally, zero data transmission
+├── Azure OpenAI — Data processing agreement, no training on inputs
+├── Claude (Anthropic) — No training on enterprise data, API-only
+└── Data Sanitization Layer — Client-side PII removal before AI calls
+
+AUTOMATION
+├── n8n (Self-hosted) — Private workflows, no data leaving your server
+├── Encrypted environment variables for all API keys
+└── Audit logging on all data access points
+
+MONITORING & COMPLIANCE
+├── Sentry — Error tracking with PII scrubbing enabled
+├── Uptime Robot — Status monitoring, no user data collection
+└── Custom audit log — Track every data access, modification, deletion`;
+
 const BLIND_SPOTS=[
   {text:"Not specifying output length",tip:"Always state: 'Output X words' or 'Respond in Y paragraphs'"},
   {text:"Not asking for alternatives",tip:"Append: 'Give me 3 approaches and recommend the best one'"},
@@ -2312,31 +2593,39 @@ function PromptDiff(){
 function Strategy(){
   const[s,setS]=useState("monetize");
   const[revCat,setRevCat]=useState("all");
+  const[depCat,setDepCat]=useState("all");
+  const[aiFilter,setAiFilter]=useState("all");
+  const[toolCat,setToolCat]=useState("all");
+  const[riceR,setRiceR]=useState(30);const[riceI,setRiceI]=useState(2);const[riceC,setRiceC]=useState(80);const[riceE,setRiceE]=useState(2);
+  const riceScore=riceE>0?((riceR*riceI*(riceC/100))/riceE).toFixed(1):"—";
+  const depCats=[...Array.from(new Set(DEPLOY_STACKS.map(d=>d.cat)))];
+  const aiFilters=["all","free","api","top"];
+  const toolCats=[...Array.from(new Set(TOOLS_MATRIX.map(t=>t.cat)))];
   return(<div>
     <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:18,paddingBottom:14,borderBottom:`1px solid ${C.bdr}`}}>
-      {[{id:"monetize",label:"💰 Monetize"},{id:"market",label:"📈 Market"},{id:"features",label:"⚙️ Features"},{id:"privacy",label:"🔒 Privacy"}].map(n=><Pill key={n.id} label={n.label} active={s===n.id} color={C.vt} onClick={()=>setS(n.id)}/>)}
+      {[{id:"monetize",label:"💰 Monetize"},{id:"market",label:"📈 Market"},{id:"features",label:"⚙️ Features"},{id:"privacy",label:"🔒 Privacy"}].map(n=><Pill key={n.id} label={n.label} active={s===n.id} color={C.mg} onClick={()=>setS(n.id)}/>)}
     </div>
     <div key={s} className="anim-slide">
     {s==="monetize"&&<div style={{display:"grid",gap:14}}>
-      <Card accent={C.vt}><Lbl text="Revenue streams with setup time, potential, and scalability" color={C.vt}/><H3>Revenue Streams Matrix</H3>
+      <Card accent={C.mg}><Lbl text="Revenue streams with setup time, potential, and scalability" color={C.mg}/><H3>Revenue Streams Matrix</H3>
         <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
-          {[...Array.from(new Set(REVENUE.map(r=>r.cat)))].map(c=><Pill key={c} label={c} active={revCat===c} color={C.vt} onClick={()=>setRevCat(revCat===c?"all":c)}/>)}
+          {[...Array.from(new Set(REVENUE.map(r=>r.cat)))].map(c=><Pill key={c} label={c} active={revCat===c} color={C.mg} onClick={()=>setRevCat(revCat===c?"all":c)}/>)}
         </div>
         <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr>{["Stream","Setup","Potential","Scale","Complexity",""].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
         <tbody>{REVENUE.filter(r=>revCat==="all"||r.cat===revCat).map((r,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"8px 10px",color:C.tx,fontWeight:600}}>{r.stream}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.setup}</td><td style={{padding:"8px 10px",color:C.gn,fontFamily:C.mn}}>{r.potential}</td><td style={{padding:"8px 10px",color:r.scale==="High"?C.gn:C.am}}>{r.scale}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.cx}</td><td style={{padding:"8px 10px"}}><Cp text={`${r.stream} | ${r.potential} | Setup: ${r.setup} | Scale: ${r.scale} | ${r.cx}`}/></td></tr>)}</tbody></table></div>
       </Card>
-      <Card><Lbl text="Month-by-month growth trajectory with milestones" color={C.vt}/><H3>Growth Roadmap</H3>
-        <div style={{display:"grid",gap:12}}>{GROWTH.map((g,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.vt}20`,borderRadius:10,padding:"14px"}}>
+      <Card><Lbl text="Month-by-month growth trajectory with milestones" color={C.mg}/><H3>Growth Roadmap</H3>
+        <div style={{display:"grid",gap:12}}>{GROWTH.map((g,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.mg}20`,borderRadius:10,padding:"14px"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
             <span style={{fontSize:13,fontWeight:700,color:C.tx}}>{g.phase}</span>
             <div style={{display:"flex",gap:8,alignItems:"center"}}>
-              <span style={{fontSize:14,fontWeight:800,color:C.vt,fontFamily:C.mn}}>{g.rev}</span>
+              <span style={{fontSize:14,fontWeight:800,color:C.mg,fontFamily:C.mn}}>{g.rev}</span>
               <Cp text={`Growth: ${g.phase}\nRevenue: ${g.rev}\nFocus: ${g.focus}\nActivities: ${g.act}\nMilestones: ${g.milestones.join(", ")}`}/>
             </div>
           </div>
           <div style={{fontSize:11,color:C.mu,marginBottom:4}}>Focus: {g.focus}</div>
           <div style={{fontSize:11,color:C.di,marginBottom:6}}>Activities: {g.act}</div>
-          <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>{g.milestones.map((m,mi)=><span key={mi} style={{fontSize:10,background:`${C.vt}12`,color:C.vt,border:`1px solid ${C.vt}25`,borderRadius:20,padding:"2px 8px",fontFamily:C.mn}}>🎯 {m}</span>)}</div>
+          <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>{g.milestones.map((m,mi)=><span key={mi} style={{fontSize:10,background:`${C.mg}12`,color:C.mg,border:`1px solid ${C.mg}25`,borderRadius:20,padding:"2px 8px",fontFamily:C.mn}}>🎯 {m}</span>)}</div>
         </div>)}</div>
       </Card>
       <Card accent={C.mg}><Lbl text="5 pricing models with copy-ready launch prompts" color={C.mg}/><H3>Pricing Strategy Models</H3>
@@ -2379,9 +2668,9 @@ function Strategy(){
           </div>)}
         </div>
       </Card>
-      <Card><Lbl text="Monthly running costs for a solo AI-powered product business" color={C.vt}/><H3>Monthly Cost Structure</H3>
+      <Card><Lbl text="Monthly running costs for a solo AI-powered product business" color={C.mg}/><H3>Monthly Cost Structure</H3>
         <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr>{["Item","Cost","Notes",""].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
-        <tbody>{MONTHLY_COSTS.map((m,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`,background:m.item==="Total Starting"?`${C.vt}08`:"transparent"}}><td style={{padding:"8px 10px",color:m.item==="Total Starting"?C.vt:C.tx,fontWeight:m.item==="Total Starting"?700:600}}>{m.item}</td><td style={{padding:"8px 10px",color:m.item==="Total Starting"?C.vt:C.gn,fontFamily:C.mn}}>{m.cost}</td><td style={{padding:"8px 10px",color:C.mu}}>{m.note}</td><td style={{padding:"8px 10px"}}><Cp text={`${m.item}: ${m.cost}\n${m.note}`}/></td></tr>)}</tbody></table></div>
+        <tbody>{MONTHLY_COSTS.map((m,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`,background:m.item==="Total Starting"?`${C.mg}08`:"transparent"}}><td style={{padding:"8px 10px",color:m.item==="Total Starting"?C.mg:C.tx,fontWeight:m.item==="Total Starting"?700:600}}>{m.item}</td><td style={{padding:"8px 10px",color:m.item==="Total Starting"?C.mg:C.gn,fontFamily:C.mn}}>{m.cost}</td><td style={{padding:"8px 10px",color:C.mu}}>{m.note}</td><td style={{padding:"8px 10px"}}><Cp text={`${m.item}: ${m.cost}\n${m.note}`}/></td></tr>)}</tbody></table></div>
         <div style={{marginTop:12,display:"flex",justifyContent:"flex-end"}}><Cp text={MONTHLY_COSTS.map(m=>`${m.item}: ${m.cost} — ${m.note}`).join("\n")} sm={false} label="COPY ALL COSTS"/></div>
       </Card>
       <Card><Lbl text="10 common monetization mistakes and how to avoid them" color={C.rd}/><H3>Monetization Blind Spots</H3>
@@ -2398,46 +2687,185 @@ function Strategy(){
         </div>
         <div style={{display:"flex",justifyContent:"flex-end",marginTop:12}}><Cp text={MONETIZE_BLINDS.map(b=>`✗ ${b.miss}\n✓ ${b.fix}`).join("\n\n")} sm={false} label="COPY ALL BLIND SPOTS"/></div>
       </Card>
-      <Card accent={C.vt}><Lbl text="Ready-to-use prompt for monetization planning" color={C.vt}/><H3>Monetization Strategy Prompt</H3>
-        <Code text={`You are a monetization strategist for solo developers and small AI-powered product teams.
-
-CONTEXT
-I am a solo developer building AI-powered tools and templates.
-Current skills: [web development, prompt engineering, AI/LLM integration]
-Available time: [X hours/week]
-Starting capital: $[Y]
-Target: $[Z]/month within 12 months
-
-TASK
-1. Analyze my skills and identify the 5 best monetization opportunities
-2. For each opportunity, provide:
-   - Revenue model (one-time / subscription / usage-based)
-   - First-month action plan
-   - Expected time to first $1
-   - 90-day milestone
-   - Risk assessment (1-10)
-3. Recommend the top 2 opportunities to pursue simultaneously
-4. Create a week-by-week action plan for month 1
-
-CONSTRAINTS
-- Start with free/low-cost tools only
-- Must generate revenue within 60 days
-- Focus on products over services (scalability)
-- Budget: Under $50/month in tools`} mh={380}/>
+      <Card accent={C.mg}><Lbl text="Ready-to-use prompt for monetization planning" color={C.mg}/><H3>Monetization Strategy Prompt</H3>
+        <Code text={`You are a monetization strategist for solo developers and small AI-powered product teams.\n\nCONTEXT\nI am a solo developer building AI-powered tools and templates.\nCurrent skills: [web development, prompt engineering, AI/LLM integration]\nAvailable time: [X hours/week]\nStarting capital: $[Y]\nTarget: $[Z]/month within 12 months\n\nTASK\n1. Analyze my skills and identify the 5 best monetization opportunities\n2. For each opportunity, provide:\n   - Revenue model (one-time / subscription / usage-based)\n   - First-month action plan\n   - Expected time to first $1\n   - 90-day milestone\n   - Risk assessment (1-10)\n3. Recommend the top 2 opportunities to pursue simultaneously\n4. Create a week-by-week action plan for month 1\n\nCONSTRAINTS\n- Start with free/low-cost tools only\n- Must generate revenue within 60 days\n- Focus on products over services (scalability)\n- Budget: Under $50/month in tools`} mh={380}/>
+      </Card>
+      {/* ── NEW: Deploy Stacks Matrix ── */}
+      <Card accent={C.cy}><Lbl text="Deploy platforms for every use case — static, full-stack, automation, AI agents" color={C.cy}/><H3>Deploy Stacks Matrix</H3>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+          {[{l:"ALL",v:"all"},...depCats.map(c=>({l:c.toUpperCase(),v:c}))].map(f=><Pill key={f.v} label={f.l} active={depCat===f.v} color={C.cy} onClick={()=>setDepCat(f.v)}/>)}
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(290px,1fr))",gap:10}}>
+          {DEPLOY_STACKS.filter(d=>depCat==="all"||d.cat===depCat).map((d,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:10,padding:"12px 14px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+              <div><div style={{fontWeight:700,color:C.tx,fontSize:13,marginBottom:2}}>{d.name}</div><div style={{fontSize:10,fontFamily:C.mn,padding:"2px 8px",borderRadius:10,background:d.tier.includes("Free")?C.gn+"18":C.am+"18",color:d.tier.includes("Free")?C.gn:C.am,display:"inline-block"}}>{d.tier}</div></div>
+              <Cp text={`${d.name} (${d.tier})\n${d.details}\nBest for: ${d.bestFor}`}/>
+            </div>
+            <div style={{fontSize:10,color:C.di,marginBottom:2}}>{d.cat}</div>
+            <div style={{fontSize:11,color:C.mu,lineHeight:1.5,marginBottom:3}}>{d.details}</div>
+            <div style={{fontSize:10,color:C.vi}}>Best for: {d.bestFor}</div>
+          </div>)}
+        </div>
+      </Card>
+      {/* ── NEW: AI Providers Comparison ── */}
+      <Card accent={C.vi}><Lbl text="Compare AI providers — free tiers, API pricing, best use cases" color={C.vi}/><H3>AI Providers Comparison</H3>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+          {[{l:"ALL",v:"all"},{l:"FREE FIRST",v:"free"},{l:"API FIRST",v:"api"},{l:"TOP RATED",v:"top"}].map(f=><Pill key={f.v} label={f.l} active={aiFilter===f.v} color={C.vi} onClick={()=>setAiFilter(f.v)}/>)}
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(290px,1fr))",gap:10}}>
+          {AI_PROVIDERS.filter(p=>aiFilter==="all"||(aiFilter==="free"&&p.free.includes("free"))||(aiFilter==="api"&&p.api!=="Local (localhost:11434)")||(aiFilter==="top"&&p.r>=5)).map((p,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:10,padding:"12px 14px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+              <div style={{fontWeight:700,color:C.tx,fontSize:13,marginBottom:2}}>{p.name}</div>
+              <Cp text={`${p.name}\nFree: ${p.free}\nPro: ${p.pro}\nAPI: ${p.api}\nBest: ${p.best}\nRating: ${"★".repeat(p.r)}${"☆".repeat(5-p.r)}`}/>
+            </div>
+            <div style={{display:"flex",gap:4,marginBottom:4}}><span style={{fontSize:12,color:C.am}}>{"★".repeat(p.r)}</span><span style={{fontSize:12,color:C.fa}}>{"☆".repeat(5-p.r)}</span></div>
+            <div style={{fontSize:10,color:C.gn,marginBottom:2}}>Free: <span style={{color:C.mu}}>{p.free}</span></div>
+            <div style={{fontSize:10,color:C.mu,marginBottom:2}}>Pro: {p.pro}</div>
+            <div style={{fontSize:10,color:C.di,marginBottom:2}}>API: {p.api}</div>
+            <div style={{fontSize:10,color:C.vi}}>Best: {p.best}</div>
+          </div>)}
+        </div>
+      </Card>
+      {/* ── NEW: Tools Matrix ── */}
+      <Card accent={C.am}><Lbl text="Free vs Paid comparison across every tool category" color={C.am}/><H3>Tools Matrix</H3>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+          {[{l:"ALL",v:"all"},...toolCats.map(c=>({l:c.toUpperCase(),v:c}))].map(f=><Pill key={f.v} label={f.l} active={toolCat===f.v} color={C.am} onClick={()=>setToolCat(f.v)}/>)}
+        </div>
+        <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr>{["Category","Free Option","Paid Option","Best For",""].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
+        <tbody>{TOOLS_MATRIX.filter(t=>toolCat==="all"||t.cat===toolCat).map((t,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"8px 10px",color:C.am,fontWeight:600}}>{t.cat}</td><td style={{padding:"8px 10px",color:C.gn}}>{t.free}</td><td style={{padding:"8px 10px",color:C.mu}}>{t.paid}</td><td style={{padding:"8px 10px",color:C.tx}}>{t.best}</td><td style={{padding:"8px 10px"}}><Cp text={`${t.cat}: ${t.free} / ${t.paid} — Best: ${t.best}`}/></td></tr>)}</tbody></table></div>
+      </Card>
+      {/* ── NEW: SaaS Template Ideas ── */}
+      <Card accent={C.vi}><Lbl text="Ready-to-build SaaS ideas with copy-ready prompts" color={C.vi}/><H3>SaaS Template Ideas</H3>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(290px,1fr))",gap:10}}>
+          {SAAS_TEMPLATES.map((t,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:10,padding:"12px 14px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+              <div style={{fontWeight:700,color:C.tx,fontSize:13,marginBottom:2}}>{t.name}</div>
+              <Cp text={t.prompt} sm={false} label="COPY"/>
+            </div>
+            <div style={{fontSize:10,color:C.di,marginBottom:3}}>Stack: <span style={{color:C.vi}}>{t.stack}</span></div>
+          </div>)}
+        </div>
       </Card>
     </div>}
-    {s==="market"&&<Card accent={C.vt}><Lbl text="Use Owl + Elephant + Rabbit + Eagle chain for full analysis" color={C.vt}/><H3>Market Opportunity Analysis</H3>
-      <div style={{fontSize:12,color:C.mu,marginBottom:12,lineHeight:1.6}}>Use the <span style={{color:C.vt}}>📋 PLAYBOOK</span> tab → Workflow #20 for the complete step-by-step workflow.</div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:8}}>{[{l:"10 underserved segments",icon:"🎯"},{l:"5 emerging trends",icon:"📈"},{l:"3 competitive advantages",icon:"🏆"},{l:"90-day action plan",icon:"📅"},{l:"Risk assessment matrix",icon:"⚡"},{l:"Resource allocation",icon:"💰"}].map((item,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"10px 12px",display:"flex",gap:10,alignItems:"flex-start"}}><span style={{fontSize:16}}>{item.icon}</span><span style={{fontSize:12,color:C.mu,lineHeight:1.5,flex:1}}>{item.l}</span><Cp text={item.l}/></div>)}</div>
-    </Card>}
-    {s==="features"&&<Card accent={C.vt}><Lbl text="RICE scoring: Reach × Impact × Confidence / Effort" color={C.vt}/><H3>Feature Prioritization (RICE)</H3>
-      <div style={{fontSize:12,color:C.mu,marginBottom:12,lineHeight:1.6}}>Use the <span style={{color:C.vt}}>📋 PLAYBOOK</span> tab → Workflow #21 for the complete RICE scoring workflow.</div>
-      <Code text={`RICE Score = (Reach × Impact × Confidence) / Effort\n\nReach:     % of users affected per month\nImpact:   0.25 (minimal) to 3.0 (massive)\nConfidence: 0% to 100%\nEffort:   Person-months required\n\nExample:\nFeature A: Reach=30% Impact=2.0 Confidence=80% Effort=2\nRICE = (30 × 2.0 × 0.8) / 2 = 24`} mh={180}/>
-    </Card>}
-    {s==="privacy"&&<Card accent={C.vt}><Lbl text="Self-hosted n8n + privacy-first architecture" color={C.vt}/><H3>Privacy-First Automation</H3>
-      <div style={{fontSize:12,color:C.mu,marginBottom:12,lineHeight:1.6}}>Use the <span style={{color:C.vt}}>📋 PLAYBOOK</span> tab → Workflow #22 for the complete implementation.</div>
-      <Code text={`User Input → Client-Side Sanitization\n  → PII Detected?\n    → YES: Replace with Synthetic Data\n    → NO: Direct to AI\n  → AI Processing → Server-Side Validation\n  → Encrypted Storage → Access Control → Dashboard`} mh={150}/>
-    </Card>}
+    {/* ── MARKET SUB-TAB ── */}
+    {s==="market"&&<div style={{display:"grid",gap:14}}>
+      <Card accent={C.mg}><Lbl text="AI-powered market size estimation prompt" color={C.mg}/><H3>Market Size Estimator</H3>
+        <Code text={MARKET_SIZE_PROMPT} mh={340}/></Card>
+      <Card accent={C.vi}><Lbl text="8-dimension competitive analysis framework" color={C.vi}/><H3>Competitor Analysis Framework</H3>
+        <Code text={COMPETITOR_ANALYSIS_PROMPT} mh={340}/></Card>
+      <Card accent={C.gn}><Lbl text="10 items to validate before entering any niche" color={C.gn}/><H3>Niche Validation Checklist</H3>
+        <div style={{display:"grid",gap:8}}>
+          {NICHE_VALIDATION.map((n,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:9,padding:"10px 13px",display:"flex",gap:10,alignItems:"flex-start"}}>
+            <div style={{flex:1}}>
+              <div style={{fontSize:12,fontWeight:600,color:C.tx,marginBottom:2}}>{n.item}</div>
+              <div style={{fontSize:11,color:C.mu,lineHeight:1.5}}>{n.check}</div>
+            </div>
+            <Cp text={`✓ ${n.item}\n  Check: ${n.check}`}/>
+          </div>)}
+        </div>
+        <div style={{display:"flex",justifyContent:"flex-end",marginTop:12}}><Cp text={NICHE_VALIDATION.map(n=>`✓ ${n.item}\n  Check: ${n.check}`).join("\n\n")} sm={false} label="COPY ALL ITEMS"/></div>
+      </Card>
+      <Card accent={C.am}><Lbl text="Build your ideal customer profile in 5 sections" color={C.am}/><H3>Target Audience Builder</H3>
+        <Code text={TARGET_AUDIENCE_PROMPT} mh={360}/></Card>
+    </div>}
+    {/* ── FEATURES SUB-TAB ── */}
+    {s==="features"&&<div style={{display:"grid",gap:14}}>
+      <Card accent={C.mg}><Lbl text="Interactive RICE scoring calculator — inputs compute score live" color={C.mg}/><H3>Feature Request Prioritizer</H3>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:14,marginBottom:16}}>
+          <div><div style={{fontSize:10,color:C.di,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:6}}>REACH <span style={{color:C.cy}}>(% users/mo)</span></div><input type="number" min={1} max={100} value={riceR} onChange={e=>setRiceR(+e.target.value)} style={{width:"100%",background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"9px 12px",color:C.tx,fontSize:14,fontFamily:C.mn,outline:"none"}}/></div>
+          <div><div style={{fontSize:10,color:C.di,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:6}}>IMPACT <span style={{color:C.mg}}>(0.25–3.0)</span></div><input type="number" min={0.25} max={3} step={0.25} value={riceI} onChange={e=>setRiceI(+e.target.value)} style={{width:"100%",background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"9px 12px",color:C.tx,fontSize:14,fontFamily:C.mn,outline:"none"}}/></div>
+          <div><div style={{fontSize:10,color:C.di,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:6}}>CONFIDENCE <span style={{color:C.gn}}>(%)</span></div><input type="range" min={0} max={100} value={riceC} onChange={e=>setRiceC(+e.target.value)} style={{width:"100%",accentColor:C.gn,marginTop:8}}/><div style={{textAlign:"center",fontSize:14,fontFamily:C.mn,color:C.gn}}>{riceC}%</div></div>
+          <div><div style={{fontSize:10,color:C.di,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:6}}>EFFORT <span style={{color:C.am}}>(person-months)</span></div><input type="number" min={0.5} max={20} step={0.5} value={riceE} onChange={e=>setRiceE(+e.target.value)} style={{width:"100%",background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"9px 12px",color:C.tx,fontSize:14,fontFamily:C.mn,outline:"none"}}/></div>
+        </div>
+        <div style={{background:C.bg,border:`1px solid ${C.mg}33`,borderRadius:10,padding:"18px 22px",display:"flex",alignItems:"center",gap:20,marginBottom:14}}>
+          <div><div style={{fontSize:10,color:C.di,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:2}}>RICE SCORE</div><div style={{fontSize:42,fontWeight:800,fontFamily:C.mn,color:C.mg}}>{riceScore}</div></div>
+          <div style={{flex:1}}><div style={{fontSize:11,color:C.mu,fontFamily:C.mn}}>= (Reach × Impact × Confidence) / Effort</div><div style={{fontSize:11,color:C.di,fontFamily:C.mn,marginTop:4}}>= ({riceR} × {riceI} × {(riceC/100).toFixed(2)}) / {riceE}</div></div>
+          <Cp text={`RICE Score: ${riceScore}\nReach: ${riceR}% users/mo\nImpact: ${riceI} (0.25–3.0)\nConfidence: ${riceC}%\nEffort: ${riceE} person-months\n\nFormula: (${riceR} × ${riceI} × ${(riceC/100).toFixed(2)}) / ${riceE} = ${riceScore}`}/>
+        </div>
+        <Code text={`RICE Score = (Reach × Impact × Confidence) / Effort\n\nReach:     % of users affected per month\nImpact:   0.25 (minimal) to 3.0 (massive)\nConfidence: 0% to 100%\nEffort:   Person-months required\n\nExample:\nFeature A: Reach=30% Impact=2.0 Confidence=80% Effort=2\nRICE = (30 × 2.0 × 0.8) / 2 = 24`} mh={140}/>
+      </Card>
+      <Card accent={C.cy}><Lbl text="Generate the minimum viable feature set for any product" color={C.cy}/><H3>MVP Feature Generator</H3>
+        <Code text={MVP_FEATURE_PROMPT} mh={340}/></Card>
+      <Card accent={C.am}><Lbl text="Reusable template for comparing features across competitors" color={C.am}/><H3>Feature Comparison Matrix</H3>
+        <Code text={FEATURE_COMPARISON_TEMPLATE} mh={340}/>
+        <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}><Cp text={FEATURE_COMPARISON_TEMPLATE} sm={false} label="COPY TEMPLATE"/></div>
+      </Card>
+    </div>}
+    {/* ── PRIVACY SUB-TAB ── */}
+    {s==="privacy"&&<div style={{display:"grid",gap:14}}>
+      <Card accent={C.mg}><Lbl text="Client-side sanitization architecture flow" color={C.mg}/><H3>Privacy Architecture Overview</H3>
+        <Code text={`USER INPUT FLOW (Privacy-First Architecture)
+═══════════════════════════════════════
+
+[Browser / Client-Side]
+  │
+  ├─→ Input Field
+  │     └─→ PII Detection Layer (regex + NLP)
+  │           ├─→ Email detected → Replace: user***@domain.com
+  │           ├─→ Phone detected → Replace: +1-***-***-1234
+  │           ├─→ Name detected → Replace: [USER]
+  │           ├─→ Address detected → Replace: [LOCATION]
+  │           └─→ SSN/IP detected → BLOCK & FLAG
+  │
+  ├─→ Sanitized Data
+  │     └─→ Send to AI Provider (no PII leaves client)
+  │
+  ├─→ AI Response
+  │     └─→ Post-Processing (remove any leaked PII)
+  │
+  └─→ Display to User
+
+[Server-Side]
+  │
+  ├─→ Encrypted Storage (AES-256-GCM at rest)
+  │     ├─→ PII fields: encrypted column-level
+  │     ├─→ Analytics: anonymized/aggregated only
+  │     └─→ Logs: PII scrubbed before writing
+  │
+  ├─→ Access Control
+  │     ├─→ Row-Level Security (Supabase RLS)
+  │     ├─→ API keys: environment variables (never in code)
+  │     └─→ Audit trail: every data access logged
+  │
+  └─→ Retention Policy
+        ├─→ Auto-purge after retention period
+        ├─→ User deletion: cascade to all systems
+        └─→ Backups: encrypted, access-controlled`} mh={400}/>
+      </Card>
+      <Card accent={C.rd}><Lbl text="10 GDPR compliance items with copy-ready actions" color={C.rd}/><H3>GDPR Compliance Checklist</H3>
+        <div style={{display:"grid",gap:8}}>
+          {GDPR_CHECKLIST.map((g,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:9,padding:"10px 13px",display:"flex",gap:10,alignItems:"flex-start"}}>
+            <div style={{flex:1}}>
+              <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:3}}>
+                <span style={{fontSize:11,color:C.rd,fontFamily:C.mn,fontWeight:600}}>#{i+1}</span>
+                <span style={{fontSize:12,fontWeight:700,color:C.tx}}>{g.item}</span>
+              </div>
+              <div style={{fontSize:11,color:C.mu,lineHeight:1.5,marginBottom:3}}>{g.desc}</div>
+              <div style={{fontSize:11,color:C.gn,lineHeight:1.5}}>→ {g.action}</div>
+            </div>
+            <Cp text={`GDPR #${i+1}: ${g.item}\n${g.desc}\n\nAction: ${g.action}`}/>
+          </div>)}
+        </div>
+        <div style={{display:"flex",justifyContent:"flex-end",marginTop:12}}><Cp text={GDPR_CHECKLIST.map((g,i)=>`GDPR #${i+1}: ${g.item}\n${g.desc}\nAction: ${g.action}`).join("\n\n")} sm={false} label="COPY ALL ITEMS"/></div>
+      </Card>
+      <Card accent={C.am}><Lbl text="5 data classification levels with handling rules" color={C.am}/><H3>Data Classification Guide</H3>
+        <div style={{display:"grid",gap:10}}>
+          {DATA_CLASSIFICATION.map((d,i)=><div key={i} style={{background:C.bg,border:`1px solid ${d.color}30`,borderRadius:10,padding:"12px 14px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+              <div style={{fontSize:12,fontWeight:700,color:d.color}}>{d.level}</div>
+              <Cp text={`${d.level}\nExamples: ${d.examples}\nHandling: ${d.handling}\nRetention: ${d.retention}`}/>
+            </div>
+            <div style={{fontSize:10,color:C.di,marginBottom:3}}>Examples: {d.examples}</div>
+            <div style={{fontSize:10,color:C.mu,lineHeight:1.5,marginBottom:3}}>Handling: {d.handling}</div>
+            <div style={{fontSize:10,color:C.di}}>Retention: {d.retention}</div>
+          </div>)}
+        </div>
+      </Card>
+      <Card accent={C.gn}><Lbl text="Specific tools and configurations for privacy-first development" color={C.gn}/><H3>Privacy-First Tech Stack</H3>
+        <Code text={PRIVACY_TECH_STACK} mh={360}/>
+        <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}><Cp text={PRIVACY_TECH_STACK} sm={false} label="COPY FULL STACK"/></div>
+      </Card>
+    </div>}
     </div>
   </div>);
 }
@@ -2501,7 +2929,7 @@ export default function App(){
       <div style={{borderBottom:`1px solid ${C.bdr}`,padding:"clamp(10px,2vw,16px) clamp(12px,2.5vw,22px) 0",position:"sticky",top:0,background:C.bg+"f0",zIndex:100,backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)"}}>
         <div style={{maxWidth:980,margin:"0 auto"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4}}>
-            <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:C.fa,letterSpacing:"0.15em"}}>promptc OS · v2026.5 · powerUP</div>
+            <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:C.fa,letterSpacing:"0.15em"}}>promptc OS · v2026.6 · powerUP</div>
             <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:col,letterSpacing:"0.1em",animation:"glowPulse 2s ease infinite"}}>{ZONES.find(z=>z.id===zone)?.label}</div>
           </div>
           <h1 style={{margin:"0 0 12px",fontSize:"clamp(18px,3.5vw,28px)",fontWeight:900,letterSpacing:"0.03em",fontFamily:C.hd,lineHeight:1,transition:"color 0.4s"}}>
