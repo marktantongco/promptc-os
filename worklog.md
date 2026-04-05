@@ -47,3 +47,29 @@ Stage Summary:
 - File: download/promptc-os-pwa/src/App.jsx (2321→2347 lines, +26 net)
 - All 4 user requests implemented and verified
 - Build passes clean with zero errors
+
+---
+Task ID: 3
+Agent: Main
+Task: Comprehensive upgrade — universal copy-ready, revert prompt diff, enhance diff
+
+Work Log:
+- Audited all sections across all 6 zones for missing copy-ready Cp buttons
+- Reverted prompt diff: moved "FULL PROMPTS — COPY READY" section back BELOW comparison builder
+- Enhanced prompt diff: added "WRITTEN TEXT WITH SCORE" section showing both prompts with their scores, copy buttons, and highlighted borders for winner
+- Added 15 new Cp copy buttons across all zones:
+  ACTIVATE: COPY TASK PROMPT, COPY TEMPLATE, modifier+effect copy per row
+  BUILD: COPY RULE (Three Layers), COPY [PROTOCOL] per enhancement, JSON matrix per-row copy, Tools matrix copy column, Database card copy per card
+  VALIDATE: Lint rule copy per card, COPY SCORES button
+  STRATEGY: Revenue streams copy column, Growth phase copy per card, Market item copy per item
+  META: How It Works copy per card
+  PLAYBOOK: Final Output copy per workflow
+- Fixed git push blocked by large node_modules/.next files — rewrote git history with filter-branch
+- Updated .gitignore to exclude node_modules/, .next/, dist/, .env
+- Build verified: vite build passes (293.41 kB, 92.77 kB gzip)
+- Pushed to GitHub (commit 4eaa351b)
+
+Stage Summary:
+- File: download/promptc-os-pwa/src/App.jsx (2347→2387 lines, +40 net)
+- Copy-ready is now truly universal across all zones
+- Prompt diff has 3 output sections: score results → written prompts with scores → full prompts copy-ready
