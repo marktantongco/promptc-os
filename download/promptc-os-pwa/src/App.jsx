@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 const FONT_CSS=`@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -11,6 +11,8 @@ body{font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialias
 @keyframes ripple{0%{transform:scale(0);opacity:0.5}100%{transform:scale(3);opacity:0}}
 @keyframes copyFlash{0%{background:#22c55e30}50%{background:#22c55e15}100%{background:transparent}}
 @keyframes glowPulse{0%,100%{opacity:1}50%{opacity:0.7}}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .anim-zone{animation:zoneEnter 0.3s cubic-bezier(0.16,1,0.3,1)}
 .anim-pop{animation:popIn 0.2s cubic-bezier(0.16,1,0.3,1)}
 .anim-slide{animation:fadeSlide 0.25s cubic-bezier(0.16,1,0.3,1)}
@@ -48,6 +50,38 @@ const ZONES=[
   {id:"validate",label:"✅ VALIDATE",sub:"Score, lint, swaps, refine.",tier:3},
   {id:"meta",    label:"🔄 META",    sub:"Optimize prompts. Self-improve.",tier:3},
 ];
+
+// ─── PWA STATUS BAR ───────────────────────────────────────────────────────────
+function PWAStatus({updateAvailable,onUpdate}){
+  const[show,setShow]=useState(false);
+  useEffect(()=>{
+    // Detect standalone mode
+    const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
+    setShow(isStandalone===false&&navigator.serviceWorker);
+  },[]);
+  const[hasUpdate,setHasUpdate]=useState(false);
+  useEffect(()=>{
+    const handler=()=>setHasUpdate(true);
+    window.addEventListener('sw-updated',handler);
+    return()=>window.removeEventListener('sw-updated',handler);
+  },[]);
+  if(!show&&!hasUpdate)return null;
+  return(<div style={{position:"fixed",top:0,left:0,right:0,zIndex:9999,display:"flex",justifyContent:"center",padding:"8px 12px",background:hasUpdate?C.mg:C.cy,animation:"slideDown 0.3s ease-out"}}>
+    <style>{"@keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:none;opacity:1}}"}</style>
+    {hasUpdate?(
+      <div style={{display:"flex",alignItems:"center",gap:10,fontSize:13,fontWeight:600,color:C.bg}}>
+        <span>🔄 New version available</span>
+        <button onClick={()=>{window.location.reload();}} style={{background:"transparent",border:"2px solid "+C.bg,color:C.bg,borderRadius:6,padding:"4px 14px",fontSize:12,fontWeight:700,cursor:"pointer"}}>UPDATE</button>
+      </div>
+    ):updateAvailable?(
+      <div style={{display:"flex",alignItems:"center",gap:10,fontSize:13,fontWeight:600,color:C.bg}}>
+        <span>⚡ Install promptc OS for offline access</span>
+        <button onClick={()=>{updateAvailable.prompt();setShow(false);}} style={{background:"transparent",border:"2px solid "+C.bg,color:C.bg,borderRadius:6,padding:"4px 14px",fontSize:12,fontWeight:700,cursor:"pointer"}}>INSTALL</button>
+        <button onClick={()=>setShow(false)} style={{background:"transparent",border:"none",color:C.bg,fontSize:16,cursor:"pointer",padding:"0 4px"}}>✕</button>
+      </div>
+    ):null}
+  </div>);
+}
 
 const MASTER=`You are my expert AI assistant, business partner, and creative strategist.
 Act in MY best interest — identify what I truly need, not just what I asked.
@@ -2914,12 +2948,47 @@ export default function App(){
   const[zone,setZone]=useState("activate");
   const[zKey,setZKey]=useState(0);
   const col=ZC[zone];
+  const[deferredPrompt,setDeferredPrompt]=useState(null);
+  const[isOnline,setIsOnline]=useState(navigator.onLine);
+
+  // PWA install prompt
+  useEffect(()=>{
+    const handler=e=>{e.preventDefault();setDeferredPrompt(e);};
+    window.addEventListener('beforeinstallprompt',handler);
+    return()=>window.removeEventListener('beforeinstallprompt',handler);
+  },[]);
+
+  // Online/offline detection
+  useEffect(()=>{
+    const on=()=>setIsOnline(true);
+    const off=()=>setIsOnline(false);
+    window.addEventListener('online',on);
+    window.addEventListener('offline',off);
+    return()=>{window.removeEventListener('online',on);window.removeEventListener('offline',off);};
+  },[]);
+
+  // URL-based zone navigation (PWA shortcuts support)
+  useEffect(()=>{
+    const params=new URLSearchParams(window.location.search);
+    const z=params.get('zone');
+    if(z&&ZONES.find(zn=>zn.id===z)){setZone(z);setZKey(k=>k+1);}
+  },[]);
+
+  // Update document title on zone change
+  useEffect(()=>{
+    const z=ZONES.find(zn=>zn.id===zone);
+    if(z)document.title=`promptc OS — ${z.label} — AI Prompt Engineering`;
+  },[zone]);
 
   const switchZone=(id,e)=>{
     if(id===zone)return;
     setZone(id);
     setZKey(k=>k+1);
     if(window.scrollY>80)window.scrollTo({top:0,behavior:"smooth"});
+    // Update URL without reload (for PWA shortcuts)
+    const url=new URL(window.location);
+    url.searchParams.set('zone',id);
+    window.history.replaceState({},'',url);
   };
 
   return(<>
@@ -2929,7 +2998,7 @@ export default function App(){
       <div style={{borderBottom:`1px solid ${C.bdr}`,padding:"clamp(10px,2vw,16px) clamp(12px,2.5vw,22px) 0",position:"sticky",top:0,background:C.bg+"f0",zIndex:100,backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)"}}>
         <div style={{maxWidth:980,margin:"0 auto"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4}}>
-            <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:C.fa,letterSpacing:"0.15em"}}>promptc OS · v2026.6 · powerUP</div>
+            <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:C.fa,letterSpacing:"0.15em",display:"flex",alignItems:"center",gap:8}}>promptc OS · v2026.7 · powerUP{!isOnline&&<span style={{background:C.rd+"22",color:C.rd,border:"1px solid "+C.rd+"44",borderRadius:4,padding:"1px 6px",fontSize:9}}>OFFLINE</span>}</div>
             <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:col,letterSpacing:"0.1em",animation:"glowPulse 2s ease infinite"}}>{ZONES.find(z=>z.id===zone)?.label}</div>
           </div>
           <h1 style={{margin:"0 0 12px",fontSize:"clamp(18px,3.5vw,28px)",fontWeight:900,letterSpacing:"0.03em",fontFamily:C.hd,lineHeight:1,transition:"color 0.4s"}}>
@@ -2962,6 +3031,8 @@ export default function App(){
       <div style={{position:"fixed",bottom:16,left:"50%",transform:"translateX(-50%)",display:"flex",gap:6,padding:"6px 12px",background:C.sur+"ee",border:`1px solid ${col}33`,borderRadius:999,backdropFilter:"blur(12px)",zIndex:200,pointerEvents:"none"}}>
         {ZONES.map(z=><div key={z.id} style={{width:zone===z.id?20:6,height:6,borderRadius:999,background:zone===z.id?ZC[z.id]:C.bdr,transition:"all 0.3s cubic-bezier(0.16,1,0.3,1)"}}/>)}
       </div>
+      {/* PWA STATUS BAR */}
+      <PWAStatus updateAvailable={deferredPrompt}/>
     </div>
   </>);
 }

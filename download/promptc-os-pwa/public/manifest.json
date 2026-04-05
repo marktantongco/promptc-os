@@ -1,26 +1,96 @@
 {
-  "name": "promptc OS",
+  "name": "promptc OS — AI Prompt Engineering Reference",
   "short_name": "promptc OS",
-  "description": "AI Prompt Engineering Master Reference — Senior-dev prompt system with copy-ready outputs",
+  "description": "Senior-dev prompt engineering system with copy-ready outputs, 6 zones, 22 workflows, PWA",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#0B0D10",
   "theme_color": "#0B0D10",
-  "orientation": "portrait-primary",
-  "scope": "./",
+  "dir": "ltr",
+  "lang": "en",
+  "categories": ["productivity", "utilities", "developer-tools"],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230B0D10'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-size='300'>⚡</text></svg>",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='30' fill='%230B0D10'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-size='110'>⚡</text></svg>",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "categories": ["productivity", "utilities", "developer-tools"]
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Activate — Master Prompt",
+      "short_name": "Master",
+      "description": "Open the Master system prompt for quick copy",
+      "url": "./?zone=activate",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Build — Workflow Builder",
+      "short_name": "Builder",
+      "description": "Open the workflow builder to chain animal modes",
+      "url": "./?zone=build&section=workflow",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Validate — Prompt Diff",
+      "short_name": "Diff",
+      "description": "Compare and score two prompt variants",
+      "url": "./?zone=validate",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Strategy — Monetize",
+      "short_name": "Monetize",
+      "description": "Revenue streams and pricing models",
+      "url": "./?zone=monetize",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
 }

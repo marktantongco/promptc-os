@@ -7,11 +7,18 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['manifest.json'],
+      includeAssets: [
+        'manifest.json',
+        'icon-192.png',
+        'icon-512.png',
+        'apple-touch-icon.png',
+        'favicon-32.png',
+        'favicon-16.png'
+      ],
       manifest: {
         name: 'promptc OS — AI Prompt Engineering Reference',
         short_name: 'promptc OS',
-        description: 'Senior-dev prompt engineering system with copy-ready outputs, 6 zones, 22 workflows',
+        description: 'Senior-dev prompt engineering system with copy-ready outputs, 6 zones, 22 workflows, PWA',
         theme_color: '#0B0D10',
         background_color: '#0B0D10',
         display: 'standalone',
@@ -20,22 +27,28 @@ export default defineConfig({
         scope: './',
         icons: [
           {
-            src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230B0D10'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-size='300'>⚡</text></svg>",
-            sizes: '512x512',
-            type: 'image/svg+xml',
+            src: 'icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
             purpose: 'any maskable'
           },
           {
-            src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='30' fill='%230B0D10'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-size='110'>⚡</text></svg>",
-            sizes: '192x192',
-            type: 'image/svg+xml',
+            src: 'icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
             purpose: 'any maskable'
           }
         ],
-        categories: ['productivity', 'utilities', 'developer-tools']
+        categories: ['productivity', 'utilities', 'developer-tools'],
+        shortcuts: [
+          { name: 'Master Prompt', url: './?zone=activate' },
+          { name: 'Workflow Builder', url: './?zone=build&section=workflow' },
+          { name: 'Prompt Diff', url: './?zone=validate' },
+          { name: 'Monetize', url: './?zone=monetize' }
+        ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2,ico}'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -53,10 +66,18 @@ export default defineConfig({
               expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 }
             }
           }
-        ]
+        ],
+        navigateFallback: './index.html'
       }
     })
   ],
   base: './',
-  build: { target: 'es2020' }
+  build: {
+    target: 'es2020',
+    cssMinify: true,
+    minify: 'terser',
+    terserOptions: {
+      compress: { drop_console: false }
+    }
+  }
 })
