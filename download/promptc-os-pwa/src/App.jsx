@@ -1259,16 +1259,70 @@ const DB_LAYERS=[
   {name:"Analytics",desc:"Usage tracking, performance monitoring, behavior analytics",icon:"📊"},
 ];
 const REVENUE=[
-  {stream:"Custom Development",setup:"1-2 weeks",potential:"$1,800/project",scale:"Low",cx:"Medium"},
-  {stream:"SaaS Templates",setup:"4-6 weeks",potential:"$850/month",scale:"High",cx:"High"},
-  {stream:"Automation Services",setup:"1 week",potential:"$650/project",scale:"Medium",cx:"Low"},
-  {stream:"Support Retainers",setup:"2 days",potential:"$300/month",scale:"High",cx:"Low"},
-  {stream:"Training/Consulting",setup:"1 week",potential:"$150/hour",scale:"Medium",cx:"Low"},
+  {stream:"Custom Dev — Web Apps",setup:"1-2 weeks",potential:"$1,800–$5,000/project",scale:"Medium",cx:"Medium",cat:"Services"},
+  {stream:"Custom Dev — Mobile Apps",setup:"2-4 weeks",potential:"$3,500–$12,000/project",scale:"Medium",cx:"High",cat:"Services"},
+  {stream:"SaaS Templates",setup:"4-6 weeks build",potential:"$850–$3,500/month",scale:"High",cx:"High",cat:"Products"},
+  {stream:"Prompt Engineering Toolkit",setup:"2-3 weeks build",potential:"$500–$2,000/month",scale:"High",cx:"Medium",cat:"Products"},
+  {stream:"AI Automation Consulting",setup:"1 week",potential:"$2,500/project",scale:"Medium",cx:"Low",cat:"Services"},
+  {stream:"Automation Workflows",setup:"3-5 days",potential:"$650–$1,500/project",scale:"Medium",cx:"Low",cat:"Services"},
+  {stream:"Support Retainers",setup:"2 days onboarding",potential:"$300–$800/month",scale:"High",cx:"Low",cat:"Recurring"},
+  {stream:"Training / Workshops",setup:"1 week prep",potential:"$150–$500/hour",scale:"Medium",cx:"Low",cat:"Services"},
+  {stream:"Component Libraries",setup:"2-3 weeks build",potential:"$200–$1,200/month",scale:"High",cx:"Medium",cat:"Products"},
+  {stream:"YouTube / Content",setup:"3-6 months",potential:"$500–$8,000/month",scale:"High",cx:"Medium",cat:"Content"},
+  {stream:"Newsletter + Sponsorships",setup:"1 month setup",potential:"$200–$2,000/month",scale:"Medium",cx:"Low",cat:"Content"},
+  {stream:"Open Source + Sponsorships",setup:"2-4 weeks",potential:"$100–$5,000/month",scale:"High",cx:"Low",cat:"Community"},
 ];
 const GROWTH=[
-  {phase:"Foundation (Mo 1-3)",rev:"$0-500/mo",focus:"Skill development, first client",act:"Create 3-5 reusable templates"},
-  {phase:"Growth (Mo 4-6)",rev:"$1,500-3,500/mo",focus:"Systemize delivery, recurring revenue",act:"Implement automation, create SaaS products"},
-  {phase:"Scale (Mo 7-12)",rev:"$5,000-15,000/mo",focus:"Team building, product diversification",act:"Hire specialists, expand product lines"},
+  {phase:"Foundation (Mo 1-3)",rev:"$0–$500/mo",focus:"Skill development, portfolio, first paying client",act:"Create 3-5 reusable templates, publish 2 case studies, land first client on Upwork/freelance",milestones:["First $1 earned","3 portfolio pieces","5 GitHub stars","1 testimonial"]},
+  {phase:"Growth (Mo 4-6)",rev:"$1,500–$3,500/mo",focus:"Systemize delivery, build recurring revenue",act:"Launch SaaS template, implement automation services, create referral pipeline, start newsletter",milestones:["$1K+ month","2+ recurring clients","1 SaaS product","100 newsletter subs"]},
+  {phase:"Scale (Mo 7-12)",rev:"$5,000–$15,000/mo",focus:"Team building, product diversification, audience growth",act:"Hire first contractor, expand product line, YouTube/content strategy, affiliate partnerships",milestones:["$5K+ month","2+ products","1K+ audience","passive > active income"]},
+  {phase:"Leverage (Mo 13-18)",rev:"$15,000–$50,000/mo",focus:"Brand authority, premium positioning, multiple revenue engines",act:"Premium consulting tier, course/education product, agency model, strategic partnerships",milestones:["$15K+ month","team of 3+","premium tier live","industry recognition"]},
+];
+const PRICING_MODELS=[
+  {model:"Freemium",desc:"Free tier + paid upgrade",best:"SaaS tools, developer utilities",rev:"Slow start, high scale",cx:"High",prompt:"Design a freemium pricing page for [PRODUCT]:\n- Free tier: [3 core features]\n- Pro tier: $[X]/mo with [premium features]\n- Annual: 20% discount\n- Show clear upgrade triggers at feature boundaries\n- Include social proof near CTA"},
+  {model:"Subscription",desc:"Monthly recurring access",best:"SaaS platforms, content, tools",rev:"Predictable, compound growth",cx:"Medium",prompt:"Design a subscription pricing page for [PRODUCT]:\n- 3 tiers: Starter $[X], Pro $[Y], Enterprise custom\n- Feature comparison table\n- Money-back guarantee\n- Monthly + annual toggle (2 months free on annual)\n- FAQ section with 5 objection-handling questions"},
+  {model:"One-Time License",desc:"Single purchase, perpetual use",best:"Templates, components, courses",rev:"Fast cash, no recurring",cx:"Low",prompt:"Create a one-time product page for [PRODUCT]:\n- Clear value proposition\n- Feature list with screenshots\n- License terms (personal vs commercial)\n- Bundle options (save 30%)\n- Trust signals: reviews, user count, guarantee"},
+  {model:"Usage-Based",desc:"Pay per consumption",best:"APIs, AI tools, automation",rev:"Scales with value delivered",cx:"High",prompt:"Design usage-based pricing for [PRODUCT]:\n- Free: [X] uses/month\n- Pay-as-you-go: $[Y] per [unit]\n- Volume tiers with discounts\n- Usage dashboard preview\n- Cost estimator tool"},
+  {model:"Agency Retainer",desc:"Monthly service agreement",best:"Custom dev, consulting, support",rev:"Highest per-client value",cx:"Medium",prompt:"Create a retainer proposal for [SERVICE]:\n- 3 retainer tiers: Basic $[X], Standard $[Y], Premium $[Z]\n- Scope per tier: hours, deliverables, response time\n- Onboarding process\n- Monthly reporting format\n- Upgrade/downgrade terms"},
+];
+const CLIENT_ACQUISITION=[
+  {ch:"Freelance Platforms",steps:"Optimize profile → 5 targeted proposals/week → niche specialization → raise rates after 10 reviews",timeline:"2-4 weeks to first client",best:"Building initial portfolio and cash flow"},
+  {ch:"Content Marketing",steps:"Post 3x/week on X/LinkedIn → build in public → share case studies → link to product → convert followers",timeline:"3-6 months to traction",best:"Long-term brand building and authority"},
+  {ch:"Cold Outreach",steps:"Identify 50 ideal clients → personalize outreach → offer free audit → propose solution → close deal",timeline:"1-3 weeks to first meeting",best:"High-value B2B clients"},
+  {ch:"Product Hunt Launch",steps:"Build waitlist → prepare demo → launch → engage comments → follow up leads → iterate feedback",timeline:"1 week prep + 1 day launch",best:"SaaS tools, developer products"},
+  {ch:"Referral Engine",steps:"Deliver exceptional work → ask for testimonial → offer referral bonus → track referrals → reward advocates",timeline:"Starts month 2+",best:"Scaling existing client base"},
+  {ch:"YouTube / Tutorials",steps:"Choose niche → 2 videos/week → show real builds → CTA to product → monetize + promote",timeline:"6-12 months to revenue",best:"Education, dev tools, creative tools"},
+];
+const AI_MONETIZE=[
+  {op:"Build AI-Powered SaaS",desc:"Wrap LLM APIs into a focused tool solving one problem",stack:"Next.js + Vercel AI SDK + Supabase + Stripe",rev:"$500–$10K/mo",diff:"Medium",prompt:"Build an AI-powered SaaS for [NICHE]:\n- Core AI feature: [specific capability]\n- Input: [user provides]\n- Output: [AI generates]\n- Pricing: freemium or usage-based\n- Tech: Next.js + Vercel AI SDK + Supabase + Stripe\n- Must have: onboarding, history, export, sharing"},
+  {op:"Sell Prompt Templates",desc:"Package your best prompts as downloadable collections",stack:"Gumroad / LemonSqueezy + Notion / PDF",rev:"$100–$2K/mo",diff:"Low",prompt:"Create a premium prompt template pack for [AUDIENCE]:\n- 25 copy-ready prompts organized by use case\n- Include instructions and examples\n- Format: Notion database + PDF export\n- Price: $29–$49\n- Landing page with 5 free samples"},
+  {op:"AI Automation Agency",desc:"Build custom AI workflows for businesses",stack:"n8n / Make + OpenAI API + Client tools",rev:"$2K–$15K/mo",diff:"Medium",prompt:"Pitch AI automation services to [BUSINESS TYPE]:\n- Problem: [specific pain point]\n- Solution: Custom AI workflow saving [X] hours/week\n- ROI: $[Y] saved per month vs $[Z] investment\n- Implementation timeline: [2-4 weeks]\n- Include: demo, case study, pricing"},
+  {op:"AI Training Content",desc:"Teach others to use AI effectively",stack:"YouTube + Newsletter + Course platform",rev:"$500–$8K/mo",diff:"Low",prompt:"Create an AI training course for [AUDIENCE]:\n- Module 1: AI fundamentals for [niche]\n- Module 2: Prompt engineering mastery\n- Module 3: Build real projects with AI\n- Module 4: Automate workflows with AI\n- Include: exercises, templates, community access\n- Platform: [Gumroad / Teachable / YouTube]"},
+  {op:"AI-Powered Consulting",desc:"Use AI to deliver faster, better consulting",stack:"Custom GPTs + Notion + Claude/ChatGPT",rev:"$3K–$20K/mo",diff:"Low",prompt:"Structure AI-powered consulting for [INDUSTRY]:\n- Assessment: AI-analyzed audit of client's current state\n- Strategy: AI-drafted recommendations, human-reviewed\n- Implementation: AI-assisted delivery with quality check\n- Reporting: AI-generated dashboards and insights\n- Value: 10x faster delivery, same quality, lower cost"},
+];
+const MONTHLY_COSTS=[
+  {item:"Vercel (Pro)",cost:"$20/mo",note:"Production hosting, analytics, preview URLs"},
+  {item:"Supabase (Pro)",cost:"$25/mo",note:"PostgreSQL, Auth, Storage, Edge Functions"},
+  {item:"Domain",cost:"$12/yr",note:"Namecheap / Cloudflare — ~$1/mo"},
+  {item:"AI API (OpenAI/Anthropic)",cost:"$20–$100/mo",note:"Usage-dependent. Budget $50/mo starting"},
+  {item:"Email (Resend)",cost:"$0–$20/mo",note:"Free tier generous, Pro for volume"},
+  {item:"n8n (Self-Hosted)",cost:"$0.25/mo",note:"Render free tier or Railway"},
+  {item:"Error Tracking (Sentry)",cost:"$0–$26/mo",note:"Free tier covers 5K errors"},
+  {item:"Analytics (Plausible)",cost:"$9/mo",note:"Privacy-first, unlimited events"},
+  {item:"GitHub (Pro)",cost:"$4/mo",note:"Private repos, Actions minutes"},
+  {item:"Total Starting",cost:"~$80–$130/mo",note:"Can start at ~$25/mo with free tiers"},
+];
+const MONETIZE_BLINDS=[
+  {miss:"Not pricing for value",fix:"Price based on outcomes delivered, not hours worked. A $5K result is worth $5K regardless of time."},
+  {miss:"Building before validating",fix:"Pre-sell with a landing page and waitlist. Only build when you have 50+ interested signups."},
+  {miss:"One revenue stream only",fix:"Diversify: services + products + content. If client work dries up, products sustain you."},
+  {miss:"Not tracking time and costs",fix:"Use Toggl or Clockify. Know your hourly rate and project margins before quoting."},
+  {miss:"Undercharging at the start",fix:"Start at market rate. Raising prices from $500 to $2000 is harder than starting at $1500."},
+  {miss:"No contracts or scope docs",fix:"Always use a simple 1-page SOW. Define deliverables, revisions, timeline, and payment terms."},
+  {miss:"Ignoring recurring revenue",fix:"Even 2 retainers ($300/mo each) change your cash flow calculus and reduce anxiety."},
+  {miss:"Not building in public",fix:"Share builds on X/LinkedIn. Document problems solved. This IS marketing that doesn't feel like marketing."},
+  {miss:"Perfectionism blocking shipping",fix:"Ship at 80%. Collect feedback. Iterate. V1 of a live product beats V3 of a local project."},
+  {miss:"No financial runway",fix:"Save 3 months of expenses before going full-time. Stress kills creativity and client relationships."},
 ];
 const META_PROMPTS=[
   {id:"precision",label:"Precision-Tuned",desc:"Enhances concrete detail and actionable steps",content:`You are a prompt auditor and optimizer. You do NOT answer, execute, or interpret the prompt\u2019s task.\n\nAnalyze the prompt below. Then:\n1. Score it 1-10 for clarity and task-relevance\n2. List 4 key actionable improvements\n3. Refined v1: Rewrite applying the single highest-impact improvement\n4. Refined v2: Rewrite applying the best combined improvements\n\nOriginal Prompt:\n{YOUR_PROMPT}\n\n---\nScore: [X/10]\nKey Improvements:\n1. [improvement]\n2. [improvement]\n3. [improvement]\n4. [improvement]\n\nRefined v1:\n> [improved prompt]\n\nRefined v2:\n> [optimized prompt]`},
@@ -1455,6 +1509,7 @@ function Build(){
   const[chainSel,setChainSel]=useState(null);
   const[chainPrompt,setChainPrompt]=useState("");
   const[chainTopic,setChainTopic]=useState("");
+  const[revCat,setRevCat]=useState("all");
   const[animKey,setAnimKey]=useState(0);
   const switchSection=(id)=>{setS(id);setAnimKey(k=>k+1);};
 
@@ -1748,10 +1803,13 @@ function Build(){
       <Card accent={C.vi}>
         <Lbl text="Revenue streams and growth projection" color={C.vi}/>
         <H3>Monetization Framework</H3>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+          {[...Array.from(new Set(REVENUE.map(r=>r.cat)))].map(c=><Pill key={c} label={c} active={revCat===c} color={C.vi} onClick={()=>setRevCat(revCat===c?"all":c)}/>)}
+        </div>
         <div style={{overflowX:"auto"}}>
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
             <thead><tr>{["Revenue Stream","Setup","Potential","Scalability",""].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
-            <tbody>{REVENUE.map((r,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"8px 10px",color:C.tx,fontWeight:600}}>{r.stream}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.setup}</td><td style={{padding:"8px 10px",color:C.gn,fontFamily:C.mn}}>{r.potential}</td><td style={{padding:"8px 10px",color:r.scale==="High"?C.gn:C.am}}>{r.scale}</td><td style={{padding:"8px 10px"}}><Cp text={`${r.stream}: ${r.potential} | Setup: ${r.setup} | Scalability: ${r.scale}`}/></td></tr>)}</tbody>
+            <tbody>{REVENUE.filter(r=>revCat==="all"||r.cat===revCat).map((r,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"8px 10px",color:C.tx,fontWeight:600}}>{r.stream}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.setup}</td><td style={{padding:"8px 10px",color:C.gn,fontFamily:C.mn}}>{r.potential}</td><td style={{padding:"8px 10px",color:r.scale==="High"?C.gn:C.am}}>{r.scale}</td><td style={{padding:"8px 10px"}}><Cp text={`${r.stream}: ${r.potential} | Setup: ${r.setup} | Scalability: ${r.scale}`}/></td></tr>)}</tbody>
           </table>
         </div>
       </Card>
@@ -1760,9 +1818,12 @@ function Build(){
         <H3>Growth Projection</H3>
         <div style={{display:"grid",gap:10}}>
           {GROWTH.map((g,i)=><div key={i} style={{background:C.bg,borderRadius:10,padding:"12px"}}>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
               <span style={{fontSize:12,fontWeight:700,color:C.tx}}>{g.phase}</span>
-              <span style={{fontSize:13,color:C.am,fontFamily:C.mn,fontWeight:600}}>{g.rev}</span>
+              <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                <span style={{fontSize:13,color:C.am,fontFamily:C.mn,fontWeight:600}}>{g.rev}</span>
+                <Cp text={`Growth: ${g.phase}\nRevenue: ${g.rev}\nFocus: ${g.focus}\nActivities: ${g.act}`}/>
+              </div>
             </div>
             <div style={{fontSize:11,color:C.di}}>Focus: {g.focus}</div>
           </div>)}
@@ -2250,6 +2311,7 @@ function PromptDiff(){
 // ─── STRATEGY ─────────────────────────────────────────────────────────────────
 function Strategy(){
   const[s,setS]=useState("monetize");
+  const[revCat,setRevCat]=useState("all");
   return(<div>
     <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:18,paddingBottom:14,borderBottom:`1px solid ${C.bdr}`}}>
       {[{id:"monetize",label:"💰 Monetize"},{id:"market",label:"📈 Market"},{id:"features",label:"⚙️ Features"},{id:"privacy",label:"🔒 Privacy"}].map(n=><Pill key={n.id} label={n.label} active={s===n.id} color={C.vt} onClick={()=>setS(n.id)}/>)}
@@ -2257,20 +2319,111 @@ function Strategy(){
     <div key={s} className="anim-slide">
     {s==="monetize"&&<div style={{display:"grid",gap:14}}>
       <Card accent={C.vt}><Lbl text="Revenue streams with setup time, potential, and scalability" color={C.vt}/><H3>Revenue Streams Matrix</H3>
-        <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr>{["Stream","Setup","Potential","Scalability","Complexity",""].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
-        <tbody>{REVENUE.map((r,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"8px 10px",color:C.tx,fontWeight:600}}>{r.stream}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.setup}</td><td style={{padding:"8px 10px",color:C.gn,fontFamily:C.mn}}>{r.potential}</td><td style={{padding:"8px 10px",color:r.scale==="High"?C.gn:C.am}}>{r.scale}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.cx}</td><td style={{padding:"8px 10px"}}><Cp text={`${r.stream} | ${r.potential} | Setup: ${r.setup} | Scale: ${r.scale} | ${r.cx}`}/></td></tr>)}</tbody></table></div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+          {[...Array.from(new Set(REVENUE.map(r=>r.cat)))].map(c=><Pill key={c} label={c} active={revCat===c} color={C.vt} onClick={()=>setRevCat(revCat===c?"all":c)}/>)}
+        </div>
+        <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr>{["Stream","Setup","Potential","Scale","Complexity",""].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
+        <tbody>{REVENUE.filter(r=>revCat==="all"||r.cat===revCat).map((r,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"8px 10px",color:C.tx,fontWeight:600}}>{r.stream}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.setup}</td><td style={{padding:"8px 10px",color:C.gn,fontFamily:C.mn}}>{r.potential}</td><td style={{padding:"8px 10px",color:r.scale==="High"?C.gn:C.am}}>{r.scale}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.cx}</td><td style={{padding:"8px 10px"}}><Cp text={`${r.stream} | ${r.potential} | Setup: ${r.setup} | Scale: ${r.scale} | ${r.cx}`}/></td></tr>)}</tbody></table></div>
       </Card>
-      <Card><Lbl text="Month-by-month growth trajectory" color={C.vt}/><H3>Growth Projection</H3>
+      <Card><Lbl text="Month-by-month growth trajectory with milestones" color={C.vt}/><H3>Growth Roadmap</H3>
         <div style={{display:"grid",gap:12}}>{GROWTH.map((g,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.vt}20`,borderRadius:10,padding:"14px"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
             <span style={{fontSize:13,fontWeight:700,color:C.tx}}>{g.phase}</span>
             <div style={{display:"flex",gap:8,alignItems:"center"}}>
               <span style={{fontSize:14,fontWeight:800,color:C.vt,fontFamily:C.mn}}>{g.rev}</span>
-              <Cp text={`Growth: ${g.phase}\nRevenue: ${g.rev}\nFocus: ${g.focus}\nActivities: ${g.act}`}/>
+              <Cp text={`Growth: ${g.phase}\nRevenue: ${g.rev}\nFocus: ${g.focus}\nActivities: ${g.act}\nMilestones: ${g.milestones.join(", ")}`}/>
             </div>
           </div>
-          <div style={{fontSize:11,color:C.mu,marginBottom:4}}>Focus: {g.focus}</div><div style={{fontSize:11,color:C.di}}>Activities: {g.act}</div>
+          <div style={{fontSize:11,color:C.mu,marginBottom:4}}>Focus: {g.focus}</div>
+          <div style={{fontSize:11,color:C.di,marginBottom:6}}>Activities: {g.act}</div>
+          <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>{g.milestones.map((m,mi)=><span key={mi} style={{fontSize:10,background:`${C.vt}12`,color:C.vt,border:`1px solid ${C.vt}25`,borderRadius:20,padding:"2px 8px",fontFamily:C.mn}}>🎯 {m}</span>)}</div>
         </div>)}</div>
+      </Card>
+      <Card accent={C.mg}><Lbl text="5 pricing models with copy-ready launch prompts" color={C.mg}/><H3>Pricing Strategy Models</H3>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:10}}>
+          {PRICING_MODELS.map((p,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:10,padding:"12px 14px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+              <div><div style={{fontWeight:700,color:C.tx,fontSize:13,marginBottom:2}}>{p.model}</div><div style={{fontSize:11,color:C.mu}}>{p.desc}</div></div>
+              <Cp text={p.prompt} sm={false} label="COPY"/>
+            </div>
+            <div style={{fontSize:10,color:C.di,marginBottom:3}}>Best for: <span style={{color:C.vi}}>{p.best}</span></div>
+            <div style={{fontSize:10,color:C.di}}>Revenue: <span style={{color:C.gn,fontFamily:C.mn}}>{p.rev}</span> · Complexity: <span style={{color:C.am}}>{p.cx}</span></div>
+          </div>)}
+        </div>
+      </Card>
+      <Card accent={C.gn}><Lbl text="6 channels to acquire your first 10 paying clients" color={C.gn}/><H3>Client Acquisition Playbook</H3>
+        <div style={{display:"grid",gap:10}}>
+          {CLIENT_ACQUISITION.map((c,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:10,padding:"12px 14px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:10,marginBottom:6}}>
+              <div style={{fontWeight:700,color:C.tx,fontSize:13}}>{c.ch}</div>
+              <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
+                <span style={{fontSize:10,fontFamily:C.mn,color:C.di}}>{c.timeline}</span>
+                <Cp text={`Client Acquisition: ${c.ch}\nSteps: ${c.steps}\nTimeline: ${c.timeline}\nBest for: ${c.best}`}/>
+              </div>
+            </div>
+            <div style={{fontSize:11,color:C.mu,marginBottom:4,lineHeight:1.5}}>{c.steps}</div>
+            <div style={{fontSize:10,color:C.di}}>Best for: {c.best}</div>
+          </div>)}
+        </div>
+      </Card>
+      <Card accent={C.am}><Lbl text="AI-specific monetization opportunities with launch prompts" color={C.am}/><H3>AI Monetization Playbook</H3>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:10}}>
+          {AI_MONETIZE.map((a,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:10,padding:"12px 14px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+              <div style={{fontWeight:700,color:C.tx,fontSize:13,marginBottom:2}}>{a.op}</div>
+              <Cp text={a.prompt} sm={false} label="COPY"/>
+            </div>
+            <div style={{fontSize:11,color:C.mu,marginBottom:4,lineHeight:1.5}}>{a.desc}</div>
+            <div style={{fontSize:10,color:C.di,marginBottom:3}}>Stack: <span style={{color:C.vi}}>{a.stack}</span></div>
+            <div style={{display:"flex",gap:8,fontSize:10}}><span style={{color:C.gn,fontFamily:C.mn}}>{a.rev}</span><span style={{color:C.am}}>Difficulty: {a.diff}</span></div>
+          </div>)}
+        </div>
+      </Card>
+      <Card><Lbl text="Monthly running costs for a solo AI-powered product business" color={C.vt}/><H3>Monthly Cost Structure</H3>
+        <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr>{["Item","Cost","Notes",""].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
+        <tbody>{MONTHLY_COSTS.map((m,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`,background:m.item==="Total Starting"?`${C.vt}08`:"transparent"}}><td style={{padding:"8px 10px",color:m.item==="Total Starting"?C.vt:C.tx,fontWeight:m.item==="Total Starting"?700:600}}>{m.item}</td><td style={{padding:"8px 10px",color:m.item==="Total Starting"?C.vt:C.gn,fontFamily:C.mn}}>{m.cost}</td><td style={{padding:"8px 10px",color:C.mu}}>{m.note}</td><td style={{padding:"8px 10px"}}><Cp text={`${m.item}: ${m.cost}\n${m.note}`}/></td></tr>)}</tbody></table></div>
+        <div style={{marginTop:12,display:"flex",justifyContent:"flex-end"}}><Cp text={MONTHLY_COSTS.map(m=>`${m.item}: ${m.cost} — ${m.note}`).join("\n")} sm={false} label="COPY ALL COSTS"/></div>
+      </Card>
+      <Card><Lbl text="10 common monetization mistakes and how to avoid them" color={C.rd}/><H3>Monetization Blind Spots</H3>
+        <div style={{display:"grid",gap:8}}>
+          {MONETIZE_BLINDS.map((b,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:9,padding:"10px 13px",display:"flex",gap:10,alignItems:"flex-start"}}>
+            <div style={{flex:1}}>
+              <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+                <span style={{fontSize:11,color:C.rd,fontFamily:C.mn,fontWeight:600}}>✗ {b.miss}</span>
+              </div>
+              <div style={{fontSize:11,color:C.gn,lineHeight:1.5}}>✓ {b.fix}</div>
+            </div>
+            <Cp text={`Mistake: ${b.miss}\nFix: ${b.fix}`}/>
+          </div>)}
+        </div>
+        <div style={{display:"flex",justifyContent:"flex-end",marginTop:12}}><Cp text={MONETIZE_BLINDS.map(b=>`✗ ${b.miss}\n✓ ${b.fix}`).join("\n\n")} sm={false} label="COPY ALL BLIND SPOTS"/></div>
+      </Card>
+      <Card accent={C.vt}><Lbl text="Ready-to-use prompt for monetization planning" color={C.vt}/><H3>Monetization Strategy Prompt</H3>
+        <Code text={`You are a monetization strategist for solo developers and small AI-powered product teams.
+
+CONTEXT
+I am a solo developer building AI-powered tools and templates.
+Current skills: [web development, prompt engineering, AI/LLM integration]
+Available time: [X hours/week]
+Starting capital: $[Y]
+Target: $[Z]/month within 12 months
+
+TASK
+1. Analyze my skills and identify the 5 best monetization opportunities
+2. For each opportunity, provide:
+   - Revenue model (one-time / subscription / usage-based)
+   - First-month action plan
+   - Expected time to first $1
+   - 90-day milestone
+   - Risk assessment (1-10)
+3. Recommend the top 2 opportunities to pursue simultaneously
+4. Create a week-by-week action plan for month 1
+
+CONSTRAINTS
+- Start with free/low-cost tools only
+- Must generate revenue within 60 days
+- Focus on products over services (scalability)
+- Budget: Under $50/month in tools`} mh={380}/>
       </Card>
     </div>}
     {s==="market"&&<Card accent={C.vt}><Lbl text="Use Owl + Elephant + Rabbit + Eagle chain for full analysis" color={C.vt}/><H3>Market Opportunity Analysis</H3>
@@ -2372,7 +2525,7 @@ export default function App(){
           {zone==="build"   &&<Build/>}
           {zone==="validate"&&<Validate/>}
           {zone==="playbook"&&<Playbook/>}
-          {zone==="strategy"&&<Strategy/>}
+          {zone==="monetize"&&<Strategy/>}
           {zone==="meta"&&<Meta/>}
         </div>
       </div>
