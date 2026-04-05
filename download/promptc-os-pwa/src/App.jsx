@@ -42,7 +42,7 @@ const AE={Eagle:"🦅",Beaver:"🦫",Ant:"🐜",Owl:"🦉",Rabbit:"🐇",Dolphin
 
 const ZONES=[
   {id:"activate",label:"⚡ ACTIVATE",sub:"Copy-paste to AI",tier:1},
-  {id:"build",   label:"🏗 BUILD",   sub:"Frameworks, Composers, Reference",tier:2},
+  {id:"build",   label:"🏗 BUILD",   sub:"Composers, Frameworks, Reference, Tools",tier:2},
   {id:"playbook",label:"📋 PLAYBOOK",sub:"22 workflows. Step-by-step.",tier:2},
   {id:"monetize",label:"💰 MONETIZE",sub:"Deploy stacks, Tools, AI providers",tier:2},
   {id:"validate",label:"✅ VALIDATE",sub:"Score, lint, swaps, refine.",tier:3},
@@ -1350,7 +1350,7 @@ function Lbl({text,color=C.cy}){return <div style={{fontSize:10,color,fontFamily
 function H3({children}){return <h3 style={{margin:"0 0 14px",fontSize:"clamp(14px,2vw,17px)",fontWeight:700,color:C.tx,letterSpacing:"-0.02em",fontFamily:C.ss}}>{children}</h3>;}
 function Card({children,accent,pad="18px 20px",sx={}}){return <div style={{background:C.sur,border:`1px solid ${accent?accent+"22":C.bdr}`,borderRadius:12,padding:pad,...sx}}>{children}</div>;}
 function Code({text,mh}){return(<div style={{position:"relative"}}><pre style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"12px 44px 12px 13px",fontSize:"clamp(10px,1.4vw,12px)",lineHeight:1.75,color:"#e4e4e7",fontFamily:C.mn,whiteSpace:"pre-wrap",wordBreak:"break-word",margin:0,maxHeight:mh||"none",overflowY:mh?"auto":"visible"}}>{text}</pre><div style={{position:"absolute",top:8,right:8}}><Cp text={text}/></div></div>);}
-function Pill({label,active,color,onClick}){return <button onClick={onClick} style={{background:active?`${color}18`:"transparent",border:`1px solid ${active?color+"55":C.bdr}`,color:active?color:C.di,borderRadius:20,padding:"4px 11px",fontSize:"clamp(10px,1.4vw,11px)",fontFamily:C.mn,cursor:"pointer",transition:"all 0.15s",whiteSpace:"nowrap",lineHeight:1.6}}>{label}</button>;}
+function Pill({label,active,color,onClick}){return <button onClick={onClick} style={{background:active?`${color}18`:"transparent",border:`1px solid ${active?color+"55":C.bdr}`,color:active?color:C.di,borderRadius:20,padding:"4px 11px",fontSize:"clamp(10px,1.4vw,11px)",fontFamily:C.mn,cursor:"pointer",transition:"all 0.15s",whiteSpace:"nowrap",lineHeight:1.6,fontWeight:active?600:400}}>{label}</button>;};
 function Inp({label,value,onChange,ph}){return(<div style={{marginBottom:10}}>{label&&<div style={{fontSize:10,color:C.di,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:4}}>{label}</div>}<input value={value} onChange={e=>onChange(e.target.value)} placeholder={ph} style={{width:"100%",boxSizing:"border-box",background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"9px 12px",color:C.tx,fontSize:13,fontFamily:C.ss,outline:"none"}}/></div>);}
 function TA({label,value,onChange,ph,rows=4}){return(<div style={{marginBottom:10}}>{label&&<div style={{fontSize:10,color:C.di,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:4}}>{label}</div>}<textarea value={value} onChange={e=>onChange(e.target.value)} placeholder={ph} rows={rows} style={{width:"100%",boxSizing:"border-box",background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"9px 12px",color:C.tx,fontSize:12,fontFamily:C.mn,outline:"none",resize:"vertical",lineHeight:1.6}}/></div>);}
 
@@ -1422,13 +1422,15 @@ function Activate(){
 
 // ─── BUILD ────────────────────────────────────────────────────────────────────
 const BNAV=[
-  {id:"animals",label:"🐾 Animals"},{id:"8layer",label:"8 Layers"},
-  {id:"enhance",label:"Enhancement"},
-  {id:"webapp",label:"Web App"},{id:"json",label:"JSON / Output"},
-  {id:"vocab",label:"Design Vocab"},
+  {id:"animals",label:"🐾 Animals"},{id:"8layer",label:"🔗 8 Layers"},
+  {id:"workflow",label:"🦅 Workflow"},{id:"composer",label:"🏗 Composer"},
+  {id:"webappgen",label:"🌐 Web App Gen"},{id:"diff",label:"⚖️ Prompt Diff"},
+  {id:"enhance",label:"✨ Enhancement"},
+  {id:"json",label:"📊 JSON / Output"},
+  {id:"vocab",label:"🎨 Design Vocab"},
   {id:"tools",label:"🛠 Tools"},
   {id:"database",label:"🗄 Database"},
-  {id:"techstack",label:"🔧 Tech Stack"},
+  {id:"techstack",label:"🔧 Tech Stack →"},
 ];
 
 function Build(){
@@ -1503,9 +1505,12 @@ function Build(){
         <Lbl text='Trigger by name: "Apply Owl Mode" / "Think like a Beaver"' color={C.vi}/>
         <H3>Animal Thinking Modes</H3>
         <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:14}}>
-          {ANIMALS.map((a,i)=><button key={i} onClick={()=>setAT(i)} style={{background:aT===i?`${AC[a.name]}18`:"transparent",border:`1px solid ${aT===i?AC[a.name]+"55":C.bdr}`,color:aT===i?AC[a.name]:C.di,borderRadius:10,padding:"7px 13px",cursor:"pointer",fontSize:13,transition:"all 0.2s",transform:aT===i?"scale(1.03)":"scale(1)"}}>{a.emoji} {a.name}</button>)}
+          {ANIMALS.map((a,i)=><button key={i} onClick={()=>setAT(i)} style={{background:aT===i?`${AC[a.name]}18`:"transparent",border:`1px solid ${aT===i?AC[a.name]+"55":C.bdr}`,color:aT===i?AC[a.name]:C.di,borderRadius:10,padding:"7px 13px",cursor:"pointer",fontSize:13,transition:"all 0.2s",fontWeight:aT===i?600:400,transform:aT===i?"scale(1.03)":"scale(1)"}}>{a.emoji} {a.name}</button>)}
         </div>
-        <div style={{fontSize:10,color:AC[ANIMALS[aT].name],fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:6}}>{ANIMALS[aT].mode.toUpperCase()}</div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+          <div style={{fontSize:10,color:AC[ANIMALS[aT].name],fontFamily:C.mn,letterSpacing:"0.1em"}}>{ANIMALS[aT].mode.toUpperCase()}</div>
+          <Cp text={ANIMALS[aT].prompt}/>
+        </div>
         <Code text={ANIMALS[aT].prompt}/>
       </Card>
       <Card>
@@ -1519,6 +1524,7 @@ function Build(){
             <span style={{color:C.tx,fontWeight:600,fontSize:13}}>{ch.goal}</span>
             <span style={{fontFamily:C.mn,fontSize:15,color:C.am}}>{ch.c.map(n=>AE[n]).join(" → ")}</span>
             <span style={{fontSize:11,color:C.di}}>{ch.best}</span>
+            <span onClick={e=>e.stopPropagation()}><Cp text={buildChainP(ch,chainTopic)}/></span>
           </div>)}
         </div>
         {chainPrompt&&<div style={{animation:"popIn 0.2s ease-out"}}>
@@ -1549,9 +1555,14 @@ function Build(){
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:8,marginBottom:16}}>
           {LAYERS.map((l,i)=><div key={l.n} onClick={()=>setLayerSel(i)} style={{background:layerSel===i?`${C.vi}12`:C.bg,border:`1px solid ${layerSel===i?C.vi+"44":C.bdr}`,borderRadius:9,padding:"10px 12px",cursor:"pointer",transition:"all 0.15s"}}>
-            <div style={{fontSize:10,color:C.vi,fontFamily:C.mn,marginBottom:3}}>LAYER {l.n}</div>
-            <div style={{fontWeight:700,color:C.tx,fontSize:13,marginBottom:2}}>{l.name}</div>
-            <div style={{fontSize:11,color:C.mu}}>{l.pur}</div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+              <div>
+                <div style={{fontSize:10,color:C.vi,fontFamily:C.mn,marginBottom:3}}>LAYER {l.n}</div>
+                <div style={{fontWeight:700,color:C.tx,fontSize:13,marginBottom:2}}>{l.name}</div>
+                <div style={{fontSize:11,color:C.mu}}>{l.pur}</div>
+              </div>
+              <span onClick={e=>e.stopPropagation()} style={{flexShrink:0}}><Cp text={LAYER_SNIPS[i]}/></span>
+            </div>
           </div>)}
         </div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
@@ -1733,8 +1744,8 @@ function Build(){
         <H3>Monetization Framework</H3>
         <div style={{overflowX:"auto"}}>
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-            <thead><tr>{["Revenue Stream","Setup","Potential","Scalability"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
-            <tbody>{REVENUE.map((r,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"8px 10px",color:C.tx,fontWeight:600}}>{r.stream}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.setup}</td><td style={{padding:"8px 10px",color:C.gn,fontFamily:C.mn}}>{r.potential}</td><td style={{padding:"8px 10px",color:r.scale==="High"?C.gn:C.am}}>{r.scale}</td></tr>)}</tbody>
+            <thead><tr>{["Revenue Stream","Setup","Potential","Scalability",""].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.di,fontSize:10,fontFamily:C.mn,letterSpacing:"0.08em",borderBottom:`1px solid ${C.bdr}`}}>{h}</th>)}</tr></thead>
+            <tbody>{REVENUE.map((r,i)=><tr key={i} style={{borderBottom:`1px solid #ffffff06`}}><td style={{padding:"8px 10px",color:C.tx,fontWeight:600}}>{r.stream}</td><td style={{padding:"8px 10px",color:C.mu}}>{r.setup}</td><td style={{padding:"8px 10px",color:C.gn,fontFamily:C.mn}}>{r.potential}</td><td style={{padding:"8px 10px",color:r.scale==="High"?C.gn:C.am}}>{r.scale}</td><td style={{padding:"8px 10px"}}><Cp text={`${r.stream}: ${r.potential} | Setup: ${r.setup} | Scalability: ${r.scale}`}/></td></tr>)}</tbody>
           </table>
         </div>
       </Card>
@@ -1758,7 +1769,10 @@ function Build(){
           {TECH_STACKS.map((ts,i)=><div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:10,padding:"14px 16px"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
               <span style={{fontSize:14,fontWeight:700,color:C.tx}}>{ts.stack}</span>
-              <span style={{fontSize:10,fontFamily:C.mn,padding:"2px 8px",borderRadius:10,background:ts.tier==="Production"?C.gn+"18":ts.tier==="Advanced"?C.am+"18":C.mu+"18",color:ts.tier==="Production"?C.gn:ts.tier==="Advanced"?C.am:C.mu}}>{ts.tier}</span>
+              <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                <span style={{fontSize:10,fontFamily:C.mn,padding:"2px 8px",borderRadius:10,background:ts.tier==="Production"?C.gn+"18":ts.tier==="Advanced"?C.am+"18":C.mu+"18",color:ts.tier==="Production"?C.gn:ts.tier==="Advanced"?C.am:C.mu}}>{ts.tier}</span>
+                <Cp text={`${ts.stack} (${ts.tier})\n${ts.items.map(it=>`${it.l}: ${it.v}`).join("\n")}`}/>
+              </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:6}}>
               {ts.items.map((it,j)=><div key={j} style={{display:"flex",gap:8}}><span style={{fontSize:11,color:C.di,fontFamily:C.mn,minWidth:65}}>{it.l}</span><span style={{fontSize:11,color:C.mu}}>{it.v}</span></div>)}
@@ -1767,6 +1781,11 @@ function Build(){
         </div>
       </Card>
     </div>}
+
+    {s==="workflow"&&<WFBuilder/>}
+    {s==="composer"&&<LayerComposer/>}
+    {s==="webappgen"&&<WebAppGen/>}
+    {s==="diff"&&<PromptDiff/>}
 
     </div>
   </div>);
@@ -2144,11 +2163,37 @@ function PromptDiff(){
   return(<Card>
     <Lbl text="Paste two prompts — get a side-by-side quality analysis" color={C.mg}/>
     <H3>Prompt Diff Tool</H3>
+    {(a.trim()||b.trim())&&(
+      <div style={{display:"grid",gap:12,marginBottom:16}}>
+        <div style={{fontSize:10,color:C.mg,fontFamily:C.mn,letterSpacing:"0.1em"}}>📋 FULL PROMPTS — COPY READY</div>
+        {a.trim()&&(
+          <div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+              <span style={{fontSize:11,color:C.cy,fontFamily:C.mn,fontWeight:600}}>PROMPT A — FULL TEXT</span>
+              <Cp text={a.trim()} sm={false} label="COPY PROMPT A"/>
+            </div>
+            <Code text={a.trim()} mh={200}/>
+          </div>
+        )}
+        {b.trim()&&(
+          <div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+              <span style={{fontSize:11,color:C.vi,fontFamily:C.mn,fontWeight:600}}>PROMPT B — FULL TEXT</span>
+              <Cp text={b.trim()} sm={false} label="COPY PROMPT B"/>
+            </div>
+            <Code text={b.trim()} mh={200}/>
+          </div>
+        )}
+      </div>
+    )}
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:14}}>
       <TA label="PROMPT A" value={a} onChange={setA} ph="Paste your first prompt here…" rows={6}/>
       <TA label="PROMPT B" value={b} onChange={setB} ph="Paste your second prompt here…" rows={6}/>
     </div>
-    <button onClick={run} style={{background:`${C.mg}15`,border:`1px solid ${C.mg}55`,color:C.mg,borderRadius:8,padding:"10px 18px",fontSize:13,fontWeight:600,fontFamily:C.mn,cursor:"pointer",letterSpacing:"0.05em",marginBottom:14}}>⚡ ANALYZE PROMPTS</button>
+    <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:14}}>
+      <button onClick={run} style={{background:`${C.mg}15`,border:`1px solid ${C.mg}55`,color:C.mg,borderRadius:8,padding:"10px 18px",fontSize:13,fontWeight:600,fontFamily:C.mn,cursor:"pointer",letterSpacing:"0.05em"}}>⚡ ANALYZE PROMPTS</button>
+      {res&&<Cp text={`PROMPT DIFF ANALYSIS\nWinner: Prompt ${res.win}\n\nPrompt A — Clarity ${res.a.cl}/10 | Structure ${res.a.st}/10 | Constraints ${res.a.cn}/10 | Predictability ${res.a.pr}/10 | Overall ${res.a.ov}/10\nMissing: ${res.a.miss.length?res.a.miss.join(", "):"None"}\n\nPrompt B — Clarity ${res.b.cl}/10 | Structure ${res.b.st}/10 | Constraints ${res.b.cn}/10 | Predictability ${res.b.pr}/10 | Overall ${res.b.ov}/10\nMissing: ${res.b.miss.length?res.b.miss.join(", "):"None"}`} sm={false} label="COPY ANALYSIS"/>}
+    </div>
     {res&&<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
       {[["A",res.a,C.cy],["B",res.b,C.vi]].filter(([lbl])=>(lbl==="A"?a.trim():b.trim())).map(([lbl,sc,col])=><div key={lbl} style={{background:C.bg,border:`2px solid ${res.win===lbl?col:C.bdr}`,borderRadius:10,padding:"14px"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
@@ -2166,23 +2211,6 @@ function PromptDiff(){
       </div>)}
     </div>}
   </Card>);
-}
-
-const BTOOLS=[{id:"workflow",label:"🦅 Workflow Builder"},{id:"composer",label:"🏗 8-Layer Composer"},{id:"webapp",label:"🌐 Web App Generator"},{id:"diff",label:"⚖️ Prompt Diff"}];
-function Builder(){
-  const[t,setT]=useState("workflow");
-  const[bKey,setBKey]=useState(0);
-  return(<div>
-    <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:18,paddingBottom:14,borderBottom:`1px solid ${C.bdr}`}}>
-      {BTOOLS.map(bt=><Pill key={bt.id} label={bt.label} active={t===bt.id} color={C.mg} onClick={()=>{setT(bt.id);setBKey(k=>k+1);}}/>)}
-    </div>
-    <div key={bKey} className="anim-slide">
-      {t==="workflow"&&<WFBuilder/>}
-      {t==="composer"&&<LayerComposer/>}
-      {t==="webapp"&&<WebAppGen/>}
-      {t==="diff"&&<PromptDiff/>}
-    </div>
-  </div>);
 }
 
 // ─── STRATEGY ─────────────────────────────────────────────────────────────────
@@ -2306,7 +2334,6 @@ export default function App(){
           {zone==="playbook"&&<Playbook/>}
           {zone==="strategy"&&<Strategy/>}
           {zone==="meta"&&<Meta/>}
-          {zone==="builder" &&<Builder/>}
         </div>
       </div>
 
