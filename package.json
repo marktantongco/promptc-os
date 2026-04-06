@@ -1,6 +1,6 @@
 {
   "name": "promptc-os",
-  "version": "2026.5.0",
+  "version": "2026.4.0",
   "private": true,
   "description": "promptc OS — AI Prompt Engineering Master Reference",
   "scripts": {
