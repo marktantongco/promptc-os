@@ -12,6 +12,13 @@ const PWA_MANIFEST = {
 };
 
 function injectPWA(){
+  // GSAP CDN
+  if(!window.gsap){
+    const gsapScript=document.createElement("script");
+    gsapScript.src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js";
+    gsapScript.onload=()=>{window.gsapReady=true;window.dispatchEvent(new Event('gsap-ready'));};
+    document.head.appendChild(gsapScript);
+  }
   // Preconnect to Google Fonts
   const preconnect=document.createElement("link");preconnect.rel="preconnect";preconnect.href="https://fonts.googleapis.com";preconnect.crossOrigin="anonymous";
   document.head.appendChild(preconnect);
@@ -46,6 +53,15 @@ self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(ks=>Promise.a
   }
 }
 
+// ─── MOTION SYSTEM ─────────────────────────────────────────────────────────────
+const MOTION = {
+  spring: { duration: 0.6, ease: 'back.out(1.7)' },
+  smooth: { duration: 0.4, ease: 'power2.out' },
+  snap: { duration: 0.2, ease: 'power4.out' },
+  hero: { duration: 0.8, ease: 'expo.out' },
+  stagger: 0.08,
+};
+
 const FONT_CSS=`@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
@@ -57,10 +73,26 @@ body{font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialias
 @keyframes ripple{0%{transform:scale(0);opacity:0.5}100%{transform:scale(3);opacity:0}}
 @keyframes copyFlash{0%{background:#22c55e30}50%{background:#22c55e15}100%{background:transparent}}
 @keyframes glowPulse{0%,100%{opacity:1}50%{opacity:0.7}}
+@keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes drawLine{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.05);opacity:0.8}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-60px)}to{opacity:1;transform:none}}
+@keyframes breathe{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:0.6;transform:scale(1.02)}}
+@keyframes progressBar{from{width:0}to{width:var(--progress)}}
+@keyframes skeletonShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes hapticPulse{0%{box-shadow:0 0 0 0 var(--pulse-color,rgba(77,255,255,0.4))}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
 .anim-zone{animation:zoneEnter 0.3s cubic-bezier(0.16,1,0.3,1)}
 .anim-pop{animation:popIn 0.2s cubic-bezier(0.16,1,0.3,1)}
 .anim-slide{animation:fadeSlide 0.25s cubic-bezier(0.16,1,0.3,1)}
 .anim-shimmer{animation:shimmerIn 0.2s cubic-bezier(0.16,1,0.3,1)}
+.anim-countup{animation:countUp 0.5s cubic-bezier(0.16,1,0.3,1)}
+.anim-pulse{animation:pulse 2s ease-in-out infinite}
+.anim-breathe{animation:breathe 4s ease-in-out infinite}
+.anim-haptic{animation:hapticPulse 0.4s ease-out}
+.skeleton{background:linear-gradient(90deg,#14161A 25%,#1e2028 50%,#14161A 75%);background-size:200% 100%;animation:skeletonShimmer 1.5s ease-in-out infinite;border-radius:6px}
+.pres-enter-right{animation:slideInRight 0.4s cubic-bezier(0.16,1,0.3,1)}
+.pres-enter-left{animation:slideInLeft 0.4s cubic-bezier(0.16,1,0.3,1)}
 button:active{transform:scale(0.96)!important}
 @media(prefers-reduced-motion:reduce){*{animation-duration:0.01ms!important;transition-duration:0.01ms!important;animation-iteration-count:1!important}}
 `;
@@ -2915,6 +2947,365 @@ function Pill({label,active,color,onClick}){return <button onClick={onClick} sty
 function Inp({label,value,onChange,ph}){return(<div style={{marginBottom:10}}>{label&&<div style={{fontSize:10,color:C.di,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:4}}>{label}</div>}<input value={value} onChange={e=>onChange(e.target.value)} placeholder={ph} style={{width:"100%",boxSizing:"border-box",background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"9px 12px",color:C.tx,fontSize:13,fontFamily:C.ss,outline:"none"}}/></div>);}
 function TA({label,value,onChange,ph,rows=4}){return(<div style={{marginBottom:10}}>{label&&<div style={{fontSize:10,color:C.di,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:4}}>{label}</div>}<textarea value={value} onChange={e=>onChange(e.target.value)} placeholder={ph} rows={rows} style={{width:"100%",boxSizing:"border-box",background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"9px 12px",color:C.tx,fontSize:12,fontFamily:C.mn,outline:"none",resize:"vertical",lineHeight:1.6}}/></div>);}
 
+// ─── GSAP MOTION COMPONENTS ───────────────────────────────────────────────────
+const prefersReducedMotion=()=>typeof window!=='undefined'&&window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+
+function AnimatedCounter({value,suffix="",decimals=0,color=C.tx,fontSize="clamp(24px,4vw,36px)"}){
+  const ref=useRef(null);
+  const counted=useRef(false);
+  useEffect(()=>{
+    if(counted.current)return;
+    const el=ref.current;if(!el)return;
+    const obs=new IntersectionObserver(([entry])=>{
+      if(entry.isIntersecting&&!counted.current){
+        counted.current=true;
+        if(window.gsap&&!prefersReducedMotion()){
+          const obj={val:0};window.gsap.to(obj,{val:parseFloat(value),duration:MOTION.hero.duration,ease:MOTION.hero.ease,onUpdate:()=>{el.textContent=obj.val.toFixed(decimals)+suffix;}});
+        }else{el.textContent=parseFloat(value).toFixed(decimals)+suffix;el.classList.add('anim-countup');}
+        obs.unobserve(el);
+      }
+    },{threshold:0.3});
+    obs.observe(el);return()=>obs.disconnect();
+  },[value,suffix,decimals]);
+  return <span ref={ref} style={{color,fontSize,fontFamily:C.hd,fontWeight:700,display:"inline-block"}}>0</span>;
+}
+
+function ScrollReveal({children,type="fadeSlide",delay=0,style={}}){
+  const ref=useRef(null);
+  const shown=useRef(false);
+  useEffect(()=>{
+    const el=ref.current;if(!el)return;
+    const obs=new IntersectionObserver(([entry])=>{
+      if(entry.isIntersecting&&!shown.current){
+        shown.current=true;
+        if(window.gsap&&!prefersReducedMotion()){
+          const m={fadeSlide:{opacity:0,y:20},scaleIn:{opacity:0,scale:0.92},fadeOnly:{opacity:0}};
+          const from=m[type]||m.fadeSlide;
+          window.gsap.fromTo(el,from,{opacity:1,y:0,scale:1,duration:MOTION.smooth.duration,ease:MOTION.smooth.ease,delay});
+        }else{el.style.opacity=1;el.style.transform='none';}
+        obs.unobserve(el);
+      }
+    },{threshold:0.15});
+    obs.observe(el);return()=>obs.disconnect();
+  },[type,delay]);
+  const initS=type==='scaleIn'?{opacity:0,transform:'scale(0.92)'}:{opacity:0,transform:'translateY(20px)'};
+  return <div ref={ref} style={{...initS,transition:'none',...style}}>{children}</div>;
+}
+
+function AnimatedBar({value,max=10,color=C.cy,delay=0,height=5}){
+  const ref=useRef(null);
+  const done=useRef(false);
+  useEffect(()=>{
+    if(done.current)return;
+    const el=ref.current;if(!el)return;
+    const obs=new IntersectionObserver(([entry])=>{
+      if(entry.isIntersecting&&!done.current){
+        done.current=true;
+        if(window.gsap&&!prefersReducedMotion()){
+          window.gsap.fromTo(el,{width:'0%'},{width:`${(value/max)*100}%`,duration:0.8,ease:'elastic.out(1,0.6)',delay});
+        }else{el.style.width=`${(value/max)*100}%`;}
+        obs.unobserve(el);
+      }
+    },{threshold:0.3});
+    obs.observe(el);return()=>obs.disconnect();
+  },[value,max,delay]);
+  return <div ref={ref} style={{background:color,height,borderRadius:999,width:0,transition:'none'}}/>;
+}
+
+function StaggerGrid({children,stagger=0.06}){
+  const ref=useRef(null);
+  const done=useRef(false);
+  useEffect(()=>{
+    const el=ref.current;if(!el)return;
+    const obs=new IntersectionObserver(([entry])=>{
+      if(entry.isIntersecting&&!done.current){
+        done.current=true;
+        if(window.gsap&&!prefersReducedMotion()){
+          const items=el.children;
+          window.gsap.fromTo(items,{opacity:0,y:16},{opacity:1,y:0,duration:0.35,ease:MOTION.snap.ease,stagger});
+        }else{for(let c of el.children){c.style.opacity=1;c.style.transform='none';}}
+        obs.unobserve(el);
+      }
+    },{threshold:0.1});
+    obs.observe(el);return()=>obs.disconnect();
+  },[stagger]);
+  return <div ref={ref}>{children}</div>;
+}
+
+function MorphPill({label,active,color,onClick}){
+  const ref=useRef(null);
+  const prevActive=useRef(active);
+  useEffect(()=>{
+    if(active===prevActive.current)return;
+    prevActive.current=active;
+    const el=ref.current;if(!el||!window.gsap||prefersReducedMotion())return;
+    if(active){
+      window.gsap.to(el,{scale:1.08,duration:0.15,ease:'power2.out',onComplete:()=>window.gsap.to(el,{scale:1,duration:0.3,ease:'elastic.out(1,0.5)'})});
+    }
+  },[active]);
+  return <button ref={ref} onClick={onClick} style={{background:active?`${color}18`:"transparent",border:`1px solid ${active?color+"55":C.bdr}`,color:active?color:C.di,borderRadius:20,padding:"4px 11px",fontSize:"clamp(10px,1.4vw,11px)",fontFamily:C.mn,cursor:"pointer",transition:active?"none":"all 0.15s",whiteSpace:"nowrap",lineHeight:1.6,boxShadow:active?`0 0 12px ${color}22`:'none'}}>{label}</button>;
+}
+
+function ParallaxText({children,speed=0.15,style={}}){
+  const ref=useRef(null);
+  useEffect(()=>{
+    const el=ref.current;if(!el||prefersReducedMotion())return;
+    let raf;
+    const onScroll=()=>{const y=window.scrollY*speed;el.style.transform=`translateY(${y}px)`;raf=requestAnimationFrame(onScroll);};
+    window.addEventListener('scroll',onScroll,{passive:true});
+    onScroll();
+    return()=>{window.removeEventListener('scroll',onScroll);cancelAnimationFrame(raf);};
+  },[speed]);
+  return <div ref={ref} style={{willChange:'transform',...style}}>{children}</div>;
+}
+
+function SkeletonCard({lines=3}){return(<div style={{background:C.sur,border:`1px solid ${C.bdr}`,borderRadius:12,padding:"18px 20px"}}>{Array.from({length:lines}).map((_,i)=><div key={i} className="skeleton" style={{height:i===0?18:12,width:i===0?'60%':`${80+Math.random()*20}%`,marginBottom:8}}/>)}</div>);}
+
+function HapticButton({children,style={},onClick,color=C.cy,...props}){
+  const ref=useRef(null);
+  const trigger=()=>{const el=ref.current;if(!el)return;el.style.setProperty('--pulse-color',color+'44');el.classList.remove('anim-haptic');void el.offsetWidth;el.classList.add('anim-haptic');setTimeout(()=>el.classList.remove('anim-haptic'),500);};
+  return <button ref={ref} onClick={e=>{trigger();onClick?.(e);}} style={style} {...props}>{children}</button>;
+}
+
+// ─── INFOGRAPHIC COMPONENTS ───────────────────────────────────────────────────
+function PromptQualityRadar({scores}){
+  const svgRef=useRef(null);
+  const done=useRef(false);
+  const labels=["Clarity","Structure","Constraints","Predictability","Specificity"];
+  const cx=120,cy=120,r=80,n=5;
+  useEffect(()=>{
+    const svg=svgRef.current;if(!svg)return;
+    const obs=new IntersectionObserver(([entry])=>{
+      if(entry.isIntersecting&&!done.current){
+        done.current=true;
+        if(window.gsap&&!prefersReducedMotion()){
+          const paths=svg.querySelectorAll('.radar-area');
+          paths.forEach(p=>{const len=p.getTotalLength();p.style.strokeDasharray=len;p.style.strokeDashoffset=len;window.gsap.to(p,{strokeDashoffset:0,duration:1.2,ease:'power2.out',stagger:0.2});});
+          const dots=svg.querySelectorAll('.radar-dot');
+          window.gsap.fromTo(dots,{r:0,opacity:0},{r:4,opacity:1,duration:0.5,stagger:0.15,delay:0.6});
+        }
+        obs.unobserve(svg);
+      }
+    },{threshold:0.3});
+    obs.observe(svg);return()=>obs.disconnect();
+  },[]);
+  const getPoints=(vals)=>{const pts=[];for(let i=0;i<n;i++){const a=(Math.PI*2/n)*i-Math.PI/2;const v=(vals[i]||0)/10;r_eff=v*r;pts.push(`${cx+r_eff*Math.cos(a)},${cy+r_eff*Math.sin(a)}`);}return pts.join(' ');};
+  const gridPts=(level)=>{const pts=[];for(let i=0;i<n;i++){const a=(Math.PI*2/n)*i-Math.PI/2;pts.push(`${cx+level*r*Math.cos(a)},${cy+level*r*Math.sin(a)}`);}return pts.join(' ');};
+  return(<div style={{display:'flex',justifyContent:'center',padding:'10px 0'}}><svg ref={svgRef} width={240} height={240} viewBox="0 0 240 240" style={{maxWidth:'100%'}}>
+    {[0.25,0.5,0.75,1].map((l,i)=><polygon key={i} points={gridPts(l)} fill="none" stroke={C.bdr} strokeWidth={i===3?1:0.5}/>)}
+    {labels.map((lb,i)=>{const a=(Math.PI*2/n)*i-Math.PI/2;const lx=cx+(r+18)*Math.cos(a);const ly=cy+(r+18)*Math.sin(a);return <text key={i} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fill={C.mu} fontSize={9} fontFamily={C.mn}>{lb}</text>;})}
+    <polygon className="radar-area" points={getPoints(scores)} fill={C.vi+"18"} stroke={C.vi} strokeWidth={2} strokeLinejoin="round"/>
+    {scores.map((v,i)=>{const a=(Math.PI*2/n)*i-Math.PI/2;const rv=(v/10)*r;return <circle key={i} className="radar-dot" cx={cx+rv*Math.cos(a)} cy={cy+rv*Math.sin(a)} r={0} fill={C.vi} stroke={C.bg} strokeWidth={2}/>;})}
+  </svg></div>);
+}
+
+function ZoneHeatmap(){
+  const skills=["Role","Context","Output","Reasoning","Constraints","Aesthetic"];
+  const zones=[
+    {name:"Activate",color:C.cy,vals:[1,0.7,0.5,0.8,0.6,0.4]},
+    {name:"Build",color:C.vi,vals:[0.9,0.8,0.6,0.5,0.7,0.9]},
+    {name:"Validate",color:C.gn,vals:[0.4,0.3,0.9,0.9,0.95,0.5]},
+    {name:"Playbook",color:C.am,vals:[0.7,0.8,0.8,0.6,0.7,0.4]},
+    {name:"Monetize",color:"#FFD700",vals:[0.8,0.9,0.7,0.7,0.6,0.6]},
+  ];
+  return(<div style={{overflowX:'auto'}}><table style={{borderCollapse:'collapse',width:'100%',minWidth:400}}>
+    <thead><tr><th style={{padding:'6px 10px',textAlign:'left',fontSize:10,color:C.di,fontFamily:C.mn,borderBottom:`1px solid ${C.bdr}`}}>ZONE</th>{skills.map(s=><th key={s} style={{padding:'6px 8px',textAlign:'center',fontSize:10,color:C.di,fontFamily:C.mn,borderBottom:`1px solid ${C.bdr}`}}>{s}</th>)}</tr></thead>
+    <tbody>{zones.map(z=><tr key={z.name}>{[z.name,...z.vals].map((cell,ci)=>{
+      const isVal=ci>0;
+      const op=isVal?0.15+cell*0.55:1;
+      return <td key={ci} style={{padding:'7px 10px',textAlign:isVal?'center':'left',fontSize:isVal?11:12,color:isVal?(cell>0.8?z.color:cell>0.5?C.mu:C.fa):C.tx,fontFamily:isVal?C.mn:C.ss,background:isVal?z.color.replace(')',`,${op})`).replace('rgb','rgba').replace('#',()=>{const hex=z.color;const r2=parseInt(hex.slice(1,3),16)||255;const g2=parseInt(hex.slice(3,5),16)||255;const b2=parseInt(hex.slice(5,7),16)||255;return `rgba(${r2},${g2},${b2},${op})`;}):'transparent',borderBottom:`1px solid ${C.bdr}44`,transition:'background 0.2s',borderRadius:isVal?4:0}}>
+        {isVal?(<span style={{display:'inline-block',minWidth:20}}>{cell>=0.9?'●●●':cell>=0.7?'●●○':cell>=0.5?'●○○':'○○○'}</span>):cell}
+      </td>;
+    })}</tr>)}</tbody>
+  </table></div>);
+}
+
+function WorkflowChainVisualizer(){
+  const [sel,setSel]=useState(0);
+  const svgRef=useRef(null);
+  const done=useRef(false);
+  const ch=CHAINS[sel];if(!ch)return null;
+  useEffect(()=>{done.current=false;},[sel]);
+  useEffect(()=>{
+    const svg=svgRef.current;if(!svg)return;
+    const obs=new IntersectionObserver(([entry])=>{
+      if(entry.isIntersecting&&!done.current){
+        done.current=true;
+        if(window.gsap&&!prefersReducedMotion()){
+          const paths=svg.querySelectorAll('.chain-line');
+          paths.forEach(p=>{const len=p.getTotalLength();p.style.strokeDasharray=len;p.style.strokeDashoffset=len;window.gsap.to(p,{strokeDashoffset:0,duration:0.8,ease:'power2.out',stagger:0.3});});
+          const circles=svg.querySelectorAll('.chain-node');
+          window.gsap.fromTo(circles,{r:0,opacity:0},{r:18,opacity:1,duration:0.4,stagger:0.25,delay:0.3});
+        }
+        obs.unobserve(svg);
+      }
+    },{threshold:0.3});
+    obs.observe(svg);return()=>obs.disconnect();
+  },[sel]);
+  const nodeX=[50,175,300];const nodeY=50;
+  return(<div>
+    <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12}}>{CHAINS.map((c,i)=><MorphPill key={i} label={c.goal} active={sel===i} color={AC[c.c[0]]||C.vi} onClick={()=>setSel(i)}/>)}</div>
+    <div style={{fontSize:11,color:C.mu,marginBottom:8}}>{ch.best}</div>
+    <div style={{display:'flex',justifyContent:'center',overflowX:'auto'}}>
+      <svg ref={svgRef} width={350} height={100} viewBox="0 0 350 100" style={{maxWidth:'100%'}}>
+        {[0,1].map(i=><line key={i} className="chain-line" x1={nodeX[i]+20} y1={nodeY} x2={nodeX[i+1]-20} y2={nodeY} stroke={AC[ch.c[i]]||C.mu} strokeWidth={2} strokeDasharray="6 4" fill="none"/>)}
+        {ch.c.map((name,i)=>{const a=ANIMALS.find(x=>x.name===name);const col=AC[name]||C.mu;return <g key={i}><circle className="chain-node" cx={nodeX[i]} cy={nodeY} r={0} fill={col+"22"} stroke={col} strokeWidth={2}/><text x={nodeX[i]} y={nodeY-26} textAnchor="middle" fill={C.tx} fontSize={14}>{a?.emoji||'🐾'}</text><text x={nodeX[i]} y={nodeY+4} textAnchor="middle" fill={col} fontSize={10} fontFamily={C.mn} fontWeight={600}>{name}</text><text x={nodeX[i]} y={nodeY+16} textAnchor="middle" fill={C.di} fontSize={8} fontFamily={C.mn}>{a?.mode||''}</text></g>;})}
+      </svg>
+    </div>
+  </div>);
+}
+
+function SkillDistributionDonut(){
+  const svgRef=useRef(null);
+  const done=useRef(false);
+  const cats=[...new Set(MODS.map(m=>m.cat))];
+  const dist=cats.map(c=>({label:c,count:MODS.filter(m=>m.cat===c).length}));
+  const colors=[C.cy,C.vi,C.mg,C.am,C.gn,C.bl,C.or,C.rd,'#7B5CFF','#FFD700'];
+  const total=dist.reduce((a,b)=>a+b.count,0);
+  useEffect(()=>{
+    const svg=svgRef.current;if(!svg)return;
+    const obs=new IntersectionObserver(([entry])=>{
+      if(entry.isIntersecting&&!done.current){
+        done.current=true;
+        if(window.gsap&&!prefersReducedMotion()){
+          const arcs=svg.querySelectorAll('.donut-arc');
+          arcs.forEach(arc=>{const len=arc.getTotalLength();arc.style.strokeDasharray=len;arc.style.strokeDashoffset=len;window.gsap.to(arc,{strokeDashoffset:0,duration:1,ease:'power2.out',stagger:0.12});});
+        }
+        obs.unobserve(svg);
+      }
+    },{threshold:0.3});
+    obs.observe(svg);return()=>obs.disconnect();
+  },[]);
+  const cx2=120,cy2=120,r2=70,sw=20;
+  let cumPct=0;
+  const arcs=dist.map((d,i)=>{
+    const pct=d.count/total;
+    const startAngle=cumPct*2*Math.PI-Math.PI/2;
+    const endAngle=(cumPct+pct)*2*Math.PI-Math.PI/2;
+    const x1=cx2+(r2)*Math.cos(startAngle);const y1=cy2+(r2)*Math.sin(startAngle);
+    const x2=cx2+(r2)*Math.cos(endAngle);const y2=cy2+(r2)*Math.sin(endAngle);
+    const large=pct>0.5?1:0;
+    cumPct+=pct;
+    return {d:`M ${x1} ${y1} A ${r2} ${r2} 0 ${large} 1 ${x2} ${y2}`,color:colors[i%colors.length],label:d.label,count:d.count,pct:Math.round(pct*100)};
+  });
+  return(<div style={{display:'flex',gap:20,flexWrap:'wrap',justifyContent:'center',alignItems:'center'}}>
+    <svg ref={svgRef} width={240} height={240} viewBox="0 0 240 240" style={{maxWidth:180}}>
+      {arcs.map((a,i)=><path key={i} className="donut-arc" d={a.d} fill="none" stroke={a.color} strokeWidth={sw} strokeLinecap="round" opacity={0.85}/>)}
+      <text x={cx2} y={cy2-6} textAnchor="middle" fill={C.tx} fontSize={22} fontFamily={C.hd}>{total}</text>
+      <text x={cx2} y={cy2+12} textAnchor="middle" fill={C.di} fontSize={9} fontFamily={C.mn}>MODIFIERS</text>
+    </svg>
+    <div style={{display:'grid',gap:4,maxWidth:160}}>
+      {arcs.map((a,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:8,fontSize:11}}>
+        <span style={{width:8,height:8,borderRadius:2,background:a.color,flexShrink:0}}/>
+        <span style={{color:C.mu,flex:1}}>{a.label}</span>
+        <span style={{color:C.tx,fontFamily:C.mn}}>{a.count}</span>
+      </div>)}
+    </div>
+  </div>);
+}
+
+function Infographics(){
+  return(<div style={{display:'grid',gap:14}}>
+    <Card accent={C.vi}>
+      <Lbl text="Animated data visualizations for prompt engineering metrics" color={C.vi}/>
+      <H3>📊 Infographics</H3>
+      <div style={{display:'grid',gap:6,flexWrap:'wrap',marginBottom:14}}/>
+      <ScrollReveal type="fadeSlide"><Card accent={C.vi} sx={{marginBottom:14}}>
+        <Lbl text="SVG radar chart — prompt quality across 5 dimensions" color={C.vi}/>
+        <H3 style={{fontSize:'clamp(13px,1.8vw,15px)'}}>Prompt Quality Radar</H3>
+        <PromptQualityRadar scores={[8,7,6,7,5]}/>
+      </Card></ScrollReveal>
+      <ScrollReveal type="fadeSlide" delay={0.1}><Card accent={C.gn} sx={{marginBottom:14}}>
+        <Lbl text="Which zones cover which prompt engineering skills" color={C.gn}/>
+        <H3 style={{fontSize:'clamp(13px,1.8vw,15px)'}}>Zone Coverage Heatmap</H3>
+        <ZoneHeatmap/>
+      </Card></ScrollReveal>
+      <ScrollReveal type="fadeSlide" delay={0.2}><Card accent={C.am} sx={{marginBottom:14}}>
+        <Lbl text="Animal Chain connections — which animals for which goals" color={C.am}/>
+        <H3 style={{fontSize:'clamp(13px,1.8vw,15px)'}}>Workflow Chain Visualizer</H3>
+        <WorkflowChainVisualizer/>
+      </Card></ScrollReveal>
+      <ScrollReveal type="fadeSlide" delay={0.3}><Card accent={C.bl}>
+        <Lbl text="Distribution of prompt skills across modifier categories" color={C.bl}/>
+        <H3 style={{fontSize:'clamp(13px,1.8vw,15px)'}}>Skill Distribution Donut</H3>
+        <SkillDistributionDonut/>
+      </Card></ScrollReveal>
+    </Card>
+  </div>);
+}
+
+// ─── PRESENTATION MODE ─────────────────────────────────────────────────────────
+function PresentationMode({active,onClose,zoneContent}){
+  const[idx,setIdx]=useState(0);
+  const[dir,setDir]=useState(1);
+  const slides=useMemo(()=>{
+    if(!zoneContent)return[];
+    const container=document.createElement('div');container.innerHTML=zoneContent;
+    const cards=container.querySelectorAll('[data-pres-slide]');
+    if(cards.length>0)return Array.from(cards).map((c,i)=>({html:c.innerHTML,key:i}));
+    const divs=Array.from(container.children).filter(c=>{const s=getComputedStyle(c);return s.display!=='none'&&s.visibility!=='hidden';});
+    return divs.slice(0,20).map((d,i)=>({html:d.outerHTML,key:i}));
+  },[zoneContent]);
+  useEffect(()=>{
+    if(!active)return;
+    const h=e=>{
+      if(e.key==='Escape'){e.preventDefault();onClose();}
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();goNext();}
+      if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();goPrev();}
+    };
+    window.addEventListener('keydown',h);
+    return()=>window.removeEventListener('keydown',h);
+  },[active,idx,slides]);
+  const goNext=()=>{if(idx<slides.length-1){setDir(1);setIdx(idx+1);}};
+  const goPrev=()=>{if(idx>0){setDir(-1);setIdx(idx-1);}};
+  const [touchStart,setTouchStart]=useState(null);
+  const onTouchStart=e=>{setTouchStart(e.touches[0].clientX);};
+  const onTouchEnd=e=>{if(touchStart===null)return;const diff=touchStart-e.changedTouches[0].clientX;if(Math.abs(diff)>50){diff>0?goNext():goPrev();}setTouchStart(null);};
+  if(!active||slides.length===0)return null;
+  const progress=slides.length>1?((idx+1)/slides.length)*100:100;
+  const animClass=dir>0?'pres-enter-right':'pres-enter-left';
+  return(<div style={{position:'fixed',inset:0,background:'#000',zIndex:9999,display:'flex',flexDirection:'column',overflow:'hidden'}} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+    <div style={{position:'absolute',top:14,right:14,display:'flex',gap:8,alignItems:'center',zIndex:10}}>
+      <span style={{fontSize:11,color:'#ffffff88',fontFamily:C.mn}}>{idx+1}/{slides.length}</span>
+      <button onClick={onClose} style={{background:'#ffffff15',border:'1px solid #ffffff25',color:'#fff',borderRadius:8,padding:'6px 12px',fontSize:11,fontFamily:C.mn,cursor:'pointer'}}>ESC ✕</button>
+    </div>
+    <div style={{position:'absolute',bottom:0,left:0,right:0,height:3,background:'#ffffff15'}}><div style={{height:'100%',background:C.cy,width:progress+'%',transition:'width 0.3s ease'}}/></div>
+    <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:'40px 20px 60px',overflow:'auto'}}>
+      <div key={idx} className={animClass} style={{maxWidth:720,width:'100%',color:C.tx,fontSize:'clamp(14px,2.5vw,18px)',lineHeight:1.7}} dangerouslySetInnerHTML={{__html:slides[idx].html}}/>
+    </div>
+    <div style={{position:'absolute',left:16,top:'50%',transform:'translateY(-50%)',opacity:idx>0?1:0.2}}><button onClick={goPrev} disabled={idx===0} style={{background:'#ffffff10',border:'none',color:'#fff',fontSize:28,cursor:idx===0?'default':'pointer',padding:10,borderRadius:'50%'}} aria-label="Previous slide">‹</button></div>
+    <div style={{position:'absolute',right:16,top:'50%',transform:'translateY(-50%)',opacity:idx<slides.length-1?1:0.2}}><button onClick={goNext} disabled={idx===slides.length-1} style={{background:'#ffffff10',border:'none',color:'#fff',fontSize:28,cursor:idx===slides.length-1?'default':'pointer',padding:10,borderRadius:'50%'}} aria-label="Next slide">›</button></div>
+  </div>);
+}
+
+// ─── PWA ENHANCEMENTS ─────────────────────────────────────────────────────────
+function OfflineBadge(){
+  const[offline,setOffline]=useState(false);
+  useEffect(()=>{
+    const up=()=>setOffline(false);const dn=()=>setOffline(true);
+    setOffline(!navigator.onLine);
+    window.addEventListener('online',up);window.addEventListener('offline',dn);
+    return()=>{window.removeEventListener('online',up);window.removeEventListener('offline',dn);};
+  },[]);
+  if(!offline)return null;
+  return <span style={{fontSize:9,background:C.rd+'22',color:C.rd,border:`1px solid ${C.rd}44`,borderRadius:4,padding:'1px 6px',fontFamily:C.mn,letterSpacing:'0.05em'}}>OFFLINE</span>;
+}
+
+function InstallBanner({onDismiss}){
+  const[show,setShow]=useState(false);
+  useEffect(()=>{
+    if(window.matchMedia?.('(display-mode: standalone)').matches){setShow(false);return;}
+    const timer=setTimeout(()=>setShow(true),3000);
+    return()=>clearTimeout(timer);
+  },[]);
+  if(!show)return null;
+  return(<div style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:C.sur,border:`1px solid ${C.cy}33`,borderRadius:12,padding:'12px 18px',display:'flex',alignItems:'center',gap:12,zIndex:300,boxShadow:'0 8px 32px rgba(0,0,0,0.5)',maxWidth:'90vw',animation:'fadeSlide 0.4s ease'}}>
+    <span style={{fontSize:18}}>⚡</span>
+    <div style={{flex:1,minWidth:0}}><div style={{fontSize:12,fontWeight:600,color:C.tx}}>Install promptc OS</div><div style={{fontSize:11,color:C.mu}}>Add to home screen for the best experience</div></div>
+    <button onClick={onDismiss} style={{background:'transparent',border:'none',color:C.di,cursor:'pointer',fontSize:14}}>✕</button>
+  </div>);
+}
+
 // ─── ACTIVATE ─────────────────────────────────────────────────────────────────
 function Activate(){
   const[tT,setTT]=useState(0);
@@ -2936,11 +3327,6 @@ function Activate(){
       <Lbl text="Paste into any AI system prompt field"/>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}><H3>Master System Prompt</H3><Cp text={MASTER} sm={false}/></div>
       <Code text={MASTER} mh={240}/>
-    </Card>
-    <Card>
-      <Lbl text="Add at session start for high-stakes work"/>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}><H3>Advocate Mode</H3><Cp text={ADVOCATE} sm={false}/></div>
-      <Code text={ADVOCATE}/>
     </Card>
     <Card>
       <Lbl text="Append to any prompt to boost output quality"/>
@@ -2997,7 +3383,7 @@ const BNAV=[
   {id:"webapp",label:"Web App"},{id:"json",label:"JSON / Output"},
   {id:"vocab",label:"Design Vocab"},{id:"typo",label:"Typography"},
   {id:"composer",label:"🏗 Composer"},{id:"wfbuilder",label:"⚡ WF Builder"},
-  {id:"diff",label:"⚖️ Diff"},
+  {id:"diff",label:"⚖️ Diff"},{id:"infographics",label:"📊 Infographics"},
 ];
 
 function Build(){
@@ -3299,6 +3685,7 @@ function Build(){
     {s==="composer"&&<LayerComposer/>}
     {s==="wfbuilder"&&<WFBuilder/>}
     {s==="diff"&&<PromptDiff/>}
+    {s==="infographics"&&<Infographics/>}
 
     </div>
   </div>);
@@ -3714,7 +4101,16 @@ function PromptDiff(){
       <TA label="PROMPT A" value={a} onChange={setA} ph="Paste your first prompt here…" rows={6}/>
       <TA label="PROMPT B" value={b} onChange={setB} ph="Paste your second prompt here…" rows={6}/>
     </div>
-    <button onClick={run} style={{background:`${C.mg}15`,border:`1px solid ${C.mg}55`,color:C.mg,borderRadius:8,padding:"10px 18px",fontSize:13,fontWeight:600,fontFamily:C.mn,cursor:"pointer",letterSpacing:"0.05em",marginBottom:14}}>⚡ ANALYZE PROMPTS</button>
+    <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:14}}>
+      <button onClick={run} style={{background:`${C.mg}15`,border:`1px solid ${C.mg}55`,color:C.mg,borderRadius:8,padding:"10px 18px",fontSize:13,fontWeight:600,fontFamily:C.mn,cursor:"pointer",letterSpacing:"0.05em"}}>⚡ ANALYZE PROMPTS</button>
+    </div>
+    <Card accent={C.mg} sx={{marginBottom:14}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+        <Lbl text="Copy-ready prompt — paste into any AI to compare prompts" color={C.mg}/>
+        <Cp text={`Compare Prompt A and Prompt B.\nFor each, score on: clarity, constraints, predictability, output specificity.\nExplain what changed between versions and why one performs better.`} sm={false}/>
+      </div>
+      <Code text={`Compare Prompt A and Prompt B.\nFor each, score on: clarity, constraints, predictability, output specificity.\nExplain what changed between versions and why one performs better.`}/>
+    </Card>
     {res&&<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
       {[["A",res.a,C.cy],["B",res.b,C.vi]].filter(([lbl])=>(lbl==="A"?a.trim():b.trim())).map(([lbl,sc,col])=><div key={lbl} style={{background:C.bg,border:`2px solid ${res.win===lbl?col:C.bdr}`,borderRadius:10,padding:"14px"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
@@ -4124,14 +4520,17 @@ export default function App(){
   const[zKey,setZKey]=useState(0);
   const[showSearch,setShowSearch]=useState(false);
   const[searchQ,setSearchQ]=useState("");
+  const[presentMode,setPresentMode]=useState(false);
+  const[showInstall,setShowInstall]=useState(false);
+  const zoneRef=useRef(null);
   const col=ZC[zone];
 
   useEffect(()=>{
     injectPWA();
-    const h=(e)=>{if((e.metaKey||e.ctrlKey)&&e.key==="k"){e.preventDefault();setShowSearch(s=>!s);}if(e.key==="Escape")setShowSearch(false);};
+    const h=(e)=>{if((e.metaKey||e.ctrlKey)&&e.key==="k"){e.preventDefault();setShowSearch(s=>!s);}if(e.key==="Escape"){setShowSearch(false);if(presentMode)setPresentMode(false);}};
     window.addEventListener("keydown",h);
     return()=>window.removeEventListener("keydown",h);
-  },[]);
+  },[presentMode]);
 
   const SEARCH_INDEX=[
     ...MODS.map(m=>({zone:"activate",label:m.mod,sub:m.cat+" — "+(m.tip||"")})),
@@ -4152,10 +4551,22 @@ export default function App(){
 
   const switchZone=(id,e)=>{
     if(id===zone)return;
-    setZone(id);
-    setZKey(k=>k+1);
-    if(window.scrollY>80)window.scrollTo({top:0,behavior:"smooth"});
+    if(presentMode)setPresentMode(false);
+    // GSAP crossfade zone transition
+    const main=zoneRef.current;
+    if(window.gsap&&!prefersReducedMotion()&&main){
+      window.gsap.to(main,{opacity:0,y:8,duration:0.15,ease:'power2.in',onComplete:()=>{
+        setZone(id);setZKey(k=>k+1);
+        if(window.scrollY>80)window.scrollTo({top:0,behavior:"instant"});
+        setTimeout(()=>window.gsap.to(main,{opacity:1,y:0,duration:0.3,ease:'power2.out'}),50);
+      }});
+    }else{
+      setZone(id);setZKey(k=>k+1);
+      if(window.scrollY>80)window.scrollTo({top:0,behavior:"smooth"});
+    }
   };
+
+  const getZoneContent=()=>{const m=zoneRef.current;return m?.innerHTML||'';};
 
   return(<>
     <style>{FONT_CSS}</style>
@@ -4164,11 +4575,14 @@ export default function App(){
       <div style={{borderBottom:`1px solid ${C.bdr}`,padding:"clamp(10px,2vw,16px) clamp(12px,2.5vw,22px) 0",position:"sticky",top:0,background:C.bg+"f0",zIndex:100,backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)"}}>
         <div style={{maxWidth:980,margin:"0 auto"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4}}>
-            <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:C.fa,letterSpacing:"0.15em"}}>promptc OS · v2026.7 · powerUP</div>
+            <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:C.fa,letterSpacing:"0.15em",display:"flex",gap:8,alignItems:"center"}}>promptc OS · v2026.8 · powerUP <OfflineBadge/></div>
             <div style={{display:"flex",gap:10,alignItems:"center"}}>
-              <button onClick={()=>setShowSearch(true)} style={{background:C.sur,border:"1px solid "+C.bdr,color:C.di,borderRadius:7,padding:"3px 9px",fontSize:10,fontFamily:C.mn,cursor:"pointer",display:"flex",gap:5,alignItems:"center"}}>
+              <HapticButton onClick={()=>setShowSearch(true)} color={C.cy} style={{background:C.sur,border:"1px solid "+C.bdr,color:C.di,borderRadius:7,padding:"3px 9px",fontSize:10,fontFamily:C.mn,cursor:"pointer",display:"flex",gap:5,alignItems:"center"}}>
                 <span>⌘K</span><span style={{opacity:0.5}}>Search</span>
-              </button>
+              </HapticButton>
+              <HapticButton onClick={()=>{setPresentMode(true);}} color={col} style={{background:col+"15",border:"1px solid "+col+"33",color:col,borderRadius:7,padding:"3px 9px",fontSize:10,fontFamily:C.mn,cursor:"pointer",display:"flex",gap:5,alignItems:"center"}}>
+                <span>▶</span><span>Present</span>
+              </HapticButton>
               <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:col,letterSpacing:"0.1em",animation:"glowPulse 2s ease infinite"}}>{ZONES.find(z=>z.id===zone)?.label}</div>
             </div>
           </div>
@@ -4208,7 +4622,7 @@ export default function App(){
       </div>}
 
       {/* ZONE CONTENT */}
-      <main role="main" aria-label="promptc OS content" style={{maxWidth:980,margin:"0 auto",padding:"clamp(12px,2.5vw,20px) clamp(10px,2vw,22px) 80px"}}>
+      <main ref={zoneRef} role="main" aria-label="promptc OS content" style={{maxWidth:980,margin:"0 auto",padding:"clamp(12px,2.5vw,20px) clamp(10px,2vw,22px) 80px"}}>
         <div key={zKey} className="anim-zone">
           {zone==="activate" &&<Activate/>}
           {zone==="build"    &&<Build/>}
@@ -4219,9 +4633,15 @@ export default function App(){
       </main>
 
       {/* FLOATING ZONE INDICATOR — mobile */}
-      <div style={{position:"fixed",bottom:16,left:"50%",transform:"translateX(-50%)",display:"flex",gap:5,padding:"6px 10px",background:C.sur+"ee",border:`1px solid ${col}33`,borderRadius:999,backdropFilter:"blur(12px)",zIndex:200,pointerEvents:"none"}}>
-        {ZONES.map(z=><div key={z.id} style={{width:zone===z.id?18:5,height:5,borderRadius:999,background:zone===z.id?ZC[z.id]:C.bdr,transition:"all 0.3s cubic-bezier(0.16,1,0.3,1)"}}/>)}
+      <div style={{position:"fixed",bottom:16,left:"50%",transform:"translateX(-50%)",display:"flex",gap:5,padding:"6px 10px",background:C.sur+"ee",border:`1px solid ${col}33`,borderRadius:999,backdropFilter:"blur(12px)",zIndex:200}}>
+        {ZONES.map(z=><div key={z.id} onClick={()=>switchZone(z.id)} style={{width:zone===z.id?18:5,height:5,borderRadius:999,background:zone===z.id?ZC[z.id]:C.bdr,transition:"all 0.3s cubic-bezier(0.16,1,0.3,1)",cursor:"pointer"}}/>)}
       </div>
+
+      {/* PRESENTATION MODE */}
+      <PresentationMode active={presentMode} onClose={()=>setPresentMode(false)} zoneContent={getZoneContent()}/>
+
+      {/* PWA INSTALL BANNER */}
+      <InstallBanner onDismiss={()=>setShowInstall(false)}/>
     </div>
   </>);
 }
