@@ -2943,7 +2943,7 @@ function Lbl({text,color=C.cy}){return <div style={{fontSize:10,color,fontFamily
 function H3({children}){return <h3 style={{margin:"0 0 14px",fontSize:"clamp(14px,2vw,17px)",fontWeight:700,color:C.tx,letterSpacing:"-0.02em",fontFamily:C.ss}}>{children}</h3>;}
 function Card({children,accent,pad="18px 20px",sx={}}){return <div style={{background:C.sur,border:`1px solid ${accent?accent+"22":C.bdr}`,borderRadius:12,padding:pad,...sx}}>{children}</div>;}
 function Code({text,mh}){return(<div style={{position:"relative"}}><pre style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"12px 44px 12px 13px",fontSize:"clamp(10px,1.4vw,12px)",lineHeight:1.75,color:"#e4e4e7",fontFamily:C.mn,whiteSpace:"pre-wrap",wordBreak:"break-word",margin:0,maxHeight:mh||"none",overflowY:mh?"auto":"visible"}}>{text}</pre><div style={{position:"absolute",top:8,right:8}}><Cp text={text}/></div></div>);}
-function Pill({label,active,color,onClick}){return <button onClick={onClick} style={{background:active?`${color}18`:"transparent",border:`1px solid ${active?color+"55":C.bdr}`,color:active?color:C.di,borderRadius:20,padding:"4px 11px",fontSize:"clamp(10px,1.4vw,11px)",fontFamily:C.mn,cursor:"pointer",transition:"all 0.15s",whiteSpace:"nowrap",lineHeight:1.6}}>{label}</button>;}
+function Pill({label,active,color,onClick}){return <button onClick={onClick} style={{background:active?`${color}18`:"transparent",border:`1px solid ${active?color+"55":C.bdr}`,color:active?color:C.di,borderRadius:22,padding:"6px 16px",fontSize:"clamp(12px,1.8vw,14px)",fontWeight:active?600:500,fontFamily:C.mn,cursor:"pointer",transition:"all 0.15s",whiteSpace:"nowrap",lineHeight:1.6,letterSpacing:"0.02em"}}>{label}</button>;}
 function Inp({label,value,onChange,ph}){return(<div style={{marginBottom:10}}>{label&&<div style={{fontSize:10,color:C.di,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:4}}>{label}</div>}<input value={value} onChange={e=>onChange(e.target.value)} placeholder={ph} style={{width:"100%",boxSizing:"border-box",background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"9px 12px",color:C.tx,fontSize:13,fontFamily:C.ss,outline:"none"}}/></div>);}
 function TA({label,value,onChange,ph,rows=4}){return(<div style={{marginBottom:10}}>{label&&<div style={{fontSize:10,color:C.di,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:4}}>{label}</div>}<textarea value={value} onChange={e=>onChange(e.target.value)} placeholder={ph} rows={rows} style={{width:"100%",boxSizing:"border-box",background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"9px 12px",color:C.tx,fontSize:12,fontFamily:C.mn,outline:"none",resize:"vertical",lineHeight:1.6}}/></div>);}
 
@@ -3043,7 +3043,7 @@ function MorphPill({label,active,color,onClick}){
       window.gsap.to(el,{scale:1.08,duration:0.15,ease:'power2.out',onComplete:()=>window.gsap.to(el,{scale:1,duration:0.3,ease:'elastic.out(1,0.5)'})});
     }
   },[active]);
-  return <button ref={ref} onClick={onClick} style={{background:active?`${color}18`:"transparent",border:`1px solid ${active?color+"55":C.bdr}`,color:active?color:C.di,borderRadius:20,padding:"4px 11px",fontSize:"clamp(10px,1.4vw,11px)",fontFamily:C.mn,cursor:"pointer",transition:active?"none":"all 0.15s",whiteSpace:"nowrap",lineHeight:1.6,boxShadow:active?`0 0 12px ${color}22`:'none'}}>{label}</button>;
+  return <button ref={ref} onClick={onClick} style={{background:active?`${color}18`:"transparent",border:`1px solid ${active?color+"55":C.bdr}`,color:active?color:C.di,borderRadius:22,padding:"6px 16px",fontSize:"clamp(12px,1.8vw,14px)",fontWeight:active?600:500,fontFamily:C.mn,cursor:"pointer",transition:active?"none":"all 0.15s",whiteSpace:"nowrap",lineHeight:1.6,letterSpacing:"0.02em",boxShadow:active?`0 0 16px ${color}28`:'none'}}>{label}</button>;
 }
 
 function ParallaxText({children,speed=0.15,style={}}){
@@ -3487,16 +3487,87 @@ function OfflineBadge(){
 
 function InstallBanner({onDismiss}){
   const[show,setShow]=useState(false);
+  const[installed,setInstalled]=useState(false);
+  const[isIOS,setIsIOS]=useState(false);
+  const deferredPrompt=useRef(null);
+
   useEffect(()=>{
-    if(window.matchMedia?.('(display-mode: standalone)').matches){setShow(false);return;}
-    const timer=setTimeout(()=>setShow(true),3000);
-    return()=>clearTimeout(timer);
+    // Don't show if already in standalone mode (installed)
+    if(window.matchMedia?.('(display-mode: standalone)').matches){setInstalled(true);return;}
+    // Detect iOS Safari (no beforeinstallprompt support)
+    const ua=navigator.userAgent||'';
+    const isIos=/iPad|iPhone|iPod/.test(ua)&&!window.MSStream;
+    const isSafari=/CriOS/.test(ua)?false:/Safari/.test(ua);
+    setIsIOS(isIos&&isSafari);
+
+    // Listen for the browser's install prompt event
+    const handler=(e)=>{
+      e.preventDefault();
+      deferredPrompt.current=e;
+      // Show banner after a short delay
+      setTimeout(()=>setShow(true),2000);
+    };
+    window.addEventListener('beforeinstallprompt',handler);
+
+    // If no beforeinstallprompt fires after 4s (likely iOS or desktop), still show banner
+    const fallbackTimer=setTimeout(()=>{
+      if(!deferredPrompt.current&&!installed){
+        setShow(true);
+      }
+    },4000);
+
+    return()=>{
+      window.removeEventListener('beforeinstallprompt',handler);
+      clearTimeout(fallbackTimer);
+    };
   },[]);
-  if(!show)return null;
-  return(<div style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:C.sur,border:`1px solid ${C.cy}33`,borderRadius:12,padding:'12px 18px',display:'flex',alignItems:'center',gap:12,zIndex:300,boxShadow:'0 8px 32px rgba(0,0,0,0.5)',maxWidth:'90vw',animation:'fadeSlide 0.4s ease'}}>
-    <span style={{fontSize:18}}>⚡</span>
-    <div style={{flex:1,minWidth:0}}><div style={{fontSize:12,fontWeight:600,color:C.tx}}>Install promptc OS</div><div style={{fontSize:11,color:C.mu}}>Add to home screen for the best experience</div></div>
-    <button onClick={onDismiss} style={{background:'transparent',border:'none',color:C.di,cursor:'pointer',fontSize:14}}>✕</button>
+
+  // Listen for successful install
+  useEffect(()=>{
+    const handler=()=>{setInstalled(true);setShow(false);};
+    window.addEventListener('appinstalled',handler);
+    return()=>window.removeEventListener('appinstalled',handler);
+  },[]);
+
+  if(installed||!show)return null;
+
+  const handleInstall=async()=>{
+    if(deferredPrompt.current){
+      // Native PWA install prompt (Chrome/Edge/Android)
+      deferredPrompt.current.prompt();
+      const{outcome}=await deferredPrompt.current.userChoice;
+      if(outcome==='accepted'){setInstalled(true);setShow(false);}
+      deferredPrompt.current=null;
+    }else if(isIOS){
+      // iOS fallback — show instructions
+      setShow(false);
+      const overlay=document.createElement('div');
+      overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);animation:fadeSlide 0.3s ease';
+      overlay.innerHTML=`<div style="background:#14161A;border:1px solid rgba(77,255,255,0.3);border-radius:18px;padding:28px 24px;max-width:340px;width:90vw;text-align:center">
+        <div style="font-size:48px;margin-bottom:16px">⚡</div>
+        <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:8px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.03em">INSTALL promptc OS</div>
+        <div style="font-size:13px;color:#a1a1aa;line-height:1.7;margin-bottom:20px">Tap the <strong style="color:#4DFFFF">Share button</strong> at the bottom of Safari, then tap <strong style="color:#4DFFFF">"Add to Home Screen"</strong></div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4DFFFF" stroke-width="2" stroke-linecap="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          <span style="color:#6b7280;font-size:11">Safari Share → Add to Home Screen</span>
+        </div>
+        <button onclick="this.closest('div[style]').parentElement.remove()" style="background:#4DFFFF18;border:1px solid #4DFFFF44;color:#4DFFFF;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Mono',monospace">GOT IT</button>
+      </div>`;
+      overlay.addEventListener('click',(e)=>{if(e.target===overlay)overlay.remove();});
+      document.body.appendChild(overlay);
+    }
+  };
+
+  const isNativeInstall=!!deferredPrompt.current;
+
+  return(<div style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:C.sur,border:`1px solid ${C.cy}33`,borderRadius:14,padding:'14px 20px',display:'flex',alignItems:'center',gap:14,zIndex:300,boxShadow:'0 8px 32px rgba(0,0,0,0.6)',maxWidth:'92vw',animation:'fadeSlide 0.4s ease'}}>
+    <span style={{fontSize:28,lineHeight:1}}>⚡</span>
+    <div style={{flex:1,minWidth:0}}>
+      <div style={{fontSize:14,fontWeight:700,color:C.tx,fontFamily:C.ss}}>Install promptc OS</div>
+      <div style={{fontSize:11,color:C.mu,marginTop:2,lineHeight:1.5}}>{isNativeInstall?"Tap install to add to your device":"Add to home screen for the best experience"}</div>
+    </div>
+    <button onClick={handleInstall} style={{background:C.cy,color:'#0B0D10',border:'none',borderRadius:10,padding:'9px 20px',fontSize:13,fontWeight:700,fontFamily:C.mn,cursor:'pointer',transition:'all 0.2s',whiteSpace:'nowrap',letterSpacing:'0.03em'}}>INSTALL</button>
+    <button onClick={onDismiss} style={{background:'transparent',border:'none',color:C.di,cursor:'pointer',fontSize:16,lineHeight:1,padding:4}}>✕</button>
   </div>);
 }
 
@@ -4771,10 +4842,10 @@ export default function App(){
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4}}>
             <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:C.fa,letterSpacing:"0.15em",display:"flex",gap:8,alignItems:"center"}}>promptc OS · v2026.8 · powerUP <OfflineBadge/></div>
             <div style={{display:"flex",gap:10,alignItems:"center"}}>
-              <HapticButton onClick={()=>setShowSearch(true)} color={C.cy} style={{background:C.sur,border:"1px solid "+C.bdr,color:C.di,borderRadius:7,padding:"3px 9px",fontSize:10,fontFamily:C.mn,cursor:"pointer",display:"flex",gap:5,alignItems:"center"}}>
-                <span>⌘K</span><span style={{opacity:0.5}}>Search</span>
+              <HapticButton onClick={()=>setShowSearch(true)} color={C.cy} style={{background:C.sur,border:"1px solid "+C.bdr,color:C.di,borderRadius:8,padding:"5px 14px",fontSize:12,fontFamily:C.mn,cursor:"pointer",display:"flex",gap:6,alignItems:"center"}}>
+                <span>⌘K</span><span style={{opacity:0.6}}>Search</span>
               </HapticButton>
-              <HapticButton onClick={()=>{setPresentMode(true);}} color={col} style={{background:col+"15",border:"1px solid "+col+"33",color:col,borderRadius:7,padding:"3px 9px",fontSize:10,fontFamily:C.mn,cursor:"pointer",display:"flex",gap:5,alignItems:"center"}}>
+              <HapticButton onClick={()=>{setPresentMode(true);}} color={col} style={{background:col+"15",border:"1px solid "+col+"33",color:col,borderRadius:8,padding:"5px 14px",fontSize:12,fontFamily:C.mn,cursor:"pointer",display:"flex",gap:6,alignItems:"center"}}>
                 <span>▶</span><span>Present</span>
               </HapticButton>
               <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:col,letterSpacing:"0.1em",animation:"glowPulse 2s ease infinite"}}>{ZONES.find(z=>z.id===zone)?.label}</div>
@@ -4785,9 +4856,9 @@ export default function App(){
           </h1>
           <nav role="tablist" aria-label="Zone navigation" style={{display:"flex",gap:0,overflowX:"auto",scrollbarWidth:"none",WebkitOverflowScrolling:"touch"}}>
             {ZONES.map(z=>{const c=ZC[z.id];const a=zone===z.id;return(
-              <button key={z.id} onClick={e=>switchZone(z.id,e)} style={{background:"transparent",border:"none",borderBottom:`2px solid ${a?c:"transparent"}`,color:a?c:C.di,padding:"8px clamp(8px,1.8vw,16px)",fontSize:"clamp(9px,1.4vw,12px)",fontWeight:600,cursor:"pointer",transition:"color 0.2s, border-color 0.2s",display:"flex",flexDirection:"column",alignItems:"flex-start",gap:1,whiteSpace:"nowrap",flexShrink:0,fontFamily:C.ss}}>
+              <button key={z.id} onClick={e=>switchZone(z.id,e)} style={{background:"transparent",border:"none",borderBottom:`3px solid ${a?c:"transparent"}`,color:a?c:C.di,padding:"10px clamp(12px,2.2vw,22px)",fontSize:"clamp(13px,2vw,17px)",fontWeight:a?800:600,cursor:"pointer",transition:"color 0.2s, border-color 0.2s",display:"flex",flexDirection:"column",alignItems:"flex-start",gap:2,whiteSpace:"nowrap",flexShrink:0,fontFamily:C.ss,letterSpacing:"0.01em"}}>
                 <span>{z.label}</span>
-                <span style={{fontSize:"clamp(7px,1vw,9px)",fontFamily:C.mn,color:a?c+"99":C.fa+"88",fontWeight:400,transition:"color 0.2s"}}>{z.sub}</span>
+                <span style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:a?c+"99":C.fa+"88",fontWeight:400,transition:"color 0.2s"}}>{z.sub}</span>
               </button>
             );})}
           </nav>
