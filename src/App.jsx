@@ -117,7 +117,7 @@ const ZONES=[
   {id:"activate",label:"⚡ ACTIVATE",sub:"Copy-paste to AI"},
   {id:"build",   label:"🏗 BUILD",   sub:"Reference library, Frameworks"},
   {id:"validate",label:"✅ VALIDATE",sub:"Score, lint, refine."},
-  {id:"playbook",label:"📋 PLAYBOOK",sub:"19 workflows. Step-by-step."},
+  {id:"playbook",label:"📋 PLAYBOOK",sub:"22 workflows. Step-by-step."},
   {id:"monetize", label:"💰 MONETIZE", sub:"Profitable prompts, SaaS, frameworks."},
 ];
 
@@ -1515,6 +1515,24 @@ const WF=[
     {a:"Dolphin",t:"Design the creative interaction layer",items:["Interactive composers: chain builder, layer composer, live prompt generator","Copy-ready output on every single item — modifier, template, vocab term, workflow","Animation system: zone enter, section pop, copy flash, hover scale","Misconception vs correct views for educational depth","Selectable keyword pickers for ambiguous prompt variables"]},
     {a:"Ant",   t:"Polish, fix, and ship",items:["Initialization order: declare all consts before they are referenced","Remove bare HTML tags (<title><meta><link>) from JSX returns","Verify fragment pairs <>...</> are balanced","Test clipboard copy in sandboxed iframe environments","Verify all template literal backticks are balanced across brand/prompt strings","Deploy: Vite build → Vercel (30 seconds)"]},
   ]},
+  {id:20,cat:"🎨 Design",title:"Creator Brand Identity",purpose:"Build a complete personal brand for content creators",best:"YouTubers, podcasters, indie makers, newsletter writers",chain:["Owl","Eagle","Dolphin","Beaver"],out:"Creator brand kit: positioning, color system, content pillars, voice guide",steps:[
+    {a:"Owl",   t:"Audit current presence",   items:["Audit existing content across platforms","Identify what topics you actually talk about most","Find your natural tone by reading your past writing","Spot the gap between who you are vs how you present"]},
+    {a:"Eagle", t:"Define brand strategy",     items:["One-sentence positioning: I help [who] do [what] via [medium]","3 content pillars you could talk about for 10 years","Your POV: what you believe that most in your niche don't","Platform priority: where does your audience actually live?"]},
+    {a:"Dolphin",t:"Creative direction",       items:["Visual identity: 2 colors, 1 font, 1 icon or symbol","Thumbnail or header template concept","Intro format for videos or newsletter opening","Signature content format that only you do"]},
+    {a:"Beaver", t:"Build the system",         items:["Content calendar: 3 types weekly","Repurposing pipeline: long to medium to short format","CTA hierarchy: subscribe, follow, buy","Brand guide: voice rules and examples"]},
+  ]},
+  {id:21,cat:"📈 Business",title:"SEO Growth System",purpose:"Build compounding organic traffic through systematic SEO",best:"Startups, SaaS, content businesses, e-commerce",chain:["Owl","Eagle","Ant","Beaver"],out:"SEO playbook with keyword map, content calendar, and technical checklist",steps:[
+    {a:"Owl",   t:"Keyword research and audit",  items:["Run site audit: broken links, missing meta, slow pages","Find top 20 keywords competitors rank for that you don't","Map keywords to search intent: informational, commercial, transactional","Find striking distance keywords: position 5-20 for quick wins"]},
+    {a:"Eagle", t:"Content strategy",             items:["Build topic cluster map: 1 pillar + 10 supporting posts per theme","Prioritize by: volume times difficulty times business value","Define content type per intent: guide, comparison, tool, landing page","Set publishing cadence: minimum 2-4 posts per week for compounding"]},
+    {a:"Ant",   t:"Execute content production",  items:["Write pillar page (3000+ words, comprehensive, linkable)","Write supporting cluster posts targeting long-tail variants","Add internal links: each new post links to 3 existing posts","Optimize: title tag, H1, meta description, schema, alt text"]},
+    {a:"Beaver",t:"Build link acquisition system",items:["Set up HARO or Qwoted for journalist link mentions","Build broken link finder workflow + outreach template","Create linkable assets: original research, free tools, data studies","Monthly: check new referring domains, disavow toxic links"]},
+  ]},
+  {id:22,cat:"💰 Monetize",title:"Digital Product Launch",purpose:"Launch and sell a digital product in 30 days",best:"Consultants, educators, creators, developers",chain:["Eagle","Rabbit","Beaver","Ant"],out:"Live product with sales page, email sequence, and first paying customers",steps:[
+    {a:"Eagle", t:"Validate the product idea",  items:["Identify the most painful problem your audience pays to solve","Pre-sell before building: offer at 50% off, need 5 buyers to proceed","Determine format: PDF guide, video course, template pack, community","Run a 24-hour poll to validate the topic before building"]},
+    {a:"Rabbit",t:"Create the content",          items:["Outline: 5-7 core modules or sections","Create each section (minimum viable depth, not perfection)","Create bonus: 1 extra asset worth more than the product itself","Host on Gumroad, Lemon Squeezy, or Teachable"]},
+    {a:"Beaver",t:"Build the sales system",      items:["Write sales page: problem to solution to proof to offer to CTA","Set up 5-email welcome sequence for buyers","Set up affiliate program: 30-50% commission","Create promotional kit for affiliates with copy-paste content"]},
+    {a:"Ant",   t:"Launch and iterate",           items:["Post launch announcement on Twitter, LinkedIn, newsletter, Reddit","Activate affiliates with promotional kit","Collect testimonials from first 10 buyers","A/B test headline after 100 visitors, optimize based on data"]},
+  ]},
 ];
 
 
@@ -2171,6 +2189,90 @@ Use industry-specific terminology. Format: [structure]. Length: [words].
 Tone: [professional/friendly]. Avoid: [list of things to exclude]."
 
 OUTPUT: Complete Next.js app with all templates, Stripe subscription setup, usage tracking, and landing page copy.`},
+
+  {rank:11,cat:"📱 App Dev",title:"Mobile App Development",searches:"620k+/mo",
+   why:"Solodev agencies charge $5k–50k for app builds. With AI, one developer can deliver in days what used to take weeks. React Native + Expo has made cross-platform viable for small teams.",
+   pros:["High ticket ($5k–50k per project)","Reusable templates across clients","Growing demand from non-technical founders","React Native: one codebase, iOS + Android"],
+   cons:["App Store approval process (7-14 days)","Device testing overhead","Push notification complexity","Client expects free bug fixes forever"],
+   difficulty:"Intermediate",
+   monetize:"Project fee + retainer + template pack on Gumroad",
+   prompt:`You are a senior React Native developer who ships apps for non-technical founders.
+When I describe an app idea:
+- Immediately identify the 3 screens that must exist at launch (not nice-to-haves)
+- Propose the data model (3-5 core entities max for MVP)
+- Specify the auth flow (social login vs email — which and why)
+- Identify which React Native libraries are required (with exact npm package names)
+- Flag App Store review risks before I waste time building
+
+App idea: [describe your app here]
+Target: [iOS only / Android only / both]`},
+
+  {rank:12,cat:"🎯 Coaching",title:"Coaching & Course Creation",searches:"580k+/mo",
+   why:"The coaching industry is $20B+ and growing. AI lets one coach create 10× the content. Courses on Teachable/Kajabi routinely earn $10k–100k launches with an engaged email list of 2000+.",
+   pros:["$500–5000 per client (1:1)","Courses sell 24/7 (passive)","AI creates content at scale","No physical product or inventory"],
+   cons:["Results-dependent (clients must implement)","Content creation is ongoing","Market is saturated — niche down ruthlessly","Refund rates 5-15% on courses"],
+   difficulty:"Beginner",
+   monetize:"1:1 coaching ($500–5000) → group program → self-paced course ($197–997)",
+   prompt:`You are a course creation expert. When I describe my expertise:
+- Identify the one transformation students pay for (not the topic — the outcome)
+- Structure a 5-module curriculum where each module = one week of work
+- Write the sales page in PAS format (Problem → Agitation → Solution)
+- Design a 3-tier pricing structure (self-paced / group / VIP)
+- Identify the fastest path to first 10 students
+
+My expertise: [what I know deeply]
+Target student: [who struggles with what]
+Desired outcome: [what does the student achieve after completing?]`},
+
+  {rank:13,cat:"🎬 Video",title:"Video Production & Editing",searches:"410k+/mo",
+   why:"Demand for video content has outpaced supply. AI video tools (Descript, Opus Clip, RunwayML) mean one editor can produce 10× the output. Agencies charge $500–3000 per video.",
+   pros:["$500–3000 per video","Subscription retainers ($1500–5000/mo)","AI tools multiply output","High demand from podcasters, YouTubers, coaches"],
+   cons:["Highly competitive on platforms","Commoditizing with AI tools","Client taste is subjective","Revision cycles extend timelines"],
+   difficulty:"Beginner",
+   monetize:"Per-video fee → monthly retainer → productized clips package",
+   prompt:`You are a video content strategist and editor. When I give you a video brief:
+- Identify the hook (first 3 seconds — what makes someone stop scrolling?)
+- Structure the content arc: problem → insight → proof → action
+- List exact editing techniques that fit this content style
+- Suggest 3 thumbnail concepts with emotional trigger + text overlay
+- Recommend distribution: which 3 platforms and what format per platform
+
+Video brief: [describe the video topic and goal]
+Creator: [who is making this — their niche and style]
+Platform: [YouTube / TikTok / Instagram / LinkedIn]`},
+
+  {rank:14,cat:"🔧 No-Code",title:"No-Code Development",searches:"380k+/mo",
+   why:"No-code tools (Bubble, Webflow, Framer, Glide, Softr) have reached production quality. Founders pay $3k–15k for no-code MVPs. AI + no-code means one operator can build and maintain full products.",
+   pros:["Build fast (days not months)","No hiring needed","Clients don't need ongoing dev","Templates are reusable assets"],
+   cons:["Platform dependency risk","Performance ceilings for complex logic","Vendor lock-in","Limited for complex data operations"],
+   difficulty:"Beginner",
+   monetize:"Project fee ($3k–15k) + monthly maintenance ($500–2k) + templates on Gumroad",
+   prompt:`You are a no-code expert. When I describe a product or feature:
+- Recommend the best tool (Bubble / Webflow / Framer / Glide / Softr / Airtable) and explain why
+- Identify the 3 workflows that must be built first
+- Spot which requirement will be hardest in no-code (and the workaround)
+- Estimate realistic build time in hours
+- Flag any features that require native code (know the limits)
+
+Product to build: [describe your product]
+Budget: [what the client can spend]
+Timeline: [when it needs to launch]`},
+
+  {rank:15,cat:"📦 SaaS",title:"Micro-SaaS",searches:"290k+/mo",
+   why:"Micro-SaaS ($500–5k MRR) is the most achievable indie model. One developer, one specific problem, $29–99/mo pricing. Acquired by larger SaaS players or become lifetime passive income.",
+   pros:["Build in 1 weekend","$29–99/mo per customer","No team needed","Acquirable at 3-5× ARR"],
+   cons:["Finding the right problem is hard","Marketing is the hard part","Support overhead grows with customers","Copycats appear at $10k MRR"],
+   difficulty:"Intermediate",
+   monetize:"$29–99/mo subscription → sold for 3-5× ARR ($30k–500k)",
+   prompt:`You are a micro-SaaS architect. When I describe a problem:
+- Validate: is someone already paying for a solution? (good sign — means demand exists)
+- Define the absolute minimum feature set for first paying customer
+- Propose pricing: free tier limits + paid tier value metric
+- Identify the acquisition channel (SEO, integrations marketplace, Reddit, cold email)
+- Design the 1-weekend build plan (Saturday: core + auth. Sunday: payment + deploy)
+
+Problem: [what workflow is painful and repetitive for [who]]
+Builder skills: [what stack you're comfortable with]`},
 
   {rank:2,title:"Invoice + Billing SaaS",niche:"Finance / Freelance",mrr:"$3k–30k/mo potential",stack:"Next.js + Supabase + Stripe + PDF generation",
    why:"Every freelancer and small business needs invoicing. Sticky product — high retention.",
@@ -2874,6 +2976,39 @@ Cross-promo: DM 5 newsletters at same size, propose mutual shoutout
 Lead magnet: [specific 1-page resource that makes someone subscribe immediately]
 
 OUTPUT: Complete content calendar (4 weeks), sponsor pitch template, referral reward structure`},
+
+  {id:"consulting-to-product",label:"Consulting → Productized Offer",cat:"Pivot",time:"4 weeks",income:"$2k–10k/project",
+   stack:"Notion + Loom + Stripe + Calendly",
+   steps:["Week 1: List every recurring deliverable you've made for clients in the past year","Week 1: Pick the one you could template 80% of. That's your productized service.","Week 2: Build a scoping questionnaire (10 questions) that captures 80% of what you need","Week 2: Write the proposal template (problem → solution → timeline → investment)","Week 3: Build the delivery system: Notion client portal + Loom for async updates","Week 4: Set price (3× your hourly × expected hours). No negotiation on scope."],
+   prompt:`Productize my consulting service into a fixed-scope, fixed-price offer.
+
+MY CURRENT SERVICE: [what I do, who I do it for, what I charge]
+MOST COMMON DELIVERABLE: [the thing clients always end up needing]
+
+PRODUCTIZED OFFER DESIGN
+Service name: [outcome + timeframe, e.g. "90-Day AI Automation Audit & Build"]
+Deliverable: [exact output — must be tangible and scoped]
+Timeline: [X weeks, fixed. No extensions without new contract.]
+Price: [$X flat. State it clearly, never hourly.]
+Includes: [5 bullet points maximum — be specific]
+Excludes: [what's out of scope — protect yourself]
+
+CLIENT PORTAL (Notion)
+Page 1: Project brief + goals + success metrics
+Page 2: Timeline + milestone tracker
+Page 3: Deliverables (with status: In Progress / Review / Complete)
+Page 4: Resources + assets + recordings
+Page 5: Final handoff + how to maintain
+
+SALES PAGE STRUCTURE
+Hero: [Name of service] → [what they get] → [in how long] → [$X]
+Problem: 3 bullets of pain they feel right now
+Solution: What you do and why it works
+Process: 3-step visual (Onboard → Build → Deliver)
+Proof: 2-3 results from past clients
+CTA: [Book a Scoping Call] → 30 min → qualify → send proposal
+
+OUTPUT: Service one-pager, proposal template, client portal structure, scoping call script`},
 
   {id:"agency-to-saas",label:"Agency → SaaS Transition Playbook",cat:"Scale",time:"6 months",income:"$5k→$20k MRR",
    stack:"n8n + OpenAI + Supabase + Stripe + Vercel",
