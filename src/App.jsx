@@ -3067,171 +3067,365 @@ function HapticButton({children,style={},onClick,color=C.cy,...props}){
   return <button ref={ref} onClick={e=>{trigger();onClick?.(e);}} style={style} {...props}>{children}</button>;
 }
 
-// ─── INFOGRAPHIC COMPONENTS ───────────────────────────────────────────────────
-function PromptQualityRadar({scores}){
-  const svgRef=useRef(null);
-  const done=useRef(false);
-  const labels=["Clarity","Structure","Constraints","Predictability","Specificity"];
-  const cx=120,cy=120,r=80,n=5;
-  useEffect(()=>{
-    const svg=svgRef.current;if(!svg)return;
-    const obs=new IntersectionObserver(([entry])=>{
-      if(entry.isIntersecting&&!done.current){
-        done.current=true;
-        if(window.gsap&&!prefersReducedMotion()){
-          const paths=svg.querySelectorAll('.radar-area');
-          paths.forEach(p=>{const len=p.getTotalLength();p.style.strokeDasharray=len;p.style.strokeDashoffset=len;window.gsap.to(p,{strokeDashoffset:0,duration:1.2,ease:'power2.out',stagger:0.2});});
-          const dots=svg.querySelectorAll('.radar-dot');
-          window.gsap.fromTo(dots,{r:0,opacity:0},{r:4,opacity:1,duration:0.5,stagger:0.15,delay:0.6});
+// ─── INFOGRAPHIC MOTION SYSTEM ─────────────────────────────────────────────────
+const IGM = {
+  tab:   { duration: 0.3, ease: 'back.out(1.4)' },       // tab switch — snap
+  enter: { duration: 0.6, ease: 'expo.out' },             // chart reveal — dramatic
+  count: { duration: 0.8, ease: 'power2.out' },           // metrics countup
+  cell:  { duration: 0.15, ease: 'power2.out' },          // heatmap hover — subtle
+  donut: { duration: 1.0, ease: 'power2.out', stagger: 0.12 }, // donut arc draw — sequential
+  radar: { duration: 0.5, ease: 'power2.out', stagger: 0.15 }, // radar dot appear
+  chain: { duration: 0.4, ease: 'back.out(1.7)', stagger: 0.25 }, // chain node — bouncy
+  pulse: { duration: 2.0, ease: 'sine.inOut' },           // radar dot pulse — alive
+};
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16) || 0;
+  const g = parseInt(hex.slice(3, 5), 16) || 0;
+  const b = parseInt(hex.slice(5, 7), 16) || 0;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// ─── PROMPT QUALITY RADAR (interactive) ────────────────────────────────────────
+function PromptQualityRadar({scores: initScores}){
+  const svgRef = useRef(null);
+  const done = useRef(false);
+  const labels = ["CLARITY", "STRUCTURE", "CONSTRAINTS", "PREDICTABILITY", "SPECIFICITY"];
+  const cx = 140, cy = 130, r = 90, n = 5;
+  const [scores, setScores] = useState(initScores || [8, 7, 6, 7, 5]);
+  const [hoverIdx, setHoverIdx] = useState(-1);
+
+  useEffect(() => {
+    const svg = svgRef.current; if (!svg) return;
+    done.current = false;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !done.current) {
+        done.current = true;
+        if (window.gsap && !prefersReducedMotion()) {
+          const area = svg.querySelector('.radar-area');
+          if (area) { const len = area.getTotalLength(); area.style.strokeDasharray = len; area.style.strokeDashoffset = len; window.gsap.to(area, { strokeDashoffset: 0, duration: 1.2, ease: 'expo.out' }); }
+          const dots = svg.querySelectorAll('.radar-dot');
+          window.gsap.fromTo(dots, { r: 0, opacity: 0 }, { r: 5, opacity: 1, duration: IGM.radar.duration, ease: IGM.radar.ease, stagger: IGM.radar.stagger, delay: 0.4 });
+          const rings = svg.querySelectorAll('.radar-ring');
+          window.gsap.fromTo(rings, { opacity: 0 }, { opacity: 1, duration: 0.4, stagger: 0.08, delay: 0.2 });
+          // Pulsing glow on dots
+          dots.forEach(d => {
+            window.gsap.to(d, { r: 7, duration: IGM.pulse.duration, ease: IGM.pulse.ease, repeat: -1, yoyo: true, delay: 0.8 + Math.random() * 0.3 });
+          });
         }
         obs.unobserve(svg);
       }
-    },{threshold:0.3});
-    obs.observe(svg);return()=>obs.disconnect();
-  },[]);
-  const getPoints=(vals)=>{const pts=[];for(let i=0;i<n;i++){const a=(Math.PI*2/n)*i-Math.PI/2;const v=(vals[i]||0)/10;r_eff=v*r;pts.push(`${cx+r_eff*Math.cos(a)},${cy+r_eff*Math.sin(a)}`);}return pts.join(' ');};
-  const gridPts=(level)=>{const pts=[];for(let i=0;i<n;i++){const a=(Math.PI*2/n)*i-Math.PI/2;pts.push(`${cx+level*r*Math.cos(a)},${cy+level*r*Math.sin(a)}`);}return pts.join(' ');};
-  return(<div style={{display:'flex',justifyContent:'center',padding:'10px 0'}}><svg ref={svgRef} width={240} height={240} viewBox="0 0 240 240" style={{maxWidth:'100%'}}>
-    {[0.25,0.5,0.75,1].map((l,i)=><polygon key={i} points={gridPts(l)} fill="none" stroke={C.bdr} strokeWidth={i===3?1:0.5}/>)}
-    {labels.map((lb,i)=>{const a=(Math.PI*2/n)*i-Math.PI/2;const lx=cx+(r+18)*Math.cos(a);const ly=cy+(r+18)*Math.sin(a);return <text key={i} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fill={C.mu} fontSize={9} fontFamily={C.mn}>{lb}</text>;})}
-    <polygon className="radar-area" points={getPoints(scores)} fill={C.vi+"18"} stroke={C.vi} strokeWidth={2} strokeLinejoin="round"/>
-    {scores.map((v,i)=>{const a=(Math.PI*2/n)*i-Math.PI/2;const rv=(v/10)*r;return <circle key={i} className="radar-dot" cx={cx+rv*Math.cos(a)} cy={cy+rv*Math.sin(a)} r={0} fill={C.vi} stroke={C.bg} strokeWidth={2}/>;})}
-  </svg></div>);
-}
+    }, { threshold: 0.3 });
+    obs.observe(svg); return () => obs.disconnect();
+  }, []);
 
-function ZoneHeatmap(){
-  const skills=["Role","Context","Output","Reasoning","Constraints","Aesthetic"];
-  const zones=[
-    {name:"Activate",color:C.cy,vals:[1,0.7,0.5,0.8,0.6,0.4]},
-    {name:"Build",color:C.vi,vals:[0.9,0.8,0.6,0.5,0.7,0.9]},
-    {name:"Validate",color:C.gn,vals:[0.4,0.3,0.9,0.9,0.95,0.5]},
-    {name:"Playbook",color:C.am,vals:[0.7,0.8,0.8,0.6,0.7,0.4]},
-    {name:"Monetize",color:"#FFD700",vals:[0.8,0.9,0.7,0.7,0.6,0.6]},
-  ];
-  return(<div style={{overflowX:'auto'}}><table style={{borderCollapse:'collapse',width:'100%',minWidth:400}}>
-    <thead><tr><th style={{padding:'6px 10px',textAlign:'left',fontSize:10,color:C.di,fontFamily:C.mn,borderBottom:`1px solid ${C.bdr}`}}>ZONE</th>{skills.map(s=><th key={s} style={{padding:'6px 8px',textAlign:'center',fontSize:10,color:C.di,fontFamily:C.mn,borderBottom:`1px solid ${C.bdr}`}}>{s}</th>)}</tr></thead>
-    <tbody>{zones.map(z=><tr key={z.name}>{[z.name,...z.vals].map((cell,ci)=>{
-      const isVal=ci>0;
-      const op=isVal?0.15+cell*0.55:1;
-      return <td key={ci} style={{padding:'7px 10px',textAlign:isVal?'center':'left',fontSize:isVal?11:12,color:isVal?(cell>0.8?z.color:cell>0.5?C.mu:C.fa):C.tx,fontFamily:isVal?C.mn:C.ss,background:isVal?z.color.replace(')',`,${op})`).replace('rgb','rgba').replace('#',()=>{const hex=z.color;const r2=parseInt(hex.slice(1,3),16)||255;const g2=parseInt(hex.slice(3,5),16)||255;const b2=parseInt(hex.slice(5,7),16)||255;return `rgba(${r2},${g2},${b2},${op})`;}):'transparent',borderBottom:`1px solid ${C.bdr}44`,transition:'background 0.2s',borderRadius:isVal?4:0}}>
-        {isVal?(<span style={{display:'inline-block',minWidth:20}}>{cell>=0.9?'●●●':cell>=0.7?'●●○':cell>=0.5?'●○○':'○○○'}</span>):cell}
-      </td>;
-    })}</tr>)}</tbody>
-  </table></div>);
-}
+  const getPoints = (vals) => { const pts = []; for (let i = 0; i < n; i++) { const a = (Math.PI * 2 / n) * i - Math.PI / 2; const v = (vals[i] || 0) / 10; pts.push(`${cx + v * r * Math.cos(a)},${cy + v * r * Math.sin(a)}`); } return pts.join(' '); };
+  const gridPts = (level) => { const pts = []; for (let i = 0; i < n; i++) { const a = (Math.PI * 2 / n) * i - Math.PI / 2; pts.push(`${cx + level * r * Math.cos(a)},${cy + level * r * Math.sin(a)}`); } return pts.join(' '); };
 
-function WorkflowChainVisualizer(){
-  const [sel,setSel]=useState(0);
-  const svgRef=useRef(null);
-  const done=useRef(false);
-  const ch=CHAINS[sel];if(!ch)return null;
-  useEffect(()=>{done.current=false;},[sel]);
-  useEffect(()=>{
-    const svg=svgRef.current;if(!svg)return;
-    const obs=new IntersectionObserver(([entry])=>{
-      if(entry.isIntersecting&&!done.current){
-        done.current=true;
-        if(window.gsap&&!prefersReducedMotion()){
-          const paths=svg.querySelectorAll('.chain-line');
-          paths.forEach(p=>{const len=p.getTotalLength();p.style.strokeDasharray=len;p.style.strokeDashoffset=len;window.gsap.to(p,{strokeDashoffset:0,duration:0.8,ease:'power2.out',stagger:0.3});});
-          const circles=svg.querySelectorAll('.chain-node');
-          window.gsap.fromTo(circles,{r:0,opacity:0},{r:18,opacity:1,duration:0.4,stagger:0.25,delay:0.3});
-        }
-        obs.unobserve(svg);
-      }
-    },{threshold:0.3});
-    obs.observe(svg);return()=>obs.disconnect();
-  },[sel]);
-  const nodeX=[50,175,300];const nodeY=50;
-  return(<div>
-    <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12}}>{CHAINS.map((c,i)=><MorphPill key={i} label={c.goal} active={sel===i} color={AC[c.c[0]]||C.vi} onClick={()=>setSel(i)}/>)}</div>
-    <div style={{fontSize:11,color:C.mu,marginBottom:8}}>{ch.best}</div>
-    <div style={{display:'flex',justifyContent:'center',overflowX:'auto'}}>
-      <svg ref={svgRef} width={350} height={100} viewBox="0 0 350 100" style={{maxWidth:'100%'}}>
-        {[0,1].map(i=><line key={i} className="chain-line" x1={nodeX[i]+20} y1={nodeY} x2={nodeX[i+1]-20} y2={nodeY} stroke={AC[ch.c[i]]||C.mu} strokeWidth={2} strokeDasharray="6 4" fill="none"/>)}
-        {ch.c.map((name,i)=>{const a=ANIMALS.find(x=>x.name===name);const col=AC[name]||C.mu;return <g key={i}><circle className="chain-node" cx={nodeX[i]} cy={nodeY} r={0} fill={col+"22"} stroke={col} strokeWidth={2}/><text x={nodeX[i]} y={nodeY-26} textAnchor="middle" fill={C.tx} fontSize={14}>{a?.emoji||'🐾'}</text><text x={nodeX[i]} y={nodeY+4} textAnchor="middle" fill={col} fontSize={10} fontFamily={C.mn} fontWeight={600}>{name}</text><text x={nodeX[i]} y={nodeY+16} textAnchor="middle" fill={C.di} fontSize={8} fontFamily={C.mn}>{a?.mode||''}</text></g>;})}
+  const avg = Math.round(scores.reduce((a, b) => a + b, 0) / n * 10) / 10;
+  const maxDim = labels[scores.indexOf(Math.max(...scores))];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+      {/* KPI row */}
+      <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontFamily: C.hd, fontSize: 'clamp(28px,5vw,42px)', color: C.vi, lineHeight: 1, letterSpacing: '-0.03em' }}><AnimatedCounter value={avg} decimals={1} color={C.vi}/></div>
+          <div style={{ fontSize: 10, color: C.mu, fontFamily: C.mn, letterSpacing: '0.1em', marginTop: 4 }}>AVERAGE SCORE</div>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontFamily: C.hd, fontSize: 'clamp(28px,5vw,42px)', color: C.cy, lineHeight: 1, letterSpacing: '-0.03em' }}>{maxDim}</div>
+          <div style={{ fontSize: 10, color: C.mu, fontFamily: C.mn, letterSpacing: '0.1em', marginTop: 4 }}>STRONGEST DIMENSION</div>
+        </div>
+      </div>
+      {/* SVG Radar */}
+      <svg ref={svgRef} width={300} height={280} viewBox="0 0 300 280" style={{ maxWidth: '100%' }}>
+        {[0.25, 0.5, 0.75, 1].map((l, i) => <polygon key={i} className="radar-ring" points={gridPts(l)} fill="none" stroke={i === 3 ? '#ffffff18' : '#ffffff0a'} strokeWidth={i === 3 ? 1 : 0.5} />)}
+        {labels.map((lb, i) => {
+          const a = (Math.PI * 2 / n) * i - Math.PI / 2;
+          const lx = cx + (r + 28) * Math.cos(a);
+          const ly = cy + (r + 28) * Math.sin(a);
+          const isHovered = hoverIdx === i;
+          const val = scores[i];
+          return (
+            <g key={i} onMouseEnter={() => setHoverIdx(i)} onMouseLeave={() => setHoverIdx(-1)} style={{ cursor: 'pointer' }}>
+              <text x={lx} y={ly - 6} textAnchor="middle" fill={isHovered ? C.vi : C.mu} fontSize={isHovered ? 11 : 10} fontFamily={C.mn} fontWeight={isHovered ? 700 : 500} style={{ transition: 'fill 0.15s' }}>{lb}</text>
+              <text x={lx} y={ly + 8} textAnchor="middle" fill={val >= 8 ? C.gn : val >= 6 ? C.am : C.rd} fontSize={isHovered ? 13 : 11} fontFamily={C.hd} fontWeight={700} style={{ transition: 'fill 0.15s, font-size 0.15s' }}>{val}/10</text>
+              {/* Hover ring */}
+              {isHovered && <circle cx={cx + (val / 10) * r * Math.cos(a)} cy={cy + (val / 10) * r * Math.sin(a)} r={12} fill="none" stroke={C.vi} strokeWidth={1} opacity={0.4} />}
+            </g>
+          );
+        })}
+        <polygon className="radar-area" points={getPoints(scores)} fill={hexToRgba(C.vi, 0.12)} stroke={C.vi} strokeWidth={2} strokeLinejoin="round" />
+        {scores.map((v, i) => { const a = (Math.PI * 2 / n) * i - Math.PI / 2; const rv = (v / 10) * r; return <circle key={i} className="radar-dot" cx={cx + rv * Math.cos(a)} cy={cy + rv * Math.sin(a)} r={0} fill={C.vi} stroke={C.bg} strokeWidth={2} />; })}
       </svg>
+      {/* Slider controls */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8, width: '100%', maxWidth: 400 }}>
+        {labels.map((lb, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 10, fontFamily: C.mn, color: C.mu, width: 70, flexShrink: 0, textOverflow: 'ellipsis', overflow: 'hidden' }}>{lb}</span>
+            <input type="range" min={1} max={10} value={scores[i]} onChange={e => { const next = [...scores]; next[i] = +e.target.value; setScores(next); }} style={{ flex: 1, accentColor: C.vi, height: 4, cursor: 'pointer' }} />
+            <span style={{ fontSize: 12, fontFamily: C.mn, fontWeight: 700, color: scores[i] >= 8 ? C.gn : scores[i] >= 6 ? C.am : C.rd, width: 24, textAlign: 'right' }}>{scores[i]}</span>
+          </div>
+        ))}
+      </div>
     </div>
-  </div>);
+  );
 }
 
-function SkillDistributionDonut(){
-  const svgRef=useRef(null);
-  const done=useRef(false);
-  const cats=[...new Set(MODS.map(m=>m.cat))];
-  const dist=cats.map(c=>({label:c,count:MODS.filter(m=>m.cat===c).length}));
-  const colors=[C.cy,C.vi,C.mg,C.am,C.gn,C.bl,C.or,C.rd,'#7B5CFF','#FFD700'];
-  const total=dist.reduce((a,b)=>a+b.count,0);
-  useEffect(()=>{
-    const svg=svgRef.current;if(!svg)return;
-    const obs=new IntersectionObserver(([entry])=>{
-      if(entry.isIntersecting&&!done.current){
-        done.current=true;
-        if(window.gsap&&!prefersReducedMotion()){
-          const arcs=svg.querySelectorAll('.donut-arc');
-          arcs.forEach(arc=>{const len=arc.getTotalLength();arc.style.strokeDasharray=len;arc.style.strokeDashoffset=len;window.gsap.to(arc,{strokeDashoffset:0,duration:1,ease:'power2.out',stagger:0.12});});
+// ─── ZONE COVERAGE HEATMAP (clean, interactive) ──────────────────────────────
+function ZoneHeatmap() {
+  const [hoverCell, setHoverCell] = useState(null);
+  const skills = ["Role", "Context", "Output", "Reasoning", "Constraints", "Aesthetic"];
+  const zones = [
+    { name: "ACTIVATE", emoji: "⚡", color: C.cy, vals: [1, 0.7, 0.5, 0.8, 0.6, 0.4] },
+    { name: "BUILD", emoji: "🏗", color: C.vi, vals: [0.9, 0.8, 0.6, 0.5, 0.7, 0.9] },
+    { name: "VALIDATE", emoji: "✅", color: C.gn, vals: [0.4, 0.3, 0.9, 0.9, 0.95, 0.5] },
+    { name: "PLAYBOOK", emoji: "📋", color: C.am, vals: [0.7, 0.8, 0.8, 0.6, 0.7, 0.4] },
+    { name: "MONETIZE", emoji: "💰", color: "#FFD700", vals: [0.8, 0.9, 0.7, 0.7, 0.6, 0.6] },
+  ];
+
+  const levelLabel = (v) => v >= 0.9 ? 'HIGH' : v >= 0.7 ? 'MED+' : v >= 0.5 ? 'MED' : 'LOW';
+  const levelColor = (v, zc) => v >= 0.9 ? zc : v >= 0.7 ? C.mu : C.fa;
+
+  return (
+    <div style={{ overflowX: 'auto' }}>
+      <table style={{ borderCollapse: 'separate', borderSpacing: '3px', width: '100%', minWidth: 420 }}>
+        <thead>
+          <tr>
+            <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: 10, color: C.di, fontFamily: C.mn, fontWeight: 500, letterSpacing: '0.12em' }}>ZONE</th>
+            {skills.map(s => <th key={s} style={{ padding: '8px 8px', textAlign: 'center', fontSize: 10, color: C.di, fontFamily: C.mn, fontWeight: 500, letterSpacing: '0.08em' }}>{s}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {zones.map(z => {
+            const avg = Math.round(z.vals.reduce((a, b) => a + b, 0) / z.vals.length * 100);
+            return (
+              <tr key={z.name}>
+                <td style={{ padding: '10px 12px', fontSize: 12, fontFamily: C.ss, fontWeight: 600, color: z.color, borderBottom: `1px solid ${C.bdr}`, whiteSpace: 'nowrap' }}>
+                  <span>{z.emoji} {z.name}</span>
+                  <span style={{ display: 'block', fontSize: 9, fontFamily: C.mn, color: C.di, fontWeight: 400, marginTop: 1 }}>{avg}% avg</span>
+                </td>
+                {z.vals.map((cell, ci) => {
+                  const key = `${z.name}-${ci}`;
+                  const isHovered = hoverCell === key;
+                  const bgOpacity = 0.08 + cell * 0.25;
+                  return (
+                    <td key={ci}
+                      onMouseEnter={() => setHoverCell(key)}
+                      onMouseLeave={() => setHoverCell(null)}
+                      style={{
+                        padding: '8px 6px', textAlign: 'center', background: hexToRgba(z.color, isHovered ? bgOpacity + 0.15 : bgOpacity),
+                        borderBottom: `1px solid ${C.bdr}`, borderRadius: 6, transition: `background ${IGM.cell.duration}s ${IGM.cell.ease}`,
+                        cursor: 'pointer', transform: isHovered ? 'scale(1.05)' : 'scale(1)', boxShadow: isHovered ? `0 0 12px ${hexToRgba(z.color, 0.3)}` : 'none',
+                      }}>
+                      <div style={{ fontSize: 13, fontFamily: C.hd, fontWeight: 700, color: levelColor(cell, z.color), lineHeight: 1 }}>{Math.round(cell * 100)}%</div>
+                      <div style={{ fontSize: 8, fontFamily: C.mn, color: C.di, marginTop: 2, letterSpacing: '0.08em' }}>{levelLabel(cell)}</div>
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ─── WORKFLOW CHAIN VISUALIZER ────────────────────────────────────────────────
+function WorkflowChainVisualizer() {
+  const [sel, setSel] = useState(0);
+  const svgRef = useRef(null);
+  const done = useRef(false);
+  const ch = CHAINS[sel]; if (!ch) return null;
+  useEffect(() => { done.current = false; }, [sel]);
+  useEffect(() => {
+    const svg = svgRef.current; if (!svg) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !done.current) {
+        done.current = true;
+        if (window.gsap && !prefersReducedMotion()) {
+          const paths = svg.querySelectorAll('.chain-line');
+          paths.forEach(p => { const len = p.getTotalLength(); p.style.strokeDasharray = len; p.style.strokeDashoffset = len; window.gsap.to(p, { strokeDashoffset: 0, duration: 0.8, ease: 'power2.out', stagger: 0.3 }); });
+          const circles = svg.querySelectorAll('.chain-node');
+          window.gsap.fromTo(circles, { r: 0, opacity: 0 }, { r: 22, opacity: 1, duration: IGM.chain.duration, ease: IGM.chain.ease, stagger: IGM.chain.stagger, delay: 0.3 });
+          const labels = svg.querySelectorAll('.chain-label');
+          window.gsap.fromTo(labels, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.15, delay: 0.8 });
         }
         obs.unobserve(svg);
       }
-    },{threshold:0.3});
-    obs.observe(svg);return()=>obs.disconnect();
-  },[]);
-  const cx2=120,cy2=120,r2=70,sw=20;
-  let cumPct=0;
-  const arcs=dist.map((d,i)=>{
-    const pct=d.count/total;
-    const startAngle=cumPct*2*Math.PI-Math.PI/2;
-    const endAngle=(cumPct+pct)*2*Math.PI-Math.PI/2;
-    const x1=cx2+(r2)*Math.cos(startAngle);const y1=cy2+(r2)*Math.sin(startAngle);
-    const x2=cx2+(r2)*Math.cos(endAngle);const y2=cy2+(r2)*Math.sin(endAngle);
-    const large=pct>0.5?1:0;
-    cumPct+=pct;
-    return {d:`M ${x1} ${y1} A ${r2} ${r2} 0 ${large} 1 ${x2} ${y2}`,color:colors[i%colors.length],label:d.label,count:d.count,pct:Math.round(pct*100)};
-  });
-  return(<div style={{display:'flex',gap:20,flexWrap:'wrap',justifyContent:'center',alignItems:'center'}}>
-    <svg ref={svgRef} width={240} height={240} viewBox="0 0 240 240" style={{maxWidth:180}}>
-      {arcs.map((a,i)=><path key={i} className="donut-arc" d={a.d} fill="none" stroke={a.color} strokeWidth={sw} strokeLinecap="round" opacity={0.85}/>)}
-      <text x={cx2} y={cy2-6} textAnchor="middle" fill={C.tx} fontSize={22} fontFamily={C.hd}>{total}</text>
-      <text x={cx2} y={cy2+12} textAnchor="middle" fill={C.di} fontSize={9} fontFamily={C.mn}>MODIFIERS</text>
-    </svg>
-    <div style={{display:'grid',gap:4,maxWidth:160}}>
-      {arcs.map((a,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:8,fontSize:11}}>
-        <span style={{width:8,height:8,borderRadius:2,background:a.color,flexShrink:0}}/>
-        <span style={{color:C.mu,flex:1}}>{a.label}</span>
-        <span style={{color:C.tx,fontFamily:C.mn}}>{a.count}</span>
-      </div>)}
+    }, { threshold: 0.3 });
+    obs.observe(svg); return () => obs.disconnect();
+  }, [sel]);
+  const nodeX = [60, 200, 340]; const nodeY = 55;
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+        {CHAINS.map((c, i) => <MorphPill key={i} label={c.goal} active={sel === i} color={AC[c.c[0]] || C.vi} onClick={() => setSel(i)} />)}
+      </div>
+      <div style={{ fontSize: 12, color: C.mu, marginBottom: 10, lineHeight: 1.5, fontStyle: 'italic' }}>{ch.best}</div>
+      <div style={{ display: 'flex', justifyContent: 'center', overflowX: 'auto', padding: '10px 0' }}>
+        <svg ref={svgRef} width={400} height={120} viewBox="0 0 400 120" style={{ maxWidth: '100%' }}>
+          {/* Connection lines */}
+          {[0, 1].map(i => <line key={i} className="chain-line" x1={nodeX[i] + 24} y1={nodeY} x2={nodeX[i + 1] - 24} y2={nodeY} stroke={AC[ch.c[i]] || C.mu} strokeWidth={2} strokeDasharray="8 5" fill="none" opacity={0.6} />)}
+          {/* Arrow heads */}
+          {[0, 1].map(i => <polygon key={`arr-${i}`} className="chain-line" points={`${nodeX[i + 1] - 24},${nodeY - 5} ${nodeX[i + 1] - 16},${nodeY} ${nodeX[i + 1] - 24},${nodeY + 5}`} fill={AC[ch.c[i]] || C.mu} opacity={0.6} />)}
+          {/* Nodes */}
+          {ch.c.map((name, i) => {
+            const a = ANIMALS.find(x => x.name === name); const col = AC[name] || C.mu;
+            return (
+              <g key={i}>
+                <circle className="chain-node" cx={nodeX[i]} cy={nodeY} r={0} fill={hexToRgba(col, 0.15)} stroke={col} strokeWidth={2.5} />
+                <text className="chain-label" x={nodeX[i]} y={nodeY - 30} textAnchor="middle" fontSize={18}>{a?.emoji || '🐾'}</text>
+                <text className="chain-label" x={nodeX[i]} y={nodeY + 5} textAnchor="middle" fill={col} fontSize={11} fontFamily={C.mn} fontWeight={700}>{name}</text>
+                <text className="chain-label" x={nodeX[i]} y={nodeY + 18} textAnchor="middle" fill={C.di} fontSize={9} fontFamily={C.mn}>{a?.mode || ''}</text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
     </div>
-  </div>);
+  );
 }
 
-function Infographics(){
-  return(<div style={{display:'grid',gap:14}}>
-    <Card accent={C.vi}>
-      <Lbl text="Animated data visualizations for prompt engineering metrics" color={C.vi}/>
-      <H3>📊 Infographics</H3>
-      <div style={{display:'grid',gap:6,flexWrap:'wrap',marginBottom:14}}/>
-      <ScrollReveal type="fadeSlide"><Card accent={C.vi} sx={{marginBottom:14}}>
-        <Lbl text="SVG radar chart — prompt quality across 5 dimensions" color={C.vi}/>
-        <H3 style={{fontSize:'clamp(13px,1.8vw,15px)'}}>Prompt Quality Radar</H3>
-        <PromptQualityRadar scores={[8,7,6,7,5]}/>
-      </Card></ScrollReveal>
-      <ScrollReveal type="fadeSlide" delay={0.1}><Card accent={C.gn} sx={{marginBottom:14}}>
-        <Lbl text="Which zones cover which prompt engineering skills" color={C.gn}/>
-        <H3 style={{fontSize:'clamp(13px,1.8vw,15px)'}}>Zone Coverage Heatmap</H3>
-        <ZoneHeatmap/>
-      </Card></ScrollReveal>
-      <ScrollReveal type="fadeSlide" delay={0.2}><Card accent={C.am} sx={{marginBottom:14}}>
-        <Lbl text="Animal Chain connections — which animals for which goals" color={C.am}/>
-        <H3 style={{fontSize:'clamp(13px,1.8vw,15px)'}}>Workflow Chain Visualizer</H3>
-        <WorkflowChainVisualizer/>
-      </Card></ScrollReveal>
-      <ScrollReveal type="fadeSlide" delay={0.3}><Card accent={C.bl}>
-        <Lbl text="Distribution of prompt skills across modifier categories" color={C.bl}/>
-        <H3 style={{fontSize:'clamp(13px,1.8vw,15px)'}}>Skill Distribution Donut</H3>
-        <SkillDistributionDonut/>
-      </Card></ScrollReveal>
-    </Card>
-  </div>);
+// ─── SKILL DISTRIBUTION DONUT (upgraded legend) ──────────────────────────────
+function SkillDistributionDonut() {
+  const svgRef = useRef(null);
+  const done = useRef(false);
+  const cats = [...new Set(MODS.map(m => m.cat))];
+  const dist = cats.map(c => ({ label: c, count: MODS.filter(m => m.cat === c).length }));
+  const colors = [C.cy, C.vi, C.mg, C.am, C.gn, C.bl, C.or, C.rd, '#7B5CFF', '#FFD700'];
+  const total = dist.reduce((a, b) => a + b.count, 0);
+
+  useEffect(() => {
+    const svg = svgRef.current; if (!svg) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !done.current) {
+        done.current = true;
+        if (window.gsap && !prefersReducedMotion()) {
+          const arcs = svg.querySelectorAll('.donut-arc');
+          arcs.forEach(arc => { const len = arc.getTotalLength(); arc.style.strokeDasharray = len; arc.style.strokeDashoffset = len; window.gsap.to(arc, { strokeDashoffset: 0, duration: IGM.donut.duration, ease: IGM.donut.ease, stagger: IGM.donut.stagger }); });
+          const centerText = svg.querySelector('.donut-center');
+          if (centerText) window.gsap.fromTo(centerText, { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.5, delay: 0.6, ease: 'back.out(2)' });
+        }
+        obs.unobserve(svg);
+      }
+    }, { threshold: 0.3 });
+    obs.observe(svg); return () => obs.disconnect();
+  }, []);
+
+  const cx2 = 130, cy2 = 130, r2 = 80, sw = 24;
+  let cumPct = 0;
+  const arcs = dist.map((d, i) => {
+    const pct = d.count / total;
+    const startAngle = cumPct * 2 * Math.PI - Math.PI / 2;
+    const endAngle = (cumPct + pct) * 2 * Math.PI - Math.PI / 2;
+    const x1 = cx2 + r2 * Math.cos(startAngle); const y1 = cy2 + r2 * Math.sin(startAngle);
+    const x2 = cx2 + r2 * Math.cos(endAngle); const y2 = cy2 + r2 * Math.sin(endAngle);
+    const large = pct > 0.5 ? 1 : 0;
+    cumPct += pct;
+    return { d: `M ${x1} ${y1} A ${r2} ${r2} 0 ${large} 1 ${x2} ${y2}`, color: colors[i % colors.length], label: d.label, count: d.count, pct: Math.round(pct * 100) };
+  });
+
+  return (
+    <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+      <svg ref={svgRef} width={260} height={260} viewBox="0 0 260 260" style={{ maxWidth: 220 }}>
+        {arcs.map((a, i) => <path key={i} className="donut-arc" d={a.d} fill="none" stroke={a.color} strokeWidth={sw} strokeLinecap="round" opacity={0.9} style={{ cursor: 'pointer' }} />)}
+        <g className="donut-center">
+          <text x={cx2} y={cy2 - 8} textAnchor="middle" fill={C.tx} fontSize={32} fontFamily={C.hd} fontWeight={700}>{total}</text>
+          <text x={cx2} y={cy2 + 14} textAnchor="middle" fill={C.mu} fontSize={10} fontFamily={C.mn} letterSpacing="0.1em">MODIFIERS</text>
+        </g>
+      </svg>
+      <div style={{ display: 'grid', gap: 6, maxWidth: 200 }}>
+        {arcs.map((a, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 8px', borderRadius: 6, background: hoverBg(i), transition: 'background 0.15s', cursor: 'default' }}
+            onMouseEnter={e => e.currentTarget.style.background = hexToRgba(a.color, 0.12)}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            <span style={{ width: 10, height: 10, borderRadius: 3, background: a.color, flexShrink: 0, boxShadow: `0 0 6px ${hexToRgba(a.color, 0.4)}` }} />
+            <span style={{ color: C.tx, fontSize: 12, fontFamily: C.ss, fontWeight: 500, flex: 1 }}>{a.label}</span>
+            <span style={{ color: a.color, fontSize: 13, fontFamily: C.hd, fontWeight: 700 }}>{a.count}</span>
+            <span style={{ color: C.di, fontSize: 10, fontFamily: C.mn, width: 30, textAlign: 'right' }}>{a.pct}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function hoverBg(i) { return 'transparent'; }
+
+// ─── INFOGRAPHICS DASHBOARD (merged final) ────────────────────────────────────
+function Infographics() {
+  const [tab, setTab] = useState('radar');
+  const [animKey, setAnimKey] = useState(0);
+  const containerRef = useRef(null);
+
+  const TABS = [
+    { id: 'radar', label: '🎯 Radar', desc: 'Prompt quality across 5 dimensions — interactive scoring', color: C.vi },
+    { id: 'heatmap', label: '🌡 Heatmap', desc: 'Zone skill coverage — which zones cover which skills', color: C.gn },
+    { id: 'chains', label: '🔗 Chains', desc: 'Animal workflow chains — which animals for which goals', color: C.am },
+    { id: 'donut', label: '🍩 Distribution', desc: 'Skill distribution across 10 modifier categories', color: C.bl },
+  ];
+
+  const switchTab = (id) => { setTab(id); setAnimKey(k => k + 1); };
+
+  // Summary stats
+  const totalMods = MODS.length;
+  const totalChains = CHAINS.length;
+  const totalTasks = TASKS.length;
+  const avgScore = 6.6;
+
+  return (
+    <div style={{ display: 'grid', gap: 16 }}>
+      {/* Header with hero typography */}
+      <div>
+        <div style={{ fontFamily: C.hd, fontSize: 'clamp(22px,4vw,32px)', color: C.tx, letterSpacing: '-0.03em', lineHeight: 1.1 }}>INFOGRAPHICS</div>
+        <div style={{ fontSize: 12, color: C.mu, marginTop: 6, maxWidth: 480, lineHeight: 1.6 }}>Interactive data visualizations for prompt engineering metrics. Select a chart below to explore.</div>
+      </div>
+
+      {/* KPI Stats Bar */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 8 }}>
+        {[
+          { value: totalMods, label: 'MODIFIERS', color: C.vi, icon: '⚡' },
+          { value: totalChains, label: 'WORKFLOWS', color: C.am, icon: '🔗' },
+          { value: totalTasks, label: 'TASK ROLES', color: C.cy, icon: '🎯' },
+          { value: avgScore, label: 'AVG QUALITY', color: C.gn, icon: '📊', decimals: 1 },
+        ].map((s, i) => (
+          <div key={i} style={{ background: C.sur, border: `1px solid ${hexToRgba(s.color, 0.15)}`, borderRadius: 10, padding: '14px 16px', textAlign: 'center' }}>
+            <div style={{ fontSize: 16, marginBottom: 4 }}>{s.icon}</div>
+            <div style={{ fontFamily: C.hd, fontSize: 'clamp(24px,4vw,34px)', color: s.color, lineHeight: 1, letterSpacing: '-0.02em' }}>
+              {s.decimals ? <AnimatedCounter value={s.value} decimals={s.decimals} color={s.color} /> : <AnimatedCounter value={s.value} color={s.color} />}
+            </div>
+            <div style={{ fontSize: 9, color: C.di, fontFamily: C.mn, letterSpacing: '0.12em', marginTop: 4 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tab Navigation */}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        {TABS.map(t => <MorphPill key={t.id} label={t.label} active={tab === t.id} color={t.color} onClick={() => switchTab(t.id)} />)}
+      </div>
+
+      {/* Active Chart Panel */}
+      <div key={animKey} ref={containerRef} className="anim-zone" style={{ background: C.sur, border: `1px solid ${hexToRgba(TABS.find(t => t.id === tab)?.color || C.vi, 0.2)}`, borderRadius: 14, padding: '20px 24px', minHeight: 320 }}>
+        {/* Chart header with strong hierarchy */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontFamily: C.hd, fontSize: 'clamp(16px,2.5vw,20px)', color: C.tx, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+            {TABS.find(t => t.id === tab)?.label.replace(/[🎯🌡🔗🍩]\s/, '')}
+          </div>
+          <div style={{ fontSize: 11, color: C.mu, marginTop: 4, lineHeight: 1.5 }}>{TABS.find(t => t.id === tab)?.desc}</div>
+        </div>
+
+        {/* Charts */}
+        {tab === 'radar' && <PromptQualityRadar scores={[8, 7, 6, 7, 5]} />}
+        {tab === 'heatmap' && <ZoneHeatmap />}
+        {tab === 'chains' && <WorkflowChainVisualizer />}
+        {tab === 'donut' && <SkillDistributionDonut />}
+      </div>
+    </div>
+  );
 }
 
 // ─── PRESENTATION MODE ─────────────────────────────────────────────────────────
