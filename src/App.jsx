@@ -95,6 +95,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialias
 .pres-enter-left{animation:slideInLeft 0.4s cubic-bezier(0.16,1,0.3,1)}
 button:active{transform:scale(0.96)!important}
 @media(prefers-reduced-motion:reduce){*{animation-duration:0.01ms!important;transition-duration:0.01ms!important;animation-iteration-count:1!important}}
+@media(max-width:700px){.two-col-grid{grid-template-columns:1fr!important}}
 `;
 
 function fallbackCopy(text){const el=document.createElement("textarea");el.value=text;el.style.cssText="position:fixed;top:-9999px;opacity:0";document.body.appendChild(el);el.focus();el.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(el);}
@@ -165,61 +166,61 @@ That means:
 
 const MODS=[
   // ROLE + PERSONA
-  {cat:"Role",mod:"act as an expert in [field] with 10+ years shipping production systems",tip:"Add seniority level — 'senior' vs 'principal' changes output depth"},
-  {cat:"Role",mod:"give me the version a senior dev would write",tip:"Best for code — strips tutorials, adds error handling, real patterns"},
-  {cat:"Role",mod:"you are a YC partner reviewing this idea",tip:"Forces brutal prioritization + market-size thinking"},
-  {cat:"Role",mod:"think like a $10M ARR founder solving this",tip:"Unlocks operational wisdom, not just advice"},
-  {cat:"Role",mod:"you are a staff engineer doing a code review",tip:"Gets security, scale, and edge-case concerns automatically"},
+  {cat:"Role",mod:"act as an expert in [field] with 10+ years shipping production systems,",tip:"Add seniority level — 'senior' vs 'principal' changes output depth"},
+  {cat:"Role",mod:"give me the version a senior dev would write,",tip:"Best for code — strips tutorials, adds error handling, real patterns"},
+  {cat:"Role",mod:"you are a YC partner reviewing this idea,",tip:"Forces brutal prioritization + market-size thinking"},
+  {cat:"Role",mod:"think like a $10M ARR founder solving this,",tip:"Unlocks operational wisdom, not just advice"},
+  {cat:"Role",mod:"you are a staff engineer doing a code review,",tip:"Gets security, scale, and edge-case concerns automatically"},
   // OUTPUT CONTROL
-  {cat:"Output",mod:"don't explain, just do it",tip:"Eliminates preamble. Works best when prompt is already detailed"},
-  {cat:"Output",mod:"respond only in JSON, no markdown fences",tip:"Critical for parsing in automation. Append JSON_GLOBAL rules too"},
-  {cat:"Output",mod:"use markdown tables for comparisons",tip:"Forces structured output — easier to scan and copy"},
-  {cat:"Output",mod:"give me a numbered list ranked by ROI",tip:"Turns brainstorm dumps into prioritized action"},
-  {cat:"Output",mod:"output as a step-by-step SOP",tip:"Best for automation workflows and repeatable processes"},
-  {cat:"Output",mod:"format as a complete file, no TODOs",tip:"Eliminates placeholder code — gets production-ready output"},
-  {cat:"Output",mod:"give me 3 wildly different approaches",tip:"Breaks the average-output trap. Use before committing to one path"},
+  {cat:"Output",mod:"don't explain, just do it,",tip:"Eliminates preamble. Works best when prompt is already detailed"},
+  {cat:"Output",mod:"respond only in JSON, no markdown fences,",tip:"Critical for parsing in automation. Append JSON_GLOBAL rules too"},
+  {cat:"Output",mod:"use markdown tables for comparisons,",tip:"Forces structured output — easier to scan and copy"},
+  {cat:"Output",mod:"give me a numbered list ranked by ROI,",tip:"Turns brainstorm dumps into prioritized action"},
+  {cat:"Output",mod:"output as a step-by-step SOP,",tip:"Best for automation workflows and repeatable processes"},
+  {cat:"Output",mod:"format as a complete file, no TODOs,",tip:"Eliminates placeholder code — gets production-ready output"},
+  {cat:"Output",mod:"give me 3 wildly different approaches,",tip:"Breaks the average-output trap. Use before committing to one path"},
   // REASONING
-  {cat:"Reasoning",mod:"think step by step before answering",tip:"Triggers chain-of-thought — measurably improves complex reasoning"},
-  {cat:"Reasoning",mod:"find the flaw in this reasoning first",tip:"Best adversarial prompt. Use before presenting plans to stakeholders"},
-  {cat:"Reasoning",mod:"steelman the opposite view",tip:"Forces genuine counterarguments — not strawmen"},
-  {cat:"Reasoning",mod:"what would change your answer?",tip:"Surfaces assumptions and sensitivities in any recommendation"},
-  {cat:"Reasoning",mod:"cite your confidence level 1-10 per claim",tip:"Separates facts from speculation — essential for research prompts"},
-  {cat:"Reasoning",mod:"identify second-order effects",tip:"Forces systems thinking beyond the immediate solution"},
+  {cat:"Reasoning",mod:"think step by step before answering,",tip:"Triggers chain-of-thought — measurably improves complex reasoning"},
+  {cat:"Reasoning",mod:"find the flaw in this reasoning first,",tip:"Best adversarial prompt. Use before presenting plans to stakeholders"},
+  {cat:"Reasoning",mod:"steelman the opposite view,",tip:"Forces genuine counterarguments — not strawmen"},
+  {cat:"Reasoning",mod:"what would change your answer?,",tip:"Surfaces assumptions and sensitivities in any recommendation"},
+  {cat:"Reasoning",mod:"cite your confidence level 1-10 per claim,",tip:"Separates facts from speculation — essential for research prompts"},
+  {cat:"Reasoning",mod:"identify second-order effects,",tip:"Forces systems thinking beyond the immediate solution"},
   // SPEED + SCOPE
-  {cat:"Speed",mod:"give me the 80/20 version",tip:"Highest-leverage change. Add 'don't explain what you cut'"},
-  {cat:"Speed",mod:"what's the one thing that matters most here?",tip:"Cuts analysis paralysis. Works for product, copy, and strategy"},
-  {cat:"Speed",mod:"assume I'm an expert, skip the basics",tip:"Removes redundant context — cuts response length 40-60%"},
-  {cat:"Speed",mod:"give me the MVP version first",tip:"Unlocks iterative building vs waiting for perfect output"},
-  {cat:"Speed",mod:"what can I delete or simplify without losing value?",tip:"Best editing prompt. Apply after any long generation"},
+  {cat:"Speed",mod:"give me the 80/20 version,",tip:"Highest-leverage change. Add 'don't explain what you cut'"},
+  {cat:"Speed",mod:"what's the one thing that matters most here?,",tip:"Cuts analysis paralysis. Works for product, copy, and strategy"},
+  {cat:"Speed",mod:"assume I'm an expert, skip the basics,",tip:"Removes redundant context — cuts response length 40-60%"},
+  {cat:"Speed",mod:"give me the MVP version first,",tip:"Unlocks iterative building vs waiting for perfect output"},
+  {cat:"Speed",mod:"what can I delete or simplify without losing value?,",tip:"Best editing prompt. Apply after any long generation"},
   // STRATEGY + BUSINESS
-  {cat:"Strategy",mod:"what would you do if this was your own business?",tip:"Gets honest, opinionated advice vs diplomatic hedging"},
-  {cat:"Strategy",mod:"what am I missing or not asking that I should be?",tip:"#1 blind spot revealer. Use at end of strategy sessions"},
-  {cat:"Strategy",mod:"be brutally honest, no diplomatic softening",tip:"Forces real assessment. Add 'I won't take it personally'"},
-  {cat:"Strategy",mod:"rank these by impact",tip:"Turns idea lists into execution priority. Add 'with reasoning'"},
-  {cat:"Strategy",mod:"what's the fastest path to first dollar?",tip:"Cuts scope creep on product builds. Revenue-first filter"},
+  {cat:"Strategy",mod:"what would you do if this was your own business?,",tip:"Gets honest, opinionated advice vs diplomatic hedging"},
+  {cat:"Strategy",mod:"what am I missing or not asking that I should be?,",tip:"#1 blind spot revealer. Use at end of strategy sessions"},
+  {cat:"Strategy",mod:"be brutally honest, no diplomatic softening,",tip:"Forces real assessment. Add 'I won't take it personally'"},
+  {cat:"Strategy",mod:"rank these by impact,",tip:"Turns idea lists into execution priority. Add 'with reasoning'"},
+  {cat:"Strategy",mod:"what's the fastest path to first dollar?,",tip:"Cuts scope creep on product builds. Revenue-first filter"},
   // HACKS + TRICKS
-  {cat:"Hack",mod:"pretend the answer is obvious and explain it simply",tip:"Breaks overthinking loops — surprisingly effective on complex topics"},
-  {cat:"Hack",mod:"write this for someone who will implement it today",tip:"Adds urgency + specificity — removes theoretical hedging"},
-  {cat:"Hack",mod:"what would a contrarian say about this?",tip:"Forces consideration of failure modes and market risks"},
+  {cat:"Hack",mod:"pretend the answer is obvious and explain it simply,",tip:"Breaks overthinking loops — surprisingly effective on complex topics"},
+  {cat:"Hack",mod:"write this for someone who will implement it today,",tip:"Adds urgency + specificity — removes theoretical hedging"},
+  {cat:"Hack",mod:"what would a contrarian say about this?,",tip:"Forces consideration of failure modes and market risks"},
   // DATA + ANALYTICS
-  {cat:"Data",mod:"show me the SQL query, not just the result",tip:"Gets executable code instead of prose descriptions of what query to write"},
-  {cat:"Data",mod:"profile before you optimize — what is the actual bottleneck?",tip:"Prevents premature optimization. Forces measurement-first thinking"},
-  {cat:"Data",mod:"give me the EXPLAIN ANALYZE output interpretation",tip:"Turns database jargon into actionable index recommendations"},
-  {cat:"Data",mod:"what metrics would a data engineer add to this schema?",tip:"Surfaces observability fields (created_at, updated_at, deleted_at, source) automatically"},
+  {cat:"Data",mod:"show me the SQL query, not just the result,",tip:"Gets executable code instead of prose descriptions of what query to write"},
+  {cat:"Data",mod:"profile before you optimize — what is the actual bottleneck?,",tip:"Prevents premature optimization. Forces measurement-first thinking"},
+  {cat:"Data",mod:"give me the EXPLAIN ANALYZE output interpretation,",tip:"Turns database jargon into actionable index recommendations"},
+  {cat:"Data",mod:"what metrics would a data engineer add to this schema?,",tip:"Surfaces observability fields (created_at, updated_at, deleted_at, source) automatically"},
   // AGENT + AUTOMATION
-  {cat:"Agent",mod:"define the tools this agent needs before writing any code",tip:"Tool-first design prevents architecture rewrites. Define tool schemas upfront."},
-  {cat:"Agent",mod:"what are the failure modes and how should each be handled?",tip:"Surfaces error states that most prompts skip. Critical for production agents."},
-  {cat:"Agent",mod:"trace through one complete execution path step by step",tip:"Forces the AI to verify the logic before generating code"},
-  {cat:"Agent",mod:"what external APIs or services does this depend on?",tip:"Maps all dependencies early — catches rate limits, auth requirements, costs"},
-  {cat:"Agent",mod:"break this task into autonomous sub-agents, each with a specialized role",tip:"Multi-agent decomposition solves complex tasks better than one monolithic prompt"},
-  {cat:"Agent",mod:"simulate the output end-to-end before generating code — trace every user interaction",tip:"Catches UX gaps and edge cases before any code is written"},
+  {cat:"Agent",mod:"define the tools this agent needs before writing any code,",tip:"Tool-first design prevents architecture rewrites. Define tool schemas upfront."},
+  {cat:"Agent",mod:"what are the failure modes and how should each be handled?,",tip:"Surfaces error states that most prompts skip. Critical for production agents."},
+  {cat:"Agent",mod:"trace through one complete execution path step by step,",tip:"Forces the AI to verify the logic before generating code"},
+  {cat:"Agent",mod:"what external APIs or services does this depend on?,",tip:"Maps all dependencies early — catches rate limits, auth requirements, costs"},
+  {cat:"Agent",mod:"break this task into autonomous sub-agents, each with a specialized role,",tip:"Multi-agent decomposition solves complex tasks better than one monolithic prompt"},
+  {cat:"Agent",mod:"simulate the output end-to-end before generating code — trace every user interaction,",tip:"Catches UX gaps and edge cases before any code is written"},
   // PRODUCTIVITY
-  {cat:"Productivity",mod:"give me a checklist I can follow without re-reading this",tip:"Converts explanations into executable checklists. Best for implementation guides."},
-  {cat:"Productivity",mod:"what decision do I need to make first before proceeding?",tip:"Identifies the highest-leverage decision in any complex situation"},
-  {cat:"Productivity",mod:"summarize this in 3 bullet points a 10-year-old could act on",tip:"Forces genuine simplification — not just shorter, but clearer"},
-  {cat:"Productivity",mod:"what would I regret not knowing 6 months from now?",tip:"Unlocks forward-looking strategic advice vs present-state analysis"},
-  {cat:"Productivity",mod:"give me the decision tree: if X then Y, if A then B — map all branches",tip:"Turns ambiguous requests into structured decision frameworks"},
-  {cat:"Productivity",mod:"what's the version of this that a $10M ARR company would ship?",tip:"Forces enterprise-grade thinking: error handling, monitoring, graceful degradation"},
+  {cat:"Productivity",mod:"give me a checklist I can follow without re-reading this,",tip:"Converts explanations into executable checklists. Best for implementation guides."},
+  {cat:"Productivity",mod:"what decision do I need to make first before proceeding?,",tip:"Identifies the highest-leverage decision in any complex situation"},
+  {cat:"Productivity",mod:"summarize this in 3 bullet points a 10-year-old could act on,",tip:"Forces genuine simplification — not just shorter, but clearer"},
+  {cat:"Productivity",mod:"what would I regret not knowing 6 months from now?,",tip:"Unlocks forward-looking strategic advice vs present-state analysis"},
+  {cat:"Productivity",mod:"give me the decision tree: if X then Y, if A then B — map all branches,",tip:"Turns ambiguous requests into structured decision frameworks"},
+  {cat:"Productivity",mod:"what's the version of this that a $10M ARR company would ship?.",tip:"Forces enterprise-grade thinking: error handling, monitoring, graceful degradation"},
 ];
 
 const TASKS=[
@@ -3082,6 +3083,60 @@ function Pill({label,active,color,onClick}){return <button onClick={onClick} sty
 function Inp({label,value,onChange,ph}){return(<div style={{marginBottom:10}}>{label&&<div style={{fontSize:10,color:C.di,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:4}}>{label}</div>}<input value={value} onChange={e=>onChange(e.target.value)} placeholder={ph} style={{width:"100%",boxSizing:"border-box",background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"9px 12px",color:C.tx,fontSize:13,fontFamily:C.ss,outline:"none"}}/></div>);}
 function TA({label,value,onChange,ph,rows=4}){return(<div style={{marginBottom:10}}>{label&&<div style={{fontSize:10,color:C.di,fontFamily:C.mn,letterSpacing:"0.1em",marginBottom:4}}>{label}</div>}<textarea value={value} onChange={e=>onChange(e.target.value)} placeholder={ph} rows={rows} style={{width:"100%",boxSizing:"border-box",background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"9px 12px",color:C.tx,fontSize:12,fontFamily:C.mn,outline:"none",resize:"vertical",lineHeight:1.6}}/></div>);}
 
+function CopyReadyBox({items,onRemove,onClear,title="COPY-READY BOX",accentColor=C.cy,prefix=""}){
+  const copy=useCopy();
+  const[ok,setOk]=useState(false);
+  const copyAll=()=>{if(items.length){copy(items.map((it,i)=>prefix+it+(i<items.length-1?",":".").replace(/[,\.]+$/,".")+(i<items.length-1?",":"")).join("\n"));setOk(true);setTimeout(()=>setOk(false),1800);}};
+  const displayItems=items.map(it=>{
+    let t=prefix?prefix+it:it;
+    if(!/[.,]$/.test(t.trim()))t+=".";
+    return t;
+  });
+  return(
+    <div style={{background:C.bg,border:`1px solid ${accentColor}25`,borderRadius:10,padding:14,display:"flex",flexDirection:"column",gap:8,minHeight:120}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:2}}>
+        <div style={{fontSize:11,color:accentColor,fontFamily:C.mn,letterSpacing:"0.12em",fontWeight:600}}>{title} — {items.length}</div>
+        <div style={{display:"flex",gap:6}}>
+          {items.length>0&&<button onClick={onClear} style={{background:"transparent",border:"1px solid #ef444440",color:"#ef4444",borderRadius:6,padding:"3px 10px",fontSize:10,fontFamily:C.mn,cursor:"pointer",transition:"all 0.15s"}}>CLEAR ALL</button>}
+          <button onClick={copyAll} style={{background:ok?"#22c55e18":accentColor+"15",border:`1px solid ${ok?"#22c55e55":accentColor+"44"}`,color:ok?C.gn:accentColor,borderRadius:6,padding:"3px 12px",fontSize:10,fontFamily:C.mn,cursor:"pointer",transition:"all 0.2s",fontWeight:600}}>{ok?"✓ ALL COPIED":"COPY ALL"}</button>
+        </div>
+      </div>
+      {items.length===0&&<div style={{fontSize:11,color:C.fa,fontFamily:C.mn,textAlign:"center",padding:"18px 0",opacity:0.7}}>Click COPY on items to add here</div>}
+      <div style={{display:"grid",gap:4,maxHeight:360,overflowY:"auto"}}>
+        {displayItems.map((it,i)=><div key={i} className="anim-slide" style={{background:C.sur,border:"1px solid "+C.bdr,borderRadius:7,padding:"7px 10px",display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
+          <span style={{fontSize:11,color:C.mu,fontFamily:C.mn,lineHeight:1.5,flex:1,whiteSpace:"pre-wrap",wordBreak:"break-word"}}>{it}</span>
+          <button onClick={()=>onRemove(i)} style={{background:"transparent",border:"1px solid #ef444430",color:"#ef444499",borderRadius:5,padding:"2px 6px",fontSize:10,cursor:"pointer",flexShrink:0,lineHeight:1,transition:"all 0.15s"}} title="Remove">✕</button>
+        </div>)}
+      </div>
+    </div>
+  );
+}
+
+function HistoryPanel({history,onClear,visible,onClose}){
+  if(!visible)return null;
+  return(<div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",zIndex:998,display:"flex",justifyContent:"flex-end",backdropFilter:"blur(3px)"}}>
+    <div onClick={e=>e.stopPropagation()} className="pres-enter-right" style={{width:"min(380px,85vw)",height:"100vh",background:C.sur,borderLeft:"1px solid "+C.bdr,overflowY:"auto",padding:"20px 16px",display:"flex",flexDirection:"column",gap:12}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+        <div style={{fontSize:15,fontWeight:700,color:C.tx,fontFamily:C.ss}}>📋 Copy History</div>
+        <div style={{display:"flex",gap:8}}>
+          {history.length>0&&<button onClick={onClear} style={{background:"transparent",border:"1px solid #ef444440",color:"#ef4444",borderRadius:6,padding:"4px 10px",fontSize:10,fontFamily:C.mn,cursor:"pointer"}}>CLEAR</button>}
+          <button onClick={onClose} style={{background:C.bg,border:"1px solid "+C.bdr,color:C.di,borderRadius:6,padding:"4px 10px",fontSize:10,fontFamily:C.mn,cursor:"pointer"}}>✕ CLOSE</button>
+        </div>
+      </div>
+      {history.length===0&&<div style={{fontSize:12,color:C.fa,textAlign:"center",padding:"40px 0"}}>No copies yet. Items you copy will appear here.</div>}
+      <div style={{display:"grid",gap:6}}>
+        {history.map((h,i)=><div key={i} style={{background:C.bg,border:"1px solid "+C.bdr,borderRadius:8,padding:"10px 12px"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+            <span style={{fontSize:9,color:ZC[h.zone]||C.cy,fontFamily:C.mn,background:(ZC[h.zone]||C.cy)+"15",border:"1px solid "+(ZC[h.zone]||C.cy)+"30",borderRadius:10,padding:"1px 8px"}}>{h.zone}</span>
+            <span style={{fontSize:9,color:C.fa,fontFamily:C.mn}}>{h.time}</span>
+          </div>
+          <div style={{fontSize:11,color:C.mu,fontFamily:C.mn,lineHeight:1.5,whiteSpace:"pre-wrap",wordBreak:"break-word",maxHeight:60,overflow:"hidden"}}>{h.text.length>150?h.text.slice(0,150)+"…":h.text}</div>
+        </div>)}
+      </div>
+    </div>
+  </div>);
+}
+
 // ─── GSAP MOTION COMPONENTS ───────────────────────────────────────────────────
 const prefersReducedMotion=()=>typeof window!=='undefined'&&window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
 
@@ -3712,15 +3767,18 @@ function Activate(){
   const[tM,setTM]=useState(0);
   const[tmplKey,setTmplKey]=useState(0);
   const[modCat,setModCat]=useState("All");
+  const[sauceBox,setSauceBox]=useState([]);
   const setTemplate=(i)=>{setTM(i);setTmplKey(k=>k+1);};
-
-  // Group templates by category for scanability
+  const addSauce=(mod)=>{
+    let txt=mod.trim();
+    if(!/[.,]$/.test(txt))txt+=",";
+    if(!sauceBox.includes(txt))setSauceBox(b=>[...b,txt]);
+  };
   const TMPL_CATS=[
     {label:"📋 Templates",range:[0,5]},
     {label:"📐 Meta Prompts",range:[6,8]},
     {label:"🏢 Brand Systems",range:[9,14]},
   ];
-  const getCatIdx=(i)=>TMPL_CATS.findIndex(c=>i>=c.range[0]&&i<=c.range[1]);
 
   return(<div style={{display:"grid",gap:14}}>
     <Card>
@@ -3734,16 +3792,24 @@ function Activate(){
       <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
         {["All",...new Set(MODS.map(m=>m.cat))].map(c=><Pill key={c} label={c} active={modCat===c} color={C.cy} onClick={()=>setModCat(c)}/>)}
       </div>
-      <div style={{display:"grid",gap:6}}>
-        {MODS.filter(m=>modCat==="All"||m.cat===modCat).map((m,i)=>(
-          <div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"9px 12px"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8,marginBottom:4}}>
-              <span style={{color:C.cy,fontFamily:C.mn,fontSize:11,lineHeight:1.5,flex:1}}>{m.mod}</span>
-              <Cp text={m.mod}/>
+      <div className="two-col-grid" style={{display:"grid",gridTemplateColumns:"minmax(0,1fr) minmax(0,1fr)",gap:14,alignItems:"start"}}>
+        <div style={{display:"grid",gap:6}}>
+          {MODS.filter(m=>modCat==="All"||m.cat===modCat).map((m,i)=>(
+            <div key={i} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:8,padding:"9px 12px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8,marginBottom:4}}>
+                <span style={{color:C.cy,fontFamily:C.mn,fontSize:11,lineHeight:1.5,flex:1}}>{m.mod}</span>
+                <div style={{display:"flex",gap:4,flexShrink:0}}>
+                  <button onClick={()=>addSauce(m.mod)} style={{background:C.cy+"15",border:"1px solid "+C.cy+"40",color:C.cy,borderRadius:6,padding:"3px 10px",fontSize:10,fontFamily:C.mn,cursor:"pointer",transition:"all 0.15s",fontWeight:600,whiteSpace:"nowrap"}}>ADD</button>
+                  <Cp text={m.mod}/>
+                </div>
+              </div>
+              <div style={{fontSize:11,color:C.di,lineHeight:1.4}}>💡 {m.tip}</div>
             </div>
-            <div style={{fontSize:11,color:C.di,lineHeight:1.4}}>💡 {m.tip}</div>
-          </div>
-        ))}
+          ))}
+        </div>
+        <div style={{position:"sticky",top:80}}>
+          <CopyReadyBox items={sauceBox} onRemove={i=>setSauceBox(b=>b.filter((_,j)=>j!==i))} onClear={()=>setSauceBox([])} title="SAUCE BOX" accentColor={C.cy}/>
+        </div>
       </div>
     </Card>
     <Card>
@@ -4100,7 +4166,13 @@ function Validate(){
   const[swapFilter,setSwapFilter]=useState("all");
   const[lintSeg,setLintSeg]=useState("universal");
   const[selAesthetic,setSelAesthetic]=useState(null);
+  const[lintBox,setLintBox]=useState([]);
   const avg=(Object.values(sc).reduce((a,b)=>a+b,0)/4).toFixed(1);
+  const addLint=(fix)=>{
+    let txt=fix.trim();
+    if(!/[.,]$/.test(txt))txt+=",";
+    if(!lintBox.includes(txt))setLintBox(b=>[...b,txt]);
+  };
   const grade=SSCALE.find(s=>{const[lo,hi]=s.r.split("–").map(Number);return avg>=lo&&avg<=hi;})||SSCALE[SSCALE.length-1];
   const LEVEL_COLORS={beginner:C.gn,misconception:C.am,advanced:C.vi,hack:"#7B5CFF"};
   const LINT_SEGS=[...new Set(LINT.map(r=>r.seg))];
@@ -4123,50 +4195,60 @@ function Validate(){
       <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
         {LINT_SEGS.map(s=><button key={s} onClick={()=>setLintSeg(s)} style={{background:lintSeg===s?C.cy+"18":"transparent",border:"1px solid "+(lintSeg===s?C.cy+"50":C.bdr),color:lintSeg===s?C.cy:C.di,borderRadius:20,padding:"3px 11px",fontSize:10,fontFamily:C.mn,cursor:"pointer",transition:"all 0.15s",textTransform:"uppercase"}}>{s}</button>)}
       </div>
-      <div key={lintSeg} className="anim-pop" style={{display:"grid",gap:6,marginBottom:18}}>
-        {filteredLint.map(r=>(
-          <div key={r.id} style={{background:C.bg,border:"1px solid "+C.bdr,borderRadius:9,padding:"9px 13px",display:"flex",gap:10}}>
-            <span style={{fontSize:14,marginTop:1}}>{r.auto?"✅":"⚠️"}</span>
-            <div style={{flex:1}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8,marginBottom:2}}>
-                <span style={{fontSize:12,color:C.tx,lineHeight:1.4}}>{r.check}</span>
-                <Cp text={r.fix}/>
-              </div>
-              <div style={{fontSize:11,color:C.di}}>{r.auto?"Autofix":"Manual"}: {r.fix}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-        <div style={{fontSize:10,color:C.am,fontFamily:C.mn,letterSpacing:"0.1em"}}>WORD SWAPS — {filteredSwaps.length}</div>
-        <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-          {["all","beginner","misconception","advanced","hack"].map(f=>{const col=f==="all"?C.cy:(LEVEL_COLORS[f]||C.cy);return <button key={f} onClick={()=>setSwapFilter(f)} style={{background:swapFilter===f?col+"18":"transparent",border:"1px solid "+(swapFilter===f?col+"50":C.bdr),color:swapFilter===f?col:C.di,borderRadius:20,padding:"3px 9px",fontSize:10,fontFamily:C.mn,cursor:"pointer",transition:"all 0.15s"}}>{f==="all"?"ALL":f.toUpperCase()}</button>;})}
-        </div>
-      </div>
-      <div key={swapFilter} className="anim-pop" style={{display:"grid",gap:5}}>
-        {filteredSwaps.map((sw,i)=>(
-          <div key={i} style={{background:C.bg,border:"1px solid "+C.bdr,borderRadius:8,padding:"8px 12px"}}>
-            <div style={{display:"grid",gridTemplateColumns:"1fr auto 1fr auto",gap:8,alignItems:"flex-start",marginBottom:sw.tip?4:0}}>
-              <span style={{color:C.rd,fontFamily:C.mn,fontSize:11,textDecoration:"line-through",opacity:0.7}}>{sw.bad}</span>
-              <span style={{color:C.fa,fontSize:11,marginTop:1}}>→</span>
-              {sw.isAesthetic?(
-                <div>
-                  <div style={{display:"flex",gap:3,flexWrap:"wrap",marginBottom:4}}>
-                    {AESTHETIC_KEYWORDS.map((kw,ki)=>{const k=i+"-"+ki;return(<button key={ki} onClick={()=>setSelAesthetic(selAesthetic===k?null:k)} style={{background:selAesthetic===k?C.cy+"20":"transparent",border:"1px solid "+(selAesthetic===k?C.cy+"55":C.bdr),color:selAesthetic===k?C.cy:C.mu,borderRadius:5,padding:"2px 7px",fontSize:9,fontFamily:C.mn,cursor:"pointer",transition:"all 0.15s"}}>{kw}</button>);})}
+      <div className="two-col-grid" style={{display:"grid",gridTemplateColumns:"minmax(0,1fr) minmax(0,1fr)",gap:14,alignItems:"start"}}>
+        <div>
+          <div key={lintSeg} className="anim-pop" style={{display:"grid",gap:6,marginBottom:18}}>
+            {filteredLint.map(r=>(
+              <div key={r.id} style={{background:C.bg,border:"1px solid "+C.bdr,borderRadius:9,padding:"9px 13px",display:"flex",gap:10}}>
+                <span style={{fontSize:14,marginTop:1}}>{r.auto?"✅":"⚠️"}</span>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8,marginBottom:2}}>
+                    <span style={{fontSize:12,color:C.tx,lineHeight:1.4}}>{r.check}</span>
+                    <div style={{display:"flex",gap:4,flexShrink:0}}>
+                      <button onClick={()=>addLint(r.fix)} style={{background:C.gn+"15",border:"1px solid "+C.gn+"40",color:C.gn,borderRadius:6,padding:"3px 10px",fontSize:10,fontFamily:C.mn,cursor:"pointer",transition:"all 0.15s",fontWeight:600,whiteSpace:"nowrap"}}>ADD</button>
+                      <Cp text={r.fix}/>
+                    </div>
                   </div>
-                  {selAesthetic&&selAesthetic.startsWith(i+"-")&&<div style={{display:"flex",gap:6,alignItems:"center"}}><span style={{fontSize:11,color:C.gn,fontFamily:C.mn}}>{AESTHETIC_KEYWORDS[parseInt(selAesthetic.split("-")[1])]}</span><Cp text={AESTHETIC_KEYWORDS[parseInt(selAesthetic.split("-")[1])]}/></div>}
+                  <div style={{fontSize:11,color:C.di}}>{r.auto?"Autofix":"Manual"}: {r.fix}</div>
                 </div>
-              ):(
-                <span style={{color:C.gn,fontFamily:C.mn,fontSize:11,lineHeight:1.4}}>{sw.good}</span>
-              )}
-              <div style={{display:"flex",gap:4,alignItems:"center",flexShrink:0}}>
-                {!sw.isAesthetic&&<Cp text={sw.good}/>}
-                <span style={{fontSize:9,background:(LEVEL_COLORS[sw.level]||C.cy)+"18",color:LEVEL_COLORS[sw.level]||C.cy,border:"1px solid "+(LEVEL_COLORS[sw.level]||C.cy)+"30",borderRadius:20,padding:"2px 7px",fontFamily:C.mn,whiteSpace:"nowrap"}}>{sw.level}</span>
               </div>
-            </div>
-            {sw.tip&&<div style={{fontSize:10,color:C.di,lineHeight:1.4}}>💡 {sw.tip}</div>}
+            ))}
           </div>
-        ))}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div style={{fontSize:10,color:C.am,fontFamily:C.mn,letterSpacing:"0.1em"}}>WORD SWAPS — {filteredSwaps.length}</div>
+            <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+              {["all","beginner","misconception","advanced","hack"].map(f=>{const col=f==="all"?C.cy:(LEVEL_COLORS[f]||C.cy);return <button key={f} onClick={()=>setSwapFilter(f)} style={{background:swapFilter===f?col+"18":"transparent",border:"1px solid "+(swapFilter===f?col+"50":C.bdr),color:swapFilter===f?col:C.di,borderRadius:20,padding:"3px 9px",fontSize:10,fontFamily:C.mn,cursor:"pointer",transition:"all 0.15s"}}>{f==="all"?"ALL":f.toUpperCase()}</button>;})}
+            </div>
+          </div>
+          <div key={swapFilter} className="anim-pop" style={{display:"grid",gap:5}}>
+            {filteredSwaps.map((sw,i)=>(
+              <div key={i} style={{background:C.bg,border:"1px solid "+C.bdr,borderRadius:8,padding:"8px 12px"}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr auto 1fr auto",gap:8,alignItems:"flex-start",marginBottom:sw.tip?4:0}}>
+                  <span style={{color:C.rd,fontFamily:C.mn,fontSize:11,textDecoration:"line-through",opacity:0.7}}>{sw.bad}</span>
+                  <span style={{color:C.fa,fontSize:11,marginTop:1}}>→</span>
+                  {sw.isAesthetic?(
+                    <div>
+                      <div style={{display:"flex",gap:3,flexWrap:"wrap",marginBottom:4}}>
+                        {AESTHETIC_KEYWORDS.map((kw,ki)=>{const k=i+"-"+ki;return(<button key={ki} onClick={()=>setSelAesthetic(selAesthetic===k?null:k)} style={{background:selAesthetic===k?C.cy+"20":"transparent",border:"1px solid "+(selAesthetic===k?C.cy+"55":C.bdr),color:selAesthetic===k?C.cy:C.mu,borderRadius:5,padding:"2px 7px",fontSize:9,fontFamily:C.mn,cursor:"pointer",transition:"all 0.15s"}}>{kw}</button>);})}
+                      </div>
+                      {selAesthetic&&selAesthetic.startsWith(i+"-")&&<div style={{display:"flex",gap:6,alignItems:"center"}}><span style={{fontSize:11,color:C.gn,fontFamily:C.mn}}>{AESTHETIC_KEYWORDS[parseInt(selAesthetic.split("-")[1])]}</span><Cp text={AESTHETIC_KEYWORDS[parseInt(selAesthetic.split("-")[1])]}/></div>}
+                    </div>
+                  ):(
+                    <span style={{color:C.gn,fontFamily:C.mn,fontSize:11,lineHeight:1.4}}>{sw.good}</span>
+                  )}
+                  <div style={{display:"flex",gap:4,alignItems:"center",flexShrink:0}}>
+                    {!sw.isAesthetic&&<div style={{display:"flex",gap:4,flexShrink:0}}><button onClick={()=>addLint(sw.good)} style={{background:C.gn+"15",border:"1px solid "+C.gn+"40",color:C.gn,borderRadius:6,padding:"3px 10px",fontSize:10,fontFamily:C.mn,cursor:"pointer",transition:"all 0.15s",fontWeight:600,whiteSpace:"nowrap"}}>ADD</button><Cp text={sw.good}/></div>}
+                    <span style={{fontSize:9,background:(LEVEL_COLORS[sw.level]||C.cy)+"18",color:LEVEL_COLORS[sw.level]||C.cy,border:"1px solid "+(LEVEL_COLORS[sw.level]||C.cy)+"30",borderRadius:20,padding:"2px 7px",fontFamily:C.mn,whiteSpace:"nowrap"}}>{sw.level}</span>
+                  </div>
+                </div>
+                {sw.tip&&<div style={{fontSize:10,color:C.di,lineHeight:1.4}}>💡 {sw.tip}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{position:"sticky",top:80}}>
+          <CopyReadyBox items={lintBox} onRemove={i=>setLintBox(b=>b.filter((_,j)=>j!==i))} onClear={()=>setLintBox([])} title="LINT BOX" accentColor={C.gn}/>
+        </div>
       </div>
     </Card>
     <Card>
@@ -4922,8 +5004,11 @@ export default function App(){
   const[searchQ,setSearchQ]=useState("");
   const[presentMode,setPresentMode]=useState(false);
   const[showInstall,setShowInstall]=useState(false);
+  const[history,setHistory]=useState([]);
+  const[showHistory,setShowHistory]=useState(false);
   const zoneRef=useRef(null);
   const col=ZC[zone];
+  const addHistory=(text,zoneName)=>{setHistory(h=>[{text:text.slice(0,200),zone:zoneName,time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})},...h].slice(0,50));};
 
   useEffect(()=>{
     injectPWA();
@@ -4977,6 +5062,7 @@ export default function App(){
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4}}>
             <div style={{fontSize:"clamp(8px,1.2vw,10px)",fontFamily:C.mn,color:C.fa,letterSpacing:"0.15em",display:"flex",gap:8,alignItems:"center"}}>promptc OS · v2026.8 · powerUP <OfflineBadge/></div>
             <div style={{display:"flex",gap:10,alignItems:"center"}}>
+              <button onClick={()=>setShowHistory(s=>!s)} style={{background:showHistory?C.am+"15":"transparent",border:"1px solid "+(showHistory?C.am+"44":C.bdr),color:showHistory?C.am:C.di,borderRadius:8,padding:"5px 12px",fontSize:14,cursor:"pointer",display:"flex",alignItems:"center",transition:"all 0.15s",lineHeight:1}} title="Copy History">📋</button>
               <HapticButton onClick={()=>setShowSearch(true)} color={C.cy} style={{background:C.sur,border:"1px solid "+C.bdr,color:C.di,borderRadius:8,padding:"5px 14px",fontSize:12,fontFamily:C.mn,cursor:"pointer",display:"flex",gap:6,alignItems:"center"}}>
                 <span>⌘K</span><span style={{opacity:0.6}}>Search</span>
               </HapticButton>
@@ -5040,6 +5126,7 @@ export default function App(){
       {/* PRESENTATION MODE */}
       <PresentationMode active={presentMode} onClose={()=>setPresentMode(false)} zoneContent={getZoneContent()}/>
 
+      <HistoryPanel history={history} onClear={()=>setHistory([])} visible={showHistory} onClose={()=>setShowHistory(false)}/>
       {/* PWA INSTALL BANNER */}
       <InstallBanner onDismiss={()=>setShowInstall(false)}/>
     </div>
