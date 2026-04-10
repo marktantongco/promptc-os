@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>promptc OS: Strategic Architecture Analysis</title>
+<style>
+  @page {
+    margin: 0;
+    size: 612px 792px;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .cover-page {
+    width: 612px;
+    height: 792px;
+    overflow: hidden;
+    background-color: #f4f3f2;
+    page-break-after: always;
+    page-break-inside: avoid;
+    /* Use padding for content flow instead of absolute positioning */
+    padding: 0;
+  }
+
+  /* Top bar - use margin-top negative approach */
+  .top-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #554d36;
+    margin-bottom: -8px; /* pull it to top visually */
+    position: relative;
+    z-index: 5;
+  }
+
+  /* Grid lines background on the cover container itself */
+  .cover-bg {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  /* Spacer to push content down */
+  .spacer-top {
+    height: 152px;
+  }
+
+  /* Content container - static flow */
+  .content {
+    padding: 0 72px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Label tag */
+  .label {
+    display: inline-block;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #23748f;
+    background-color: rgba(35, 116, 143, 0.08);
+    padding: 6px 14px;
+    margin-bottom: 32px;
+    border: 1px solid rgba(35, 116, 143, 0.15);
+  }
+
+  /* Main title */
+  .title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #1d1c1a;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+  }
+
+  .title-accent {
+    color: #23748f;
+  }
+
+  /* Subtitle */
+  .subtitle {
+    font-size: 14px;
+    font-weight: 400;
+    color: #8f8d86;
+    line-height: 1.6;
+    margin-bottom: 60px;
+    max-width: 440px;
+  }
+
+  /* Divider line */
+  .divider {
+    width: 60px;
+    height: 2px;
+    background-color: #554d36;
+    margin-bottom: 40px;
+  }
+
+  /* Meta info */
+  .meta {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    display: flex;
+    gap: 40px;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .meta-label {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #8f8d86;
+  }
+
+  .meta-value {
+    font-size: 12px;
+    color: #1d1c1a;
+    font-weight: 500;
+  }
+
+  /* Spacer before footer */
+  .spacer-bottom {
+    height: 180px;
+  }
+
+  /* Version badge - static flow */
+  .version {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 9px;
+    color: #8f8d86;
+    letter-spacing: 1px;
+    text-align: right;
+    padding: 0 72px;
+    margin-bottom: 20px;
+  }
+
+  /* Bottom bar - static flow */
+  .bottom-bar {
+    width: 100%;
+    height: 4px;
+    background-color: #23748f;
+  }
+
+  /* Left accent strip via left border on content */
+  .content {
+    border-left: 6px solid #23748f;
+    margin-left: 0;
+  }
+
+  /* Grid overlay via background on cover-page */
+  .cover-page {
+    background-image:
+      repeating-linear-gradient(0deg, rgba(136,136,136,0.035) 0px, rgba(136,136,136,0.035) 1px, transparent 1px, transparent 60px),
+      repeating-linear-gradient(90deg, rgba(136,136,136,0.035) 0px, rgba(136,136,136,0.035) 1px, transparent 1px, transparent 60px);
+    background-color: #f4f3f2;
+  }
+
+  /* Geometric circles as background images using SVG data URIs */
+  .geo-decoration {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 400px;
+    z-index: 0;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <div class="cover-page" data-role="cover">
+    <!-- Top bar -->
+    <div class="top-bar"></div>
+
+    <!-- Push content down -->
+    <div class="spacer-top"></div>
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="label">Strategic Analysis Report</div>
+
+      <h1 class="title">
+        promptc OS:<br>
+        <span class="title-accent">Strategic Architecture</span><br>
+        Analysis
+      </h1>
+
+      <p class="subtitle">
+        Comparative Analysis, Self-Evolving Design<br>
+        and Monetization Ecosystem
+      </p>
+
+      <div class="divider"></div>
+
+      <div class="meta">
+        <div class="meta-item">
+          <span class="meta-label">Author</span>
+          <span class="meta-value">Z.ai</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Date</span>
+          <span class="meta-value">April 2026</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Version</span>
+          <span class="meta-value">1.0</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Classification</span>
+          <span class="meta-value">Internal</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Push footer to bottom -->
+    <div class="spacer-bottom"></div>
+
+    <!-- Footer -->
+    <div class="version">Z.ai Confidential</div>
+    <div class="bottom-bar"></div>
+  </div>
+</body>
+</html>
