@@ -243,3 +243,28 @@ Stage Summary:
 - Zero lint errors on new files (existing errors from reference App.jsx only)
 - Dev server: GET / 200, compiles successfully
 - All data from reference App.jsx fully migrated: 47 mods, 8 tasks, 15 templates, 6 brands, 7 animals, 6 chains, 8 layers, 8 enhancements, 28 lint rules, 40+ word swaps, 60+ vocabulary terms, 12 design combos, 4 typography pairings
+---
+Task ID: 1
+Agent: main
+Task: Comprehensive upgrade of promptc-os with AGENTS.md bootstrap
+
+Work Log:
+- Read and analyzed current promptc-os codebase (page.tsx 1162 lines, promptc-data.ts 1159 lines)
+- Fetched and analyzed AGENTS.md from GitHub (NO ONE-OFF WORK, PLAN→VALIDATE→EXECUTE, Compounding System)
+- Delegated full implementation to full-stack-developer subagent
+- Fixed 2 lint warnings (ternary expression, unused eslint-disable directive)
+- Verified zero lint errors on all source files
+
+Stage Summary:
+- Added 6th SYSTEM zone (Principles, Skill Builder, Workflow Patterns, Self-Evolve, Infographics, Package Docs)
+- Added ⌘K Command Palette for cross-zone search
+- Added Tooltip system with Framer Motion
+- Added Onboarding Tour with localStorage persistence
+- Added AnimatedCounter, RadarChart infographic components
+- Added 5 new templates (AI Agent, MCP Tool, Skill Doc, Automation Pipeline, Notion System)
+- Enhanced Monetize with Compounding tab and Pricing Guide
+- Added FAB (Export All, Export Zone, Copy Composer, Share)
+- Added Package Docs generator (markdown download)
+- Added Quick Start banner, tab count badges, scroll-to-top
+- Final state: page.tsx 512 lines, promptc-data.ts 1337 lines, 2 new component files
+

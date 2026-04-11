@@ -45,6 +45,7 @@ export const ZONES = [
   { id: "validate", label: "VALIDATE", icon: "✅", sub: "Score, lint, refine", color: "#22c55e" },
   { id: "playbook", label: "PLAYBOOK", icon: "📋", sub: "22 workflows. Step-by-step", color: "#FFB000" },
   { id: "monetize", label: "MONETIZE", icon: "💰", sub: "Profitable prompts, SaaS", color: "#FFD700" },
+  { id: "system",   label: "SYSTEM",   icon: "🔄", sub: "No one-off work", color: "#a78bfa" },
 ];
 
 // ─── MODIFIERS (47 items) ─────────────────────────────────────────────────
@@ -634,6 +635,183 @@ Generate OpenAPI 3.0 specification with:
 - Authentication flow
 
 CONSTRAINTS: RESTful conventions, pagination on all list endpoints` },
+  { label: "🤖 AI Agent Design", desc: "Design autonomous AI agent with tool schemas, memory, error handling", content: `You are a senior AI engineer specializing in autonomous agent design.
+Design an AI agent system for [use case].
+
+AGENT ARCHITECTURE
+- Agent name and role definition
+- Core capabilities and limitations
+- Tool schemas (JSON): name, description, parameters, return type
+- Memory system: short-term (conversation), long-term (vector store), episodic
+- Error handling: retry logic, fallback strategies, graceful degradation
+
+TOOL DEFINITIONS
+For each tool:
+\`\`\`json
+{
+  "name": "tool_name",
+  "description": "What the tool does",
+  "parameters": { "type": "object", "properties": {...} },
+  "returns": { "type": "string", "description": "..." }
+}
+\`\`\`
+
+EXECUTION FLOW
+1. Receive user request
+2. Analyze intent → select tools
+3. Execute tool calls (with error handling)
+4. Synthesize results
+5. Return formatted response
+
+SECURITY
+- Input validation on all tool parameters
+- Rate limiting per user/session
+- No raw system prompts exposed to users
+- Audit logging for all actions
+
+CONSTRAINTS
+- Maximum 5 tool calls per request
+- Response time < 10 seconds
+- Fallback to simple response if tools fail
+- Human-in-the-loop for destructive actions` },
+  { label: "🔧 MCP Tool Server", desc: "Build MCP server for Claude Desktop with tool definitions", content: `You are an MCP (Model Context Protocol) server developer.
+Build an MCP server for Claude Desktop.
+
+SERVER SPECIFICATION
+- Server name: [name]
+- Transport: stdio (for Claude Desktop)
+- Runtime: Node.js / TypeScript
+
+TOOL DEFINITIONS
+Each tool:
+- name: snake_case identifier
+- description: Clear description for LLM
+- inputSchema: JSON Schema validation
+- handler: Async function implementation
+
+SETUP
+1. Initialize MCP SDK project
+2. Define tool handlers
+3. Connect to Claude Desktop via claude_desktop_config.json
+4. Test each tool independently
+
+CLAUDE DESKTOP CONFIG
+\`\`\`json
+{
+  "mcpServers": {
+    "[server-name]": {
+      "command": "node",
+      "args": ["path/to/server.js"]
+    }
+  }
+}
+\`\`\`
+
+ERROR HANDLING
+- Validate all inputs against JSON Schema
+- Return MCP-compliant error responses
+- Log errors with context for debugging
+- Timeout protection on external API calls
+
+OUTPUT: Complete server code + README + claude_desktop_config.json` },
+  { label: "📋 Skill Documentation", desc: "Generate SKILL.md following the 4-section format", content: `You are a skill documentation specialist.
+Generate a SKILL.md file for [skill/concept].
+
+SKILL.MD FORMAT (4 sections):
+
+## Context
+What this skill does. When to use it. Why it exists.
+Key concepts the agent needs to understand.
+
+## Instructions
+Step-by-step procedures. Clear, numbered actions.
+Decision trees where applicable. Edge cases to handle.
+
+## Constraints
+What NOT to do. Boundaries and limitations.
+Security considerations. Performance requirements.
+
+## Examples
+3+ real-world examples showing correct usage.
+Before/after comparisons where applicable.
+Common mistakes and how to avoid them.
+
+STYLE RULES
+- Every instruction must be actionable
+- No ambiguous language ("maybe", "probably", "should")
+- Use code blocks for all technical content
+- Include exact file paths and commands
+
+OUTPUT: Complete SKILL.md ready to commit` },
+  { label: "🔄 Automation Pipeline", desc: "n8n/Zapier automation workflow design template", content: `You are an automation architect.
+Design a complete automation pipeline for [use case].
+
+PIPELINE SPECIFICATION
+- Trigger type: webhook, schedule, event-based
+- Data sources and destinations
+- Transformation steps
+- Error handling and retry logic
+- Monitoring and alerting
+
+WORKFLOW DESIGN
+For each step:
+1. Node type and configuration
+2. Input/output schema
+3. Error conditions
+4. Retry strategy
+
+PLATFORM RECOMMENDATION
+- n8n: self-hosted, unlimited workflows, code nodes
+- Zapier: easy setup, 1000+ integrations, reliability
+- Make (Integromat): visual builder, complex routing
+
+TESTING PLAN
+- Test each node independently
+- End-to-end test with sample data
+- Error scenario testing
+- Performance benchmarking
+
+MONITORING
+- Execution logs
+- Success/failure rates
+- Performance metrics
+- Alert thresholds
+
+OUTPUT: Complete workflow JSON + setup documentation` },
+  { label: "📱 Notion System", desc: "Build complete Notion workspace with databases, views, automations", content: `You are a Notion workspace architect.
+Build a complete Notion system for [use case].
+
+WORKSPACE STRUCTURE
+- Pages hierarchy and navigation
+- Databases with properties and relations
+- Views: board, timeline, calendar, gallery, table
+- Templates for common entries
+
+DATABASE SCHEMAS
+For each database:
+- Properties: title, select, multi-select, date, person, relation, rollup, formula
+- Relations between databases
+- Default views and filters
+- Sample entries
+
+AUTOMATIONS (Notion + external)
+- Button actions (create page, edit properties)
+- Email triggers via Zapier/Make
+- Slack notifications on status change
+- Recurring tasks and reminders
+
+TEMPLATES
+- Page templates for recurring content
+- Database entry templates
+- Meeting notes templates
+- Project kickoff templates
+
+SHARING & PERMISSIONS
+- Workspace vs page-level access
+- Guest access configuration
+- Integration connections
+
+OUTPUT: Complete setup guide with property schemas and view configurations` },
 ];
 
 // ─── ANIMALS (7 items) ────────────────────────────────────────────────────
