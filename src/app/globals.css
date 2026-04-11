@@ -121,62 +121,36 @@
   }
 }
 
-/* Custom scrollbar */
+/* ─── Custom scrollbar ─────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 3px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Card glow effects */
-.card-glow-blue {
-  transition: all 0.3s ease;
+/* ─── No-scrollbar utility ─────────────────────────────────────────────── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
-.card-glow-blue:hover {
-  box-shadow: 0 0 30px rgba(59, 130, 246, 0.15), 0 0 60px rgba(59, 130, 246, 0.05);
-  transform: translateY(-2px);
-}
-
-.card-glow-purple {
-  transition: all 0.3s ease;
-}
-.card-glow-purple:hover {
-  box-shadow: 0 0 30px rgba(139, 92, 246, 0.15), 0 0 60px rgba(139, 92, 246, 0.05);
-  transform: translateY(-2px);
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-.card-glow-teal {
-  transition: all 0.3s ease;
-}
-.card-glow-teal:hover {
-  box-shadow: 0 0 30px rgba(6, 182, 212, 0.15), 0 0 60px rgba(6, 182, 212, 0.05);
-  transform: translateY(-2px);
-}
-
-/* Fade-in animation */
+/* ─── Fade animations ──────────────────────────────────────────────────── */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
 .animate-fade-in-up {
   animation: fadeInUp 0.5s ease-out forwards;
 }
@@ -185,36 +159,11 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
-
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out forwards;
 }
 
-/* Spinner animation */
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.animate-spin-slow {
-  animation: spin 1s linear infinite;
-}
-
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Hero gradient background */
-.hero-gradient {
-  background: radial-gradient(ellipse at 50% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
-              radial-gradient(ellipse at 20% 30%, rgba(6, 182, 212, 0.06) 0%, transparent 50%);
-}
-
-/* Markdown result styling */
+/* ─── Markdown result styling ──────────────────────────────────────────── */
 .markdown-result h2 {
   font-size: 1.125rem;
   font-weight: 700;
@@ -223,11 +172,9 @@
   color: #f1f5f9;
   letter-spacing: -0.01em;
 }
-
 .markdown-result h2:first-child {
   margin-top: 0;
 }
-
 .markdown-result h3 {
   font-size: 1rem;
   font-weight: 600;
@@ -235,34 +182,28 @@
   margin-bottom: 0.5rem;
   color: #e2e8f0;
 }
-
 .markdown-result p {
   margin-bottom: 0.625rem;
   line-height: 1.6;
   color: #cbd5e1;
 }
-
 .markdown-result ul,
 .markdown-result ol {
   margin-bottom: 0.625rem;
   padding-left: 1.5rem;
 }
-
 .markdown-result li {
   margin-bottom: 0.25rem;
   line-height: 1.6;
   color: #cbd5e1;
 }
-
 .markdown-result li::marker {
   color: #64748b;
 }
-
 .markdown-result strong {
   color: #f1f5f9;
   font-weight: 600;
 }
-
 .markdown-result code {
   background: rgba(255, 255, 255, 0.06);
   padding: 0.125rem 0.375rem;
@@ -271,7 +212,6 @@
   font-size: 0.875rem;
   color: #a5b4fc;
 }
-
 .markdown-result pre {
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -280,7 +220,6 @@
   margin: 0.75rem 0;
   overflow-x: auto;
 }
-
 .markdown-result pre code {
   background: transparent;
   padding: 0;
@@ -288,12 +227,10 @@
   font-size: 0.8125rem;
   line-height: 1.7;
 }
-
 .markdown-result hr {
   border-color: rgba(255, 255, 255, 0.08);
   margin: 1rem 0;
 }
-
 .markdown-result blockquote {
   border-left: 3px solid rgba(139, 92, 246, 0.4);
   padding-left: 0.75rem;

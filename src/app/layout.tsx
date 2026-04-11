@@ -14,16 +14,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Meta Prompt Builder — AI-Powered Prompt Engineering",
+  title: "promptc OS — AI Prompt Engineering Operating System",
   description:
-    "Analyze, critique, and refine your prompts with three expert AI methodologies. Transform average prompts into precision-engineered instructions.",
+    "The complete prompt engineering operating system. 5 zones: Activate, Build, Validate, Playbook, Monetize. Copy-paste ready prompts, AI-powered analysis, and production frameworks.",
   keywords: [
     "prompt engineering",
     "AI prompts",
-    "meta prompt",
+    "promptc os",
     "prompt builder",
-    "prompt refinement",
+    "AI assistant",
     "LLM",
+    "prompt system",
   ],
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
@@ -40,8 +41,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
         style={{
-          background: "#0a0a0f",
-          color: "#e2e8f0",
+          background: "#0B0D10",
+          color: "#FFFFFF",
           minHeight: "100vh",
         }}
       >
