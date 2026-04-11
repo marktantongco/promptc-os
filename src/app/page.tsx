@@ -7,7 +7,7 @@ import {
   Zap, Target, Wrench, X, RotateCcw, Search, History, HelpCircle,
   Download, FileText, Share2, ArrowUpRight, TrendingUp, Timer, Layers,
   Command, Eye, Brain, Cpu, BookOpen, BarChart3, ArrowRight, Info,
-  FolderDown, ClipboardCopy, FileDown, Lightbulb,
+  FolderDown, ClipboardCopy, FileDown, Lightbulb, ArrowUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -18,6 +18,10 @@ import {
 } from "./data/promptc-data";
 import CommandPalette from "@/components/CommandPalette";
 import OnboardingTour, { retriggerOnboarding } from "@/components/OnboardingTour";
+import {
+  SKILLS_CATALOG, SKILL_CATEGORIES, CATEGORY_ICONS, CATEGORY_COLORS,
+  CATEGORY_COUNTS, TOTAL_SKILLS, TOTAL_CATEGORIES, TOTAL_FILES,
+} from "./data/skills-catalog";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 interface ResultState { content: string | null; loading: boolean; error: string | null; expanded: boolean; }
@@ -30,7 +34,7 @@ const ZONE_TABS: Record<string, string[]> = {
   validate: ["Lint Rules", "Word Swaps", "Vocabulary", "Quality Score"],
   playbook: ["Workflows", "Animal Chains", "Design Combos", "Typography"],
   monetize: ["Top Prompts", "SaaS Templates", "Stacks", "AI Tools", "Compounding", "Pricing Guide"],
-  system: ["Principles", "Skill Builder", "Workflow Patterns", "Self-Evolve", "Infographics", "Package Docs"],
+  system: ["Skills Library", "Compounding", "Principles", "Skill Builder", "Workflow Patterns", "Self-Evolve", "Infographics", "Package Docs"],
 };
 
 const ZONE_TAB_COUNTS: Record<string, Record<string, number>> = {
@@ -39,7 +43,7 @@ const ZONE_TAB_COUNTS: Record<string, Record<string, number>> = {
   validate: { "Lint Rules": LINT_RULES.length, "Word Swaps": SWAPS.length, Vocabulary: VOCAB.length, "Quality Score": 1 },
   playbook: { Workflows: 21, "Animal Chains": CHAINS.length, "Design Combos": COMBOS.length, Typography: TYPO.length },
   monetize: { "Top Prompts": 6, "SaaS Templates": 6, Stacks: 4, "AI Tools": 5, Compounding: 1, "Pricing Guide": 1 },
-  system: { Principles: 6, "Skill Builder": 1, "Workflow Patterns": 2, "Self-Evolve": 1, Infographics: 1, "Package Docs": 1 },
+  system: { "Skills Library": TOTAL_SKILLS, Compounding: 1, Principles: 6, "Skill Builder": 1, "Workflow Patterns": 2, "Self-Evolve": 1, Infographics: 1, "Package Docs": 1 },
 };
 
 const ANIMAL_COLORS: Record<string, string> = {
@@ -176,7 +180,7 @@ function Tip({ children, text }: { children: React.ReactNode; text: string }) {
 // ═══════════════════════════════════════════════════════════════════════════
 export default function Home() {
   const [activeZone, setActiveZone] = useState("activate");
-  const [activeSubTab, setActiveSubTab] = useState<Record<string, string>>({ activate: "Tasks", build: "Master Prompt", validate: "Lint Rules", playbook: "Workflows", monetize: "Top Prompts", system: "Principles" });
+  const [activeSubTab, setActiveSubTab] = useState<Record<string, string>>({ activate: "Tasks", build: "Master Prompt", validate: "Lint Rules", playbook: "Workflows", monetize: "Top Prompts", system: "Skills Library" });
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -185,6 +189,9 @@ export default function Home() {
   const [showPalette, setShowPalette] = useState(false);
   const [showFab, setShowFab] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [skillsSearchQuery, setSkillsSearchQuery] = useState("");
+  const [skillsCategoryFilter, setSkillsCategoryFilter] = useState<string>("all");
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [quickStartDismissed, setQuickStartDismissed] = useState(false);
   const [skillStep, setSkillStep] = useState(0);
   const [skillForm, setSkillForm] = useState<Record<number, string>>({});
@@ -207,6 +214,13 @@ export default function Home() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  // Scroll-to-top listener
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 400);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const toggleExpand = useCallback((id: string) => { setExpandedItems((p) => { const n = new Set(p); if (n.has(id)) { n.delete(id); } else { n.add(id); } return n; }); }, []);
@@ -232,6 +246,12 @@ export default function Home() {
 
   const filteredMods = useMemo(() => { if (!searchQuery) return MODS; const q = searchQuery.toLowerCase(); return MODS.filter((m) => m.mod.toLowerCase().includes(q) || m.cat.toLowerCase().includes(q) || m.tip.toLowerCase().includes(q)); }, [searchQuery]);
   const filteredWorkflows = useMemo(() => { if (!searchQuery) return WORKFLOWS_DATA; const q = searchQuery.toLowerCase(); return WORKFLOWS_DATA.filter((w) => w.title.toLowerCase().includes(q) || w.purpose.toLowerCase().includes(q) || w.cat.toLowerCase().includes(q)); }, [searchQuery]);
+  const filteredSkills = useMemo(() => {
+    let list = SKILLS_CATALOG;
+    if (skillsCategoryFilter !== "all") list = list.filter((s) => s.category === skillsCategoryFilter);
+    if (skillsSearchQuery.trim()) { const q = skillsSearchQuery.toLowerCase(); list = list.filter((s) => s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)); }
+    return list;
+  }, [skillsCategoryFilter, skillsSearchQuery]);
 
   const handleSelectFromPalette = useCallback((zone: string, tab: string) => { handleZoneChange(zone); setActiveSubTab((p) => ({ ...p, [zone]: tab })); }, [handleZoneChange]);
 
@@ -304,6 +324,7 @@ export default function Home() {
             <div className="flex items-center gap-2.5 flex-shrink-0">
               <span className="text-xl">⚡</span>
               <span className="font-bold text-sm tracking-tight" style={{ fontFamily: "'DM Mono', monospace", color: zoneColor }}>promptc OS</span>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>v2.1</span>
             </div>
             <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
               {ZONES.map((z) => (
@@ -314,6 +335,9 @@ export default function Home() {
                   </button>
                 </Tip>
               ))}
+            </div>
+            <div className="hidden md:flex items-center gap-1 mr-2">
+              <kbd className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#4b5563" }}>⌘K <span style={{ color: "#6B7280" }}>Search</span></kbd>
             </div>
             <div className="flex items-center gap-1">
               <Tip text="Search (⌘K)">
@@ -445,6 +469,127 @@ export default function Home() {
 
             {/* ═══ SYSTEM ═══ */}
             {activeZone === "system" && (<>
+              {/* Skills Library */}
+              {activeSubTab.system === "Skills Library" && (<div>
+                {/* Stats Row */}
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  {[
+                    { label: "Total Skills", value: TOTAL_SKILLS, icon: "\ud83e\udde0", color: "#a78bfa" },
+                    { label: "Categories", value: TOTAL_CATEGORIES, icon: "\ud83d\udcca", color: "#38bdf8" },
+                    { label: "Total Files", value: TOTAL_FILES, icon: "\ud83d\udcc1", color: "#22c55e" },
+                  ].map((stat, i) => (
+                    <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="rounded-xl p-4 text-center" style={{ background: "#14161A", border: `1px solid ${stat.color}22` }}>
+                      <div className="text-xl mb-1">{stat.icon}</div>
+                      <div className="text-2xl font-bold" style={{ color: stat.color }}><AnimatedCounter value={stat.value} /></div>
+                      <div className="text-[10px] mt-1" style={{ color: "#6B7280" }}>{stat.label}</div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Search Bar */}
+                <div className="mb-4 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#4b5563" }} />
+                  <input value={skillsSearchQuery} onChange={(e) => setSkillsSearchQuery(e.target.value)} placeholder="Search skills by name or description..." className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} />
+                </div>
+
+                {/* Category Filter Pills */}
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar mb-6 pb-1">
+                  <button onClick={() => setSkillsCategoryFilter("all")} className="px-3 py-1.5 text-[10px] font-medium rounded-full whitespace-nowrap transition-all flex items-center gap-1" style={{ color: skillsCategoryFilter === "all" ? "#a78bfa" : "#6B7280", background: skillsCategoryFilter === "all" ? "rgba(167,139,250,0.15)" : "transparent", border: `1px solid ${skillsCategoryFilter === "all" ? "rgba(167,139,250,0.3)" : "rgba(255,255,255,0.07)"}` }}>
+                    All <span className="opacity-60">({TOTAL_SKILLS})</span>
+                  </button>
+                  {CATEGORY_COUNTS.map((cc) => (
+                    <button key={cc.category} onClick={() => setSkillsCategoryFilter(cc.category)} className="px-3 py-1.5 text-[10px] font-medium rounded-full whitespace-nowrap transition-all flex items-center gap-1" style={{ color: skillsCategoryFilter === cc.category ? (CATEGORY_COLORS[cc.category] || "#a78bfa") : "#6B7280", background: skillsCategoryFilter === cc.category ? `${(CATEGORY_COLORS[cc.category] || "#a78bfa")}18` : "transparent", border: `1px solid ${skillsCategoryFilter === cc.category ? `${(CATEGORY_COLORS[cc.category] || "#a78bfa")}44` : "rgba(255,255,255,0.07)"}` }}>
+                      <span>{cc.icon}</span><span className="hidden sm:inline">{cc.category}</span><span className="opacity-60">({cc.count})</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Skills Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" {...stagger}>
+                  {filteredSkills.map((skill) => {
+                    const catColor = CATEGORY_COLORS[skill.category] || "#6B7280";
+                    return (
+                      <motion.div key={skill.name} {...staggerItem} className="rounded-xl p-4 transition-all hover:-translate-y-0.5 cursor-default" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[9px] font-mono px-2 py-0.5 rounded-full" style={{ background: `${catColor}15`, color: catColor }}>{skill.category}</span>
+                          <span className="text-[9px] font-mono px-2 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#6B7280" }}>{skill.files} file{skill.files !== 1 ? "s" : ""}</span>
+                        </div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-lg">{skill.icon}</span>
+                          <h3 className="text-sm font-bold" style={{ color: "#e4e4e7" }}>{skill.name}</h3>
+                        </div>
+                        <p className="text-xs leading-relaxed line-clamp-2" style={{ color: "#A1A1AA" }}>{skill.description}</p>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+                {filteredSkills.length === 0 && (
+                  <div className="text-center py-12"><p className="text-sm" style={{ color: "#4b5563" }}>No skills match your search.</p></div>
+                )}
+              </div>)}
+
+              {/* Compounding Dashboard */}
+              {activeSubTab.system === "Compounding" && (<div>
+                {/* System Health */}
+                <h2 className="text-lg font-bold mb-2">System Health</h2>
+                <p className="text-xs mb-4" style={{ color: "#A1A1AA" }}>Real-time overview of your compounding system.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                  {[
+                    { label: "Skills Installed", value: TOTAL_SKILLS, color: "#a78bfa", icon: <Layers className="w-5 h-5" /> },
+                    { label: "Total Artifacts", value: TOTAL_FILES, color: "#38bdf8", icon: <FileText className="w-5 h-5" /> },
+                    { label: "Categories", value: TOTAL_CATEGORIES, color: "#22c55e", icon: <BarChart3 className="w-5 h-5" /> },
+                  ].map((stat, i) => (
+                    <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="rounded-xl p-6 text-center" style={{ background: "#14161A", border: `1px solid ${stat.color}22` }}>
+                      <div className="flex justify-center mb-2" style={{ color: stat.color }}>{stat.icon}</div>
+                      <div className="text-3xl font-bold" style={{ color: stat.color }}><AnimatedCounter value={stat.value} /></div>
+                      <div className="text-[10px] mt-1" style={{ color: "#6B7280" }}>{stat.label}</div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Category Distribution */}
+                <h3 className="text-sm font-bold mb-4" style={{ color: "#a78bfa" }}>Category Distribution</h3>
+                <div className="rounded-xl p-6 mb-8" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <div className="space-y-3">
+                    {CATEGORY_COUNTS.sort((a, b) => b.count - a.count).slice(0, 8).map((cc, i) => {
+                      const maxCount = Math.max(...CATEGORY_COUNTS.map((c) => c.count));
+                      const pct = (cc.count / maxCount) * 100;
+                      const color = CATEGORY_COLORS[cc.category] || "#6B7280";
+                      return (
+                        <div key={cc.category} className="flex items-center gap-3">
+                          <div className="flex items-center gap-1.5 w-40 flex-shrink-0">
+                            <span className="text-sm">{cc.icon}</span>
+                            <span className="text-[11px] truncate" style={{ color: "#A1A1AA" }}>{cc.category}</span>
+                          </div>
+                          <div className="flex-1 h-5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
+                            <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8, delay: i * 0.06, ease: "easeOut" }} className="h-full rounded-full flex items-center justify-end pr-2" style={{ background: `${color}33`, minWidth: "2rem" }}>
+                              <span className="text-[9px] font-bold" style={{ color }}>{cc.count}</span>
+                            </motion.div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Compounding Principles */}
+                <h3 className="text-sm font-bold mb-4" style={{ color: "#a78bfa" }}>Compounding Principles</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[
+                    { icon: "\ud83d\udd04", title: "Build Once, Run Forever", desc: "Every skill, template, and automation is a permanent asset that compounds over time.", color: "#a78bfa" },
+                    { icon: "\ud83d\udcc8", title: "Every Skill Compounds", desc: "Each new skill makes the entire system smarter and more capable.", color: "#22c55e" },
+                    { icon: "\u26a1", title: "Zero Overlap, Zero Gaps", desc: "Cover every domain without redundancy. Each skill fills a unique gap.", color: "#eab308" },
+                    { icon: "\ud83e\udd16", title: "Automate or Iterate", desc: "If you do it twice, automate it. If it's manual, iterate toward automation.", color: "#38bdf8" },
+                  ].map((principle, i) => (
+                    <motion.div key={principle.title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className="rounded-xl p-5 transition-all hover:-translate-y-0.5" style={{ background: "#14161A", border: `1px solid ${principle.color}22` }}>
+                      <div className="text-2xl mb-3">{principle.icon}</div>
+                      <h4 className="text-xs font-bold mb-2" style={{ color: principle.color }}>{principle.title}</h4>
+                      <p className="text-[11px] leading-relaxed" style={{ color: "#A1A1AA" }}>{principle.desc}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>)}
+
               {/* Principles */}
               {activeSubTab.system === "Principles" && (<div className="max-w-3xl mx-auto space-y-4"><h2 className="text-lg font-bold mb-2">Core Principles</h2><p className="text-xs mb-4" style={{ color: "#A1A1AA" }}>The foundational rules that govern the promptc OS philosophy.</p>{SYSTEM_PRINCIPLES.map((p, i) => { const id = `sys-p-${i}`; return (<div key={id} className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: `1px solid ${p.color}22` }}><div className="p-4 cursor-pointer" onClick={() => toggleExpand(id)}><div className="flex items-center justify-between"><div className="flex items-center gap-3"><span className="text-xl">{p.icon}</span><h3 className="text-sm font-bold" style={{ color: p.color }}>{p.title}</h3></div>{expandedItems.has(id) ? <ChevronDown className="w-4 h-4" style={{ color: "#4b5563" }} /> : <ChevronRight className="w-4 h-4" style={{ color: "#4b5563" }} />}</div></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><div className="px-4 pb-4"><p className="text-xs leading-relaxed" style={{ color: "#A1A1AA" }}>{p.desc}</p></div></motion.div>)}</AnimatePresence></div>); })}</div>)}
 
@@ -498,6 +643,23 @@ export default function Home() {
           <Download className="w-5 h-5 text-black" />
         </button>
       </div>
+
+      {/* ─── Scroll to Top ─── */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="fixed bottom-6 left-6 z-30 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+            style={{ background: "rgba(20,22,26,0.9)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(8px)" }}
+          >
+            <ArrowUp className="w-4 h-4" style={{ color: "#a78bfa" }} />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* ─── Footer ─── */}
       <footer className="mt-auto" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>

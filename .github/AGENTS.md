@@ -97,12 +97,18 @@ Your job is to make yourself unnecessary — one skill at a time.*
 | Concept | Path |
 |---------|------|
 | Skills directory | `/home/z/my-project/skills/` |
+| Skills registry | `/home/z/my-project/skills.md` |
 | Worklog | `/home/z/my-project/worklog.md` |
 | Downloads | `/home/z/my-project/download/` |
+| Web app | `/home/z/my-project/src/app/` |
 | Skill creator | Invoke `skill-creator` skill |
 | Skill finder | Invoke `skill-finder` skill |
 | Skill assessor | Invoke `skill-assessor` skill |
 | Cron jobs | Use the `cron` tool |
+
+### Installed Skills: 66 across 13 categories
+See `/home/z/my-project/skills.md` for the complete registry.
+Key categories: AI/LLM Core (9), Web Search (7), Document Generation (5), Prompt Engineering (4), Skill Management (5), Web Development (5), Animation (3), Content/Marketing (6), Business/Research (7), Agent Frameworks (4), Analysis (5), Data Viz (1), Utilities (6)
 
 ---
 
@@ -135,7 +141,7 @@ Hard rules — what this skill must never do.
 - **AI Backend**: `z-ai-web-dev-sdk` (server-side only via API routes)
 - **Design**: Dark-mode native, zone-colored accent system, Framer Motion animations
 
-### 5 Zones
+### 6 Zones
 | Zone | Color | Purpose |
 |------|-------|---------|
 | Activate | Cyan #4DFFFF | Copy-paste ready prompts, modifiers, templates |
@@ -143,6 +149,7 @@ Hard rules — what this skill must never do.
 | Validate | Green #22c55e | Scoring, lint rules, vocabulary, refinement |
 | Playbook | Amber #FFB000 | 22 workflows, step-by-step guides |
 | Monetize | Gold #FFD700 | Profitable prompts, SaaS templates, frameworks |
+| System | Violet #a78bfa | Principles, skill builder, self-evolve, compounding |
 
 ### Color System
 ```
