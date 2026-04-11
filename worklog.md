@@ -268,3 +268,29 @@ Stage Summary:
 - Added Quick Start banner, tab count badges, scroll-to-top
 - Final state: page.tsx 512 lines, promptc-data.ts 1337 lines, 2 new component files
 
+
+---
+Task ID: 6
+Agent: Super Z (main) + full-stack-developer subagent
+Task: Comprehensive upgrade — skills registry, library browser, compounding dashboard, UX
+
+Work Log:
+- Audited all 66 installed skills across 13 categories in /home/z/my-project/skills/
+- Extracted metadata: name, category, description, file count for each skill
+- Created /home/z/my-project/skills.md — complete registry with environment map, statistics, compounding index
+- Upgraded .github/AGENTS.md — added System zone (6th), skills registry link, expanded environment map
+- Created src/app/data/skills-catalog.ts (162 lines) — all 66 skills with SkillItem interface, categories, icons, colors, counts
+- Upgraded src/app/page.tsx (512→673 lines, +161):
+  - Skills Library tab: search bar, 13 category filter pills with counts, responsive skill cards grid (1/2/3 cols)
+  - Compounding Dashboard: 3 animated system health cards, horizontal bar chart (top 8 categories), 4 principle cards
+  - UX: scroll-to-top button (fade in/out), ⌘K shortcut hint in nav, v2.1 version badge
+- Lint: zero new errors from src/app/ or src/components/
+- Committed as d8cd4b6
+
+Stage Summary:
+- Files created: skills.md, src/app/data/skills-catalog.ts
+- Files modified: .github/AGENTS.md, src/app/page.tsx
+- 4 files changed, 511 insertions
+- promptc OS now has 6 zones with 8 system sub-tabs (was 6)
+- Skills Library browses all 66 installed skills with search and category filtering
+- Compounding Dashboard shows system health metrics and category distribution
