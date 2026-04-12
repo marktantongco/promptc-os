@@ -1,36 +1,27 @@
 ---
 Task ID: 1
 Agent: Main Agent
-Task: Comprehensive UI upgrade with micro interactions, visual cues, tooltips, speed optimization, navigation arrow indicators
+Task: Comprehensive UI/UX upgrade for promptc OS v3.5 → v3.6
 
 Work Log:
-- Read full project state: PageClient.tsx (1591 lines), globals.css (257 lines), skills-catalog.ts, promptc-data.ts, package.json
-- Analyzed all 6 zones, navigation, basket system, mobile bottom nav, and component structure
-- Planned upgrade: navigation arrows, micro interactions, enhanced tooltips, skeleton loading, visual cues, CSS system
+- Diagnosed preview loading issue: `loading: () => null` in page.tsx caused blank screen during client hydration
+- Replaced null loading state with full skeleton loader (nav bar, content grid, footer)
+- Added 17 new CSS micro-interaction classes to globals.css
+- Applied `input-glow` focus animations to all 11 input/textarea elements
+- Applied `card-scale` + `card-glow` hover effects to 8 card types
+- Added `TipEnhanced` tooltips to 17 interactive elements across zones
+- Added scroll progress indicator with gradient bar
+- Enhanced navigation arrows with pulse animation when hidden content exists
+- Lazy loaded ReactMarkdown and CommandPalette via dynamic imports
+- Added focus-visible ring styles, selection color, and accessibility improvements
+- Verified: 0 source lint errors, HTTP 200, clean compilation (3.8s first load, 50ms cached)
 
 Stage Summary:
-- Created comprehensive CSS animation system in globals.css (expanded from 257 to 380+ lines)
-- Added 15+ new CSS animation classes: btn-press, hover-lift, card-glow, skeleton-shimmer, subtle-glow, copy-ripple, input-focus-ring, zone-active-glow, badge-pop, haptic-bounce, kbd-badge, progress-ring-fill, stagger-children, tab-indicator, tip-enhanced
-- Built ScrollableWithArrows component with fade edges and left/right arrow buttons
-- Built Skeleton component for loading shimmer states
-- Built TipEnhanced component with keyboard shortcut hints
-- Replaced zone tabs with ScrollableWithArrows (fade edges + arrow indicators)
-- Replaced sub-tabs with ScrollableWithArrows
-- Replaced skills category filter pills with ScrollableWithArrows
-- Replaced basket zone filter pills with ScrollableWithArrows
-- Added zone active top glow bar (gradient animation)
-- Added logo hover micro-animation (rotate + scale)
-- Added version badge pop animation
-- Added spring physics to zone indicator layoutId
-- Enhanced all tooltips with shadow depth and keyboard shortcut hints
-- Added Keyboard icon button for shortcuts overlay
-- Replaced Meta Builder loading state with Skeleton shimmer
-- Added hover-lift + card-glow to task cards
-- Added btn-press to all interactive buttons
-- Added color-transition to smooth zone color changes
-- Added tab-indicator active dot on sub-tabs
-- Added kbd-badge styling to footer shortcuts
-- Updated version to 3.5.0 in package.json and UI
-- Lint: zero errors in source files
-- Dev server starts in ~962ms
----
+- Preview loading: Fixed — skeleton loader shows during hydration instead of blank screen
+- Micro-interactions: 17 new CSS animations (copyFlash, ripple, magnetic hover, card-scale, etc.)
+- Tooltips: Enhanced with TipEnhanced (animated, with keyboard shortcut hints) on 17 elements
+- Navigation arrows: Pulse animation added when scrollable content exists
+- Speed optimization: ReactMarkdown + CommandPalette lazy loaded
+- Visual cues: Scroll progress bar, zone slide-in, copy success flash, status blink dots
+- Files modified: page.tsx, globals.css, PageClient.tsx
+- Build: Clean, no errors

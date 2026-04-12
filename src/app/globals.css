@@ -475,6 +475,76 @@
 .stagger-children > *:nth-child(10) { animation-delay: 0.20s; }
 .stagger-children > *:nth-child(n+11) { animation-delay: 0.22s; }
 
+/* v3.6 — ENHANCED MICRO INTERACTIONS */
+
+/* Copy Success Flash Animation */
+@keyframes copyFlash {
+  0% { background: rgba(34, 197, 94, 0.15); }
+  100% { background: transparent; }
+}
+.copy-flash { animation: copyFlash 0.6s ease-out forwards; }
+
+/* Magnetic Button Hover Effect */
+.magnetic-hover { transition: transform 0.15s ease-out; }
+
+/* Input Focus Glow */
+.input-glow { transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease; }
+.input-glow:focus { border-color: rgba(167,139,250,0.4) !important; box-shadow: 0 0 0 3px rgba(167,139,250,0.08), 0 0 20px -5px rgba(167,139,250,0.12); background: #14161A !important; }
+
+/* Zone Transition Slide */
+@keyframes zoneSlideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+.zone-slide-in { animation: zoneSlideIn 0.35s ease-out forwards; }
+
+/* Scroll Progress Bar */
+.scroll-progress { position: fixed; top: 0; left: 0; height: 2px; z-index: 100; background: linear-gradient(90deg, #a78bfa, #4DFFFF, #FFB000); transition: width 0.1s linear; border-radius: 0 1px 1px 0; }
+
+/* Enhanced Nav Scroll Button with Pulse */
+@keyframes arrowPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(167,139,250,0.3); } 50% { box-shadow: 0 0 0 6px rgba(167,139,250,0); } }
+.nav-scroll-btn.visible { animation: arrowPulse 2s ease-in-out infinite; }
+.nav-scroll-btn.visible:hover { animation: none; }
+
+/* Toast Enhancement */
+.toast-enhanced { border-radius: 12px !important; backdrop-filter: blur(12px) !important; }
+
+/* Card Hover Scale */
+.card-scale { transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease; }
+.card-scale:hover { transform: scale(1.01); }
+
+/* Smooth Border Glow */
+@keyframes borderGlow { 0%, 100% { border-color: rgba(167,139,250,0.2); } 50% { border-color: rgba(167,139,250,0.5); } }
+.border-glow-pulse { animation: borderGlow 2s ease-in-out infinite; }
+
+/* Status Dot Blink */
+@keyframes statusBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.status-blink { animation: statusBlink 1.5s ease-in-out infinite; }
+
+/* Smooth Number Count */
+@keyframes countUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.count-up { animation: countUp 0.4s ease-out forwards; }
+
+/* Ripple on Click */
+.ripple-container { position: relative; overflow: hidden; }
+.ripple-container .ripple-effect { position: absolute; border-radius: 50%; background: rgba(167,139,250,0.2); transform: scale(0); animation: rippleExpand 0.5s ease-out forwards; pointer-events: none; }
+@keyframes rippleExpand { to { transform: scale(4); opacity: 0; } }
+
+/* Mobile Tab Active Bounce */
+@keyframes tabBounce { 0% { transform: scale(1); } 40% { transform: scale(1.2); } 100% { transform: scale(1); } }
+.tab-bounce { animation: tabBounce 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Fade In Scale */
+@keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.fade-in-scale { animation: fadeInScale 0.3s ease-out forwards; }
+
+/* Shimmer Border */
+@keyframes shimmerBorder { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+.shimmer-border { background-size: 200% 200%; animation: shimmerBorder 3s ease infinite; }
+
+/* Focus Visible Ring */
+*:focus-visible { outline: 2px solid rgba(167,139,250,0.5); outline-offset: 2px; border-radius: 4px; }
+
+/* Selection Color */
+::selection { background: rgba(167,139,250,0.3); color: #FFFFFF; }
+
 /* ─── Markdown result styling ──────────────────────────────────────────── */
 .markdown-result h2 {
   font-size: 1.125rem;
