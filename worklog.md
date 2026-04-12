@@ -532,3 +532,81 @@ New state: showMobileMore, expandedWorkflowIdx
 New helpers: lsGet, lsSet, lsSetDebounced, LS_PREFIX, DEFAULT_SUBTABS, DEFAULT_COMPOSER
 
 Lint: 0 errors from src/app/PageClient.tsx
+
+---
+Task ID: 1
+Agent: main
+Task: Implement 3 major features - Auto-save, iOS Mobile Nav, Workflow Preview
+
+Work Log:
+- Analyzed full PageClient.tsx (1229 lines) and promptc-data.ts
+- Implemented auto-save framework with localStorage helpers (lsGet, lsSet, lsSetDebounced)
+- Persisted 14 state keys: zone, subtab, search, animal-input, chain-input, meta-prompt, qa-input, composer-fields, basket-search, basket-zone-filter, basket-sort, skills-search, quickstart-dismissed
+- Replaced flat 7-tab bottom bar with 5+More iOS-style navigation
+- Added MoreVertical icon and showMobileMore state
+- Created slide-up More menu with System zone, Basket, Command Palette, Onboarding Tour
+- Added expandedWorkflowIdx state for playbook workflow prompt preview
+- Made workflow cards clickable with AnimatePresence expand animation
+- All features pass ESLint with 0 errors
+
+Stage Summary:
+- push 9d376f8 to GitHub main
+- Vercel production auto-deployed from GitHub push
+- Production URL: https://promptc-os.vercel.app
+- 3 features fully implemented: auto-save, iOS mobile nav, workflow preview
+
+---
+Task ID: v3.4-strategic-upgrades
+Agent: Super Z (main)
+Task: Implement 4 strategic upgrades to promptc OS v3.4
+
+Work Log:
+
+Pre-existing analysis: The codebase already had partial implementations of all 4 upgrades from prior work. This task completed the remaining gaps.
+
+UPGRADE 1: Cross-Zone Pipeline Tracker (completed remaining 1d)
+- 1a: BasketItem already had pipelineStage field ✓
+- 1b: handleCopy already set pipelineStage ✓
+- 1c: Pipeline progress row already existed (PIPELINE_STAGES based) ✓
+- 1d: Added pipeline arrow (→) between zone badge and pipeline stage badge when they differ
+  - Line 891: Added conditional arrow span `{h.pipelineStage && h.pipelineStage !== h.zone && <span>→</span>}`
+
+UPGRADE 2: Send to Zone Forward Actions (completed remaining 2a, 2c)
+- 2a: Changed forwardedFromZone type from `string` (default "") to `string | null` (default null)
+- 2b: Forwarding banner already existed ✓
+- 2c: Modified handleZoneChange to auto-fill forwarded text into relevant inputs on zone change:
+  - build → fills metaPrompt, sets subtab to "Meta Builder"
+  - validate → fills qaInput, sets subtab to "Quality Score"
+  - activate → fills animalUserInput, sets subtab to "Animals"
+  - Clears forwardedItemText and forwardedFromZone after filling
+  - Added forwardedItemText to dependency array
+- 2d: Send to Zone buttons in basket expanded view already existed ✓
+- Updated clearForwarded to use null instead of empty string
+
+UPGRADE 3: Smart Basket Insights (completed 3a)
+- 3a: Added "⚡ SUGGESTED NEXT" section in basket header (items tab)
+  - Shows when history.length >= 2 and basketTab === "items"
+  - "✅ Validate your prompts" — shows when validate zone not used but activate/build used
+  - "📋 Apply a workflow" — shows when playbook zone not used but activate zone used
+  - "💰 Monetize your prompts" — shows when monetize zone not used and 3+ items in basket
+  - Each button closes basket and navigates to the recommended zone
+
+UPGRADE 4: Quick Compose Bar (already fully implemented)
+- 4a: State already existed (showQuickCompose, composeText) ✓
+- 4b: Auto-save useEffect already existed ✓
+- 4c: ⌘P keyboard shortcut already existed ✓
+- 4d: Floating button + panel already existed with dropdowns ✓
+- 4e: Mobile positioning already handled (bottom-20 on mobile, bottom-6 on sm+) ✓
+
+Files modified:
+- src/app/PageClient.tsx (1569 lines total, +5 net surgical edits)
+
+Edits applied:
+1. Line 281: forwardedFromZone type string → string | null
+2. Line 326-335: handleZoneChange expanded with forwarded text auto-fill logic
+3. Line 430: clearForwarded updated to use null
+4. Line 891: Pipeline arrow added between zone and pipeline stage badges
+5. Lines 856-872: Smart Recommendations "SUGGESTED NEXT" section added
+
+Lint: 0 errors, 0 warnings from src/app/PageClient.tsx
+Dev server: Compiles successfully, GET / 200

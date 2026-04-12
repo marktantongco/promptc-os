@@ -8,6 +8,7 @@ import {
   Command, Cpu, BarChart3, ArrowRight, ArrowUpDown,
   FolderDown, FileDown, FileJson, Lightbulb, ArrowUp,
   Trash2, CheckSquare, Square, Pin, Menu, Star, MoreVertical,
+  Plus, Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -34,7 +35,11 @@ interface BasketItem {
   chars: number;
   pinned: boolean;
   favorited?: boolean;
+  pipelineStage?: string;
+  copyCount?: number;
 }
+
+const PIPELINE_STAGES = ["activate", "build", "validate", "playbook", "monetize"] as const;
 
 // ─── Sub-tab definitions per zone ─────────────────────────────────────────
 const ZONE_TABS: Record<string, string[]> = {
@@ -271,6 +276,21 @@ export default function Home() {
   const [composerFields, setComposerFields] = useState<Record<string, string>>(() => lsGet("composer-fields", DEFAULT_COMPOSER));
   const [composerResult, setComposerResult] = useState<string | null>(null);
 
+  // ─── Upgrade 2: Forwarded item state ────────────────────────────────────
+  const [forwardedItemText, setForwardedItemText] = useState<string | null>(null);
+  const [forwardedFromZone, setForwardedFromZone] = useState<string | null>(null);
+
+  // ─── Upgrade 4: Quick Compose state ─────────────────────────────────────
+  const [showQuickCompose, setShowQuickCompose] = useState(false);
+  const [composeText, setComposeText] = useState(() => lsGet("compose-text", ""));
+  const [qcDropdown, setQcDropdown] = useState<null | 'mods' | 'tmpls' | 'animals'>(null);
+  const [qcSearch, setQcSearch] = useState("");
+
+  // ─── Upgrade 5: Basket tab + session state ──────────────────────────────
+  const [basketTab, setBasketTab] = useState<'items' | 'stats' | 'insights'>('items');
+  const [sessionDuration, setSessionDuration] = useState(0);
+  const sessionStartRef = useRef(Date.now());
+
   // ─── Feature 1: Auto-save useEffects ────────────────────────────────────
   useEffect(() => { lsSet("zone", activeZone); }, [activeZone]);
   useEffect(() => { lsSet("subtab", activeSubTab); }, [activeSubTab]);
@@ -285,6 +305,13 @@ export default function Home() {
   useEffect(() => { lsSetDebounced("meta-prompt", metaPrompt); }, [metaPrompt]);
   useEffect(() => { lsSetDebounced("qa-input", qaInput); }, [qaInput]);
   useEffect(() => { lsSetDebounced("composer-fields", composerFields); }, [composerFields]);
+  useEffect(() => { lsSetDebounced("compose-text", composeText); }, [composeText]);
+
+  // ─── Session timer ──────────────────────────────────────────────────────
+  useEffect(() => {
+    const timer = setInterval(() => { setSessionDuration(Math.floor((Date.now() - sessionStartRef.current) / 60000)); }, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   // ─── Feature 2: Mobile More menu ────────────────────────────────────────
   const [showMobileMore, setShowMobileMore] = useState(false);
@@ -296,7 +323,16 @@ export default function Home() {
   const mainRef = useRef<HTMLDivElement>(null);
 
   // ─── Core callbacks (declared early to avoid temporal dead zone) ──────────
-  const handleZoneChange = useCallback((z: string) => { setActiveZone(z); setSearchQuery(""); window.scrollTo({ top: 0, behavior: "smooth" }); }, []);
+  const handleZoneChange = useCallback((z: string) => {
+    setActiveZone(z); setSearchQuery(""); window.scrollTo({ top: 0, behavior: "smooth" });
+    // Auto-fill forwarded text into relevant inputs
+    if (forwardedItemText) {
+      if (z === "build") { setMetaPrompt(forwardedItemText); setActiveSubTab(p => ({...p, build: "Meta Builder"})); }
+      if (z === "validate") { setQaInput(forwardedItemText); setActiveSubTab(p => ({...p, validate: "Quality Score"})); }
+      if (z === "activate") { setAnimalUserInput(forwardedItemText); setActiveSubTab(p => ({...p, activate: "Animals"})); }
+      setForwardedItemText(null); setForwardedFromZone(null);
+    }
+  }, [forwardedItemText]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -315,10 +351,13 @@ export default function Home() {
       }
       // ? shortcuts overlay (only when not in input)
       if (e.key === "?" && !inInput && !e.metaKey && !e.ctrlKey) { e.preventDefault(); setShowShortcuts((p) => !p); }
+      // \u2318P Quick Compose
+      if ((e.metaKey || e.ctrlKey) && e.key === "p") { e.preventDefault(); setShowQuickCompose((p) => !p); }
+      if (e.key === "Escape" && showQuickCompose) { setShowQuickCompose(false); }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [showHistory, showShortcuts, handleZoneChange]);
+  }, [showHistory, showShortcuts, showQuickCompose, handleZoneChange]);
 
   // Scroll-to-top listener
   useEffect(() => {
@@ -346,9 +385,15 @@ export default function Home() {
   const toggleExpand = useCallback((id: string) => { setExpandedItems((p) => { const n = new Set(p); if (n.has(id)) { n.delete(id); } else { n.add(id); } return n; }); }, []);
   const handleCopy = useCallback(async (text: string, id: string) => {
     try {
-      // Duplicate detection
-      if (history.some((h) => h.text === text)) {
-        toast.warning("Already in basket!");
+      // Duplicate detection — increment copyCount instead of blocking
+      const existing = history.find((h) => h.text === text);
+      if (existing) {
+        await navigator.clipboard.writeText(text);
+        setCopiedId(id);
+        const newCount = (existing.copyCount || 0) + 1;
+        setHistory((prev) => prev.map((h) => h.id === existing.id ? { ...h, copyCount: newCount } : h));
+        toast.info(`Copied! (used ${newCount}×)`);
+        setTimeout(() => setCopiedId(null), 1800);
         return;
       }
       await navigator.clipboard.writeText(text);
@@ -362,6 +407,8 @@ export default function Home() {
         chars: text.length,
         pinned: false,
         favorited: false,
+        pipelineStage: PIPELINE_STAGES.includes(activeZone as typeof PIPELINE_STAGES[number]) ? activeZone : undefined,
+        copyCount: 1,
       };
       setHistory((p) => [item, ...p.slice(0, 99)]);
       toast.success("Added to basket!");
@@ -372,6 +419,30 @@ export default function Home() {
       toast.error("Failed to copy.");
     }
   }, [activeZone, history]);
+
+  // Direct clipboard copy (no basket add)
+  const handleDirectCopy = useCallback(async (text: string) => {
+    try { await navigator.clipboard.writeText(text); toast.success("Copied to clipboard!"); } catch { toast.error("Failed to copy."); }
+  }, []);
+
+  // Forward item to another zone
+  const handleForwardToZone = useCallback((itemId: string, text: string, targetZone: string, targetTab: string) => {
+    setForwardedItemText(text);
+    setForwardedFromZone(ZONES.find((z) => z.id === activeZone)?.label || activeZone);
+    handleZoneChange(targetZone);
+    setActiveSubTab((prev) => ({ ...prev, [targetZone]: targetTab }));
+    // Auto-fill relevant inputs
+    if (targetZone === "build" && targetTab === "Meta Builder") setMetaPrompt(text);
+    else if (targetZone === "validate" && targetTab === "Quality Score") setQaInput(text);
+  }, [activeZone, handleZoneChange]);
+
+  const clearForwarded = useCallback(() => { setForwardedItemText(null); setForwardedFromZone(null); }, []);
+  const pasteForwarded = useCallback(() => {
+    if (!forwardedItemText) return;
+    if (activeZone === "build") setMetaPrompt(forwardedItemText);
+    else if (activeZone === "validate") setQaInput(forwardedItemText);
+    clearForwarded();
+  }, [forwardedItemText, activeZone, clearForwarded]);
 
   // Copy all basket items
   const copyAllBasket = useCallback(async () => {
@@ -405,7 +476,7 @@ export default function Home() {
     if (history.length === 0) { toast.error("Basket is empty."); return; }
     const data = {
       exportDate: new Date().toISOString(),
-      version: "3.3",
+      version: "3.4",
       items: history.map(h => ({ text: h.text, label: h.label, zone: h.zone, time: h.time, chars: h.chars, pinned: h.pinned, favorited: h.favorited })),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -551,6 +622,43 @@ export default function Home() {
 
   const basketTotalChars = useMemo(() => history.reduce((s, h) => s + h.chars, 0), [history]);
 
+  // ─── Upgrade 5: Basket stats & insights ─────────────────────────────────
+  const mostActiveZone = useMemo(() => {
+    if (history.length === 0) return null;
+    const counts: Record<string, number> = {};
+    history.forEach((h) => { counts[h.zone] = (counts[h.zone] || 0) + 1; });
+    const maxZone = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+    return ZONES.find((z) => z.id === maxZone?.[0]);
+  }, [history]);
+
+  const zoneDistribution = useMemo(() => {
+    if (history.length === 0) return [];
+    const counts: Record<string, number> = {};
+    history.forEach((h) => { counts[h.zone] = (counts[h.zone] || 0) + 1; });
+    return Object.entries(counts).map(([zone, count]) => ({
+      zone, count, pct: (count / history.length) * 100,
+      color: ZONES.find((z) => z.id === zone)?.color || "#6B7280",
+    })).sort((a, b) => b.count - a.count);
+  }, [history]);
+
+  const frequentlyUsed = useMemo(() => {
+    return [...history].filter((h) => (h.copyCount || 0) > 1).sort((a, b) => (b.copyCount || 0) - (a.copyCount || 0)).slice(0, 3);
+  }, [history]);
+
+  const recommendations = useMemo(() => {
+    const recs: { zone: string; tab: string; label: string; icon: string; color: string }[] = [];
+    const zoneIds = new Set(history.map((h) => h.zone));
+    if (zoneIds.has("activate")) recs.push({ zone: "build", tab: "Enhancements", label: "Try an Enhancement", icon: "\ud83d\udd28", color: "#a78bfa" });
+    if (zoneIds.has("build")) recs.push({ zone: "validate", tab: "Quality Score", label: "Validate your prompts", icon: "\u2705", color: "#22c55e" });
+    if (zoneIds.has("playbook")) recs.push({ zone: "monetize", tab: "Top Prompts", label: "Monetize this workflow", icon: "\ud83d\udcb0", color: "#FFB000" });
+    return recs;
+  }, [history]);
+
+  // Quick Compose filtered lists
+  const qcModList = useMemo(() => { if (!qcSearch) return MODS; return MODS.filter((m) => m.mod.toLowerCase().includes(qcSearch.toLowerCase())); }, [qcSearch]);
+  const qcTmplList = useMemo(() => { if (!qcSearch) return TMPLS; return TMPLS.filter((t) => t.label.toLowerCase().includes(qcSearch.toLowerCase())); }, [qcSearch]);
+  const qcAnimalList = useMemo(() => { if (!qcSearch) return ANIMALS; return ANIMALS.filter((a) => a.name.toLowerCase().includes(qcSearch.toLowerCase())); }, [qcSearch]);
+
   const handleSelectFromPalette = useCallback((zone: string, tab: string) => { handleZoneChange(zone); setActiveSubTab((p) => ({ ...p, [zone]: tab })); }, [handleZoneChange]);
 
   // Export functions
@@ -637,7 +745,7 @@ export default function Home() {
             <div className="flex items-center gap-2.5 flex-shrink-0">
               <span className="text-xl">⚡</span>
               <span className="font-bold text-sm tracking-tight" style={{ fontFamily: "'DM Mono', monospace", color: zoneColor }}>promptc OS</span>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>v3.3</span>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>v3.4</span>
             </div>
             {/* Desktop zone tabs */}
             <div className="hidden sm:flex items-center gap-1 overflow-x-auto no-scrollbar">
@@ -689,6 +797,26 @@ export default function Home() {
                   <button onClick={() => setShowHistory(false)} className="p-1 rounded-lg hover:bg-white/10 transition-all" style={{ color: "#6B7280" }}><X className="w-3.5 h-3.5" /></button>
                 </div>
               </div>
+              {/* Basket Tab Switcher */}
+              <div className="flex gap-1">
+                {(["items", "stats", "insights"] as const).map((tab) => (
+                  <button key={tab} onClick={() => setBasketTab(tab)} className="px-3 py-1 text-[10px] font-medium rounded-lg transition-all capitalize" style={{ color: basketTab === tab ? zoneColor : "#6B7280", background: basketTab === tab ? `${zoneColor}15` : "transparent", border: `1px solid ${basketTab === tab ? `${zoneColor}33` : "rgba(255,255,255,0.07)"}` }}>{tab}{tab === "items" && history.length > 0 && <span className="ml-1 opacity-60">({history.length})</span>}</button>
+                ))}
+              </div>
+              {/* Pipeline Progress */}
+              <div className="flex items-center gap-2">
+                <span className="text-[8px] font-mono" style={{ color: "#4b5563" }}>PIPELINE</span>
+                <div className="flex items-center gap-0.5">
+                  {PIPELINE_STAGES.map((stage, si) => {
+                    const cnt = history.filter((h) => h.pipelineStage === stage).length;
+                    const sc = ZONES.find((z) => z.id === stage)?.color || "#4b5563";
+                    return (<div key={stage} className="flex items-center gap-0.5">
+                      <div className="flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full text-[8px] font-bold" style={{ background: cnt > 0 ? `${sc}20` : "rgba(255,255,255,0.04)", color: cnt > 0 ? sc : "#4b5563", border: `1px solid ${cnt > 0 ? `${sc}44` : "rgba(255,255,255,0.07)"}` }}>{cnt}</div>
+                      {si < PIPELINE_STAGES.length - 1 && <div className="w-2 h-px" style={{ background: "rgba(255,255,255,0.1)" }} />}
+                    </div>);
+                  })}
+                </div>
+              </div>
               <p className="text-[10px]" style={{ color: "#4b5563" }}>{history.length} items · {basketTotalChars.toLocaleString()} chars total</p>
               <div className="flex gap-1.5">
                 <button onClick={copyAllBasket} className="flex-1 text-[10px] px-2 py-1.5 rounded-lg font-medium transition-all" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.25)" }}>COPY ALL</button>
@@ -724,7 +852,26 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Items */}
+            {/* Smart Recommendations */}
+            {history.length >= 2 && basketTab === "items" && (
+              <div className="space-y-1">
+                <div className="text-[9px] font-mono" style={{ color: "#4b5563" }}>⚡ SUGGESTED NEXT</div>
+                <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+                  {!history.some(h => h.zone === "validate") && history.some(h => h.zone === "activate" || h.zone === "build") && (
+                    <button onClick={() => { setShowHistory(false); handleZoneChange("validate"); }} className="flex items-center gap-1 text-[10px] px-2.5 py-1.5 rounded-lg whitespace-nowrap transition-all" style={{ background: "rgba(34,197,94,0.08)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }}>✅ Validate your prompts</button>
+                  )}
+                  {!history.some(h => h.zone === "playbook") && history.some(h => h.zone === "activate") && (
+                    <button onClick={() => { setShowHistory(false); handleZoneChange("playbook"); }} className="flex items-center gap-1 text-[10px] px-2.5 py-1.5 rounded-lg whitespace-nowrap transition-all" style={{ background: "rgba(255,176,0,0.08)", color: "#FFB000", border: "1px solid rgba(255,176,0,0.2)" }}>📋 Apply a workflow</button>
+                  )}
+                  {!history.some(h => h.zone === "monetize") && history.length >= 3 && (
+                    <button onClick={() => { setShowHistory(false); handleZoneChange("monetize"); }} className="flex items-center gap-1 text-[10px] px-2.5 py-1.5 rounded-lg whitespace-nowrap transition-all" style={{ background: "rgba(255,215,0,0.08)", color: "#FFD700", border: "1px solid rgba(255,215,0,0.2)" }}>💰 Monetize your prompts</button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ═══ ITEMS TAB ═══ */}
+            {basketTab === "items" && (<>
             {(basketSearch.trim() || basketZoneFilter !== "all") && filteredBasket.length < history.length && (
               <div className="text-[9px] text-center py-1" style={{ color: "#6B7280" }}>Showing {filteredBasket.length} of {history.length} items</div>
             )}
@@ -740,17 +887,16 @@ export default function Home() {
                   const zColor = ZONES.find((z) => z.id === h.zone)?.color || "#4DFFFF";
                   const isExpanded = basketExpandId === h.id;
                   const isSelected = basketSelected.has(h.id);
-                  // Show divider before first non-pinned item after pinned section
                   const prevItem = hIdx > 0 ? filteredBasket[hIdx - 1] : null;
                   const showDivider = prevItem && prevItem.pinned && !h.pinned;
-                  // Show divider before first non-favorite item after favorites section
                   const showFavoriteDivider = !showDivider && prevItem && prevItem.favorited && !h.favorited;
+                  const pStageColor = h.pipelineStage ? (ZONES.find((z) => z.id === h.pipelineStage)?.color || "#4b5563") : null;
                   return (
                     <div key={h.id}>
                       {showDivider && <div className="border-t border-dashed my-1" style={{ borderColor: "rgba(255,255,255,0.1)" }} />}
                       {showFavoriteDivider && <div className="border-t border-dashed my-1" style={{ borderColor: "rgba(255,183,0,0.2)" }} />}
                       <motion.div layout className="rounded-lg cursor-pointer transition-all" style={{ background: "#0B0D10", border: isSelected ? `1px solid ${zColor}55` : "1px solid rgba(255,255,255,0.07)" }} onClick={() => setBasketExpandId(isExpanded ? null : h.id)}>
-                        {/* Row 1: checkbox + zone badge + time + chars */}
+                        {/* Row 1: checkbox + zone badge + pipeline badge + time + chars */}
                         <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
                           <div className="flex items-center gap-2">
                             <button onClick={(e) => { e.stopPropagation(); toggleBasketSelect(h.id); }} className="flex-shrink-0 p-0.5 rounded hover:bg-white/5 transition-all" style={{ color: isSelected ? zColor : "#4b5563" }}>
@@ -759,9 +905,14 @@ export default function Home() {
                             {h.pinned && <span className="text-[10px] flex-shrink-0">📌</span>}
                             {h.favorited && <span className="text-[10px] flex-shrink-0" style={{ color: "#FFB000" }}>⭐</span>}
                             <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: `${zColor}15`, color: zColor }}>{h.zone}</span>
+                            {h.pipelineStage && h.pipelineStage !== h.zone && <span className="text-[8px]" style={{ color: "#4b5563" }}>→</span>}
+                            {pStageColor && <span className="text-[8px] font-mono px-1.5 py-0.5 rounded" style={{ background: `${pStageColor}15`, color: pStageColor }}>{h.pipelineStage}</span>}
                             <span className="text-[9px]" style={{ color: "#4b5563" }}>{h.time}</span>
                           </div>
-                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#6B7280" }}>{h.chars} chars</span>
+                          <div className="flex items-center gap-1">
+                            {(h.copyCount || 0) > 1 && <span className="text-[8px] font-mono px-1 py-0.5 rounded" style={{ background: "rgba(255,183,0,0.12)", color: "#FFB000" }}>×{h.copyCount}</span>}
+                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#6B7280" }}>{h.chars} chars</span>
+                          </div>
                         </div>
                         {/* Row 2: text */}
                         <div className="px-3 pb-1.5">
@@ -789,12 +940,94 @@ export default function Home() {
                             <Trash2 className="w-3 h-3" />
                           </button>
                         </div>
+                        {/* Row 4: Send to Zone (expanded only) */}
+                        <AnimatePresence>{isExpanded && (
+                          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                            <div className="flex items-center gap-1.5 px-3 pb-2.5 pt-0.5 flex-wrap" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                              <span className="text-[8px] font-mono mr-0.5" style={{ color: "#4b5563" }}>SEND →</span>
+                              {([{ zone: "build", tab: "Enhancements", label: "Enhance" }, { zone: "validate", tab: "Quality Score", label: "Validate" }, { zone: "playbook", tab: "Workflows", label: "Workflow" }, { zone: "monetize", tab: "Top Prompts", label: "Monetize" }] as const).map((action) => {
+                                const ac = ZONES.find((z) => z.id === action.zone)?.color || "#4b5563";
+                                return (<button key={action.zone} onClick={(e) => { e.stopPropagation(); handleForwardToZone(h.id, h.text, action.zone, action.tab); }} className="text-[9px] px-2 py-1 rounded-lg font-medium transition-all hover:opacity-80" style={{ background: `${ac}12`, color: ac, border: `1px solid ${ac}25` }}>→ {action.label}</button>);
+                              })}
+                            </div>
+                          </motion.div>
+                        )}</AnimatePresence>
                       </motion.div>
                     </div>
                   );
                 })}
               </div>
             )}
+            </>)}
+
+            {/* ═══ STATS TAB ═══ */}
+            {basketTab === "stats" && (<div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-lg p-3 text-center" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <div className="text-lg font-bold" style={{ color: zoneColor }}>{history.length}</div>
+                  <div className="text-[10px]" style={{ color: "#6B7280" }}>Total Items</div>
+                </div>
+                <div className="rounded-lg p-3 text-center" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <div className="text-lg font-bold" style={{ color: zoneColor }}>{basketTotalChars.toLocaleString()}</div>
+                  <div className="text-[10px]" style={{ color: "#6B7280" }}>Total Chars</div>
+                </div>
+                <div className="rounded-lg p-3 text-center" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <div className="text-lg font-bold" style={{ color: zoneColor }}>{sessionDuration}m</div>
+                  <div className="text-[10px]" style={{ color: "#6B7280" }}>Session</div>
+                </div>
+                <div className="rounded-lg p-3 text-center" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <div className="text-[11px] font-bold" style={{ color: mostActiveZone?.color || "#6B7280" }}>{mostActiveZone?.label || "—"}</div>
+                  <div className="text-[10px]" style={{ color: "#6B7280" }}>Most Active</div>
+                </div>
+              </div>
+              <div className="text-[10px] font-mono" style={{ color: zoneColor }}>ZONE DISTRIBUTION</div>
+              <div className="flex h-4 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
+                {zoneDistribution.map((zd) => (<div key={zd.zone} style={{ width: `${zd.pct}%`, background: zd.color, minWidth: zd.pct > 0 ? "4px" : "0", transition: "width 0.3s" }} title={`${zd.zone}: ${zd.count}`} />))}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {zoneDistribution.filter((zd) => zd.count > 0).map((zd) => (
+                  <div key={zd.zone} className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full" style={{ background: zd.color }} />
+                    <span className="text-[9px]" style={{ color: "#6B7280" }}>{zd.zone} ({zd.count})</span>
+                  </div>
+                ))}
+              </div>
+            </div>)}
+
+            {/* ═══ INSIGHTS TAB ═══ */}
+            {basketTab === "insights" && (<div className="space-y-5">
+              <div>
+                <div className="text-[10px] font-mono mb-2" style={{ color: zoneColor }}>FREQUENTLY USED</div>
+                {frequentlyUsed.length === 0 ? (
+                  <p className="text-[10px]" style={{ color: "#4b5563" }}>Copy items multiple times to see them here.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {frequentlyUsed.map((item) => (
+                      <div key={item.id} className="rounded-lg p-2.5" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)" }}>
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-[10px] truncate flex-1" style={{ color: "#A1A1AA" }}>{item.label}</p>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: "rgba(255,183,0,0.12)", color: "#FFB000" }}>×{item.copyCount}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
+                <div className="text-[10px] font-mono mb-2" style={{ color: zoneColor }}>RECOMMENDED NEXT</div>
+                {recommendations.length === 0 ? (
+                  <p className="text-[10px]" style={{ color: "#4b5563" }}>Add items to get recommendations.</p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {recommendations.map((rec) => (
+                      <button key={rec.zone} onClick={() => { handleZoneChange(rec.zone); setActiveSubTab((p) => ({ ...p, [rec.zone]: rec.tab })); setShowHistory(false); }} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all hover:opacity-80" style={{ background: `${rec.color}15`, color: rec.color, border: `1px solid ${rec.color}33` }}>
+                        <span>{rec.icon}</span><span>{rec.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>)}
 
             {/* Batch Action Bar */}
             <AnimatePresence>{basketSelected.size > 0 && (
@@ -815,6 +1048,23 @@ export default function Home() {
           </div>
         </motion.div>
       )}</AnimatePresence>
+
+      {/* ─── Forwarded Item Banner ─── */}
+      <AnimatePresence>
+        {forwardedItemText && (
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="max-w-7xl mx-auto w-full px-4 sm:px-6 pt-4">
+            <div className="rounded-xl p-3 flex items-center gap-3" style={{ background: `${zoneColor}10`, border: `1px solid ${zoneColor}25` }}>
+              <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: zoneColor }} />
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-medium" style={{ color: zoneColor }}>Forwarded from {forwardedFromZone}</p>
+                <p className="text-[10px] truncate" style={{ color: "#A1A1AA" }}>{forwardedItemText.slice(0, 100)}{forwardedItemText.length > 100 ? "..." : ""}</p>
+              </div>
+              <button onClick={clearForwarded} className="text-[9px] px-2 py-1 rounded-lg flex-shrink-0 transition-all hover:bg-white/5" style={{ color: "#6B7280", border: "1px solid rgba(255,255,255,0.07)" }}>Clear</button>
+              <button onClick={pasteForwarded} className="text-[9px] px-2 py-1 rounded-lg font-medium flex-shrink-0 transition-all hover:opacity-80" style={{ background: `${zoneColor}15`, color: zoneColor, border: `1px solid ${zoneColor}33` }}>Paste &amp; Go</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ─── Sub-Tabs ─── */}
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 pt-4">
@@ -1123,7 +1373,7 @@ export default function Home() {
               </div>)}
 
               {/* Principles */}
-              {activeSubTab.system === "Principles" && (<div className="max-w-3xl mx-auto space-y-4"><h2 className="text-lg font-bold mb-2">Core Principles</h2><p className="text-xs mb-4" style={{ color: "#A1A1AA" }}>The foundational rules that govern the promptc OS philosophy.</p>{SYSTEM_PRINCIPLES.map((p, i) => { const id = `sys-p-${i}`; return (<div key={id} className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: `1px solid ${p.color}22` }}><div className="p-4 cursor-pointer" onClick={() => toggleExpand(id)}><div className="flex items-center justify-between"><div className="flex items-center gap-3"><span className="text-xl">{p.icon}</span><h3 className="text-sm font-bold" style={{ color: p.color }}>{p.title}</h3></div>{expandedItems.has(id) ? <ChevronDown className="w-4 h-4" style={{ color: "#4b5563" }} /> : <ChevronRight className="w-4 h-4" style={{ color: "#4b5563" }} />}</div></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><div className="px-4 pb-4"><p className="text-xs leading-relaxed" style={{ color: "#A1A1AA" }}>{p.desc}</p></div></motion.div>)}</AnimatePresence></div>); })}</div>)}
+              {activeSubTab.system === "Principles" && (<div className="max-w-3xl mx-auto space-y-4"><h2 className="text-lg font-bold mb-2">Core Principles</h2><p className="text-xs mb-4" style={{ color: "#A1A1AA" }}>The foundational rules that govern the promptc OS philosophy.</p>{SYSTEM_PRINCIPLES.map((p, i) => { const id = `sys-p-${i}`; return (<div key={id} className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: `1px solid ${p.color}22` }}><div className="p-4 cursor-pointer" onClick={() => toggleExpand(id)}><div className="flex items-center justify-between"><div className="flex items-center gap-3"><span className="text-xl">{p.icon}</span><h3 className="text-sm font-bold" style={{ color: p.color }}>{p.title}</h3></div><div className="flex items-center gap-2"><button onClick={(e) => { e.stopPropagation(); handleCopy(p.desc, id); }} className="p-1 rounded hover:bg-white/10 transition-colors">{copiedId === id ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" style={{ color: "#4b5563" }} />}</button>{expandedItems.has(id) ? <ChevronDown className="w-4 h-4" style={{ color: "#4b5563" }} /> : <ChevronRight className="w-4 h-4" style={{ color: "#4b5563" }} />}</div></div></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><div className="px-4 pb-4"><p className="text-xs leading-relaxed" style={{ color: "#A1A1AA" }}>{p.desc}</p></div></motion.div>)}</AnimatePresence></div>); })}</div>)}
 
               {/* Skill Builder */}
               {activeSubTab.system === "Skill Builder" && (<div className="max-w-3xl mx-auto"><h2 className="text-lg font-bold mb-2">Skill Builder Wizard</h2><p className="text-xs mb-6" style={{ color: "#A1A1AA" }}>Follow the 6-step process to build a production-ready skill.</p>
@@ -1190,6 +1440,7 @@ export default function Home() {
                   { keys: "⌘K", desc: "Search (Command Palette)" },
                   { keys: "⌘B", desc: "Toggle Basket" },
                   { keys: "⌘1-6", desc: "Switch Zone" },
+                  { keys: "⌘P", desc: "Quick Compose" },
                   { keys: "?", desc: "Show Shortcuts" },
                   { keys: "Escape", desc: "Close panels" },
                 ].map((s) => (
@@ -1200,7 +1451,7 @@ export default function Home() {
                 ))}
               </div>
               <div className="mt-5 pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-                <p className="text-[10px] text-center" style={{ color: "#4b5563" }}>Press <kbd className="text-[9px] font-mono px-1 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "#6B7280" }}>?</kbd> or <kbd className="text-[9px] font-mono px-1 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "#6B7280" }}>Escape</kbd> to close</p>
+                <p className="text-[10px] text-center" style={{ color: "#4b5563" }}>Press <kbd className="text-[9px] font-mono px-1 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "#6B7280" }}>?</kbd>, <kbd className="text-[9px] font-mono px-1 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "#6B7280" }}>⌘P</kbd>, or <kbd className="text-[9px] font-mono px-1 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "#6B7280" }}>Escape</kbd> to close</p>
               </div>
             </motion.div>
           </motion.div>
@@ -1220,6 +1471,51 @@ export default function Home() {
             style={{ background: "rgba(20,22,26,0.9)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(8px)" }}
           >
             <ArrowUp className="w-4 h-4" style={{ color: "#a78bfa" }} />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Quick Compose Button + Panel ─── */}
+      <AnimatePresence>
+        {showQuickCompose ? (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[55]" style={{ background: "rgba(0,0,0,0.3)" }} onClick={() => setShowQuickCompose(false)} />
+            <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="fixed bottom-20 sm:bottom-6 right-4 z-[56] w-80 sm:w-96 rounded-xl overflow-hidden" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
+              <div className="p-4 flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2"><Sparkles className="w-4 h-4" style={{ color: zoneColor }} /><h3 className="text-sm font-bold" style={{ color: zoneColor }}>Quick Compose</h3></div>
+                  <button onClick={() => setShowQuickCompose(false)} className="p-1 rounded-lg hover:bg-white/10 transition-all" style={{ color: "#6B7280" }}><X className="w-3.5 h-3.5" /></button>
+                </div>
+                <textarea value={composeText} onChange={(e) => setComposeText(e.target.value)} placeholder="Compose your prompt here..." rows={4} className="w-full rounded-lg p-3 text-xs outline-none resize-none" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF", fontFamily: "monospace" }} />
+                <div className="flex gap-2">
+                  <button onClick={() => { if (composeText.trim()) { handleCopy(composeText.trim(), "qc-basket"); setComposeText(""); } else toast.error("Write something first."); }} className="flex-1 flex items-center justify-center gap-1 text-[10px] px-3 py-2 rounded-lg font-medium transition-all" style={{ background: `${zoneColor}15`, color: zoneColor, border: `1px solid ${zoneColor}33` }}><Copy className="w-3 h-3" /> Add to Basket</button>
+                  <button onClick={() => { if (composeText.trim()) handleDirectCopy(composeText.trim()); else toast.error("Write something first."); }} className="flex items-center justify-center gap-1 text-[10px] px-3 py-2 rounded-lg font-medium transition-all" style={{ background: "rgba(255,255,255,0.04)", color: "#A1A1AA", border: "1px solid rgba(255,255,255,0.07)" }}>Copy</button>
+                </div>
+                {/* Quick Insert Chips */}
+                <div className="flex gap-1.5 flex-wrap">
+                  <button onClick={() => setQcDropdown(qcDropdown === "mods" ? null : "mods")} className="flex items-center gap-1 text-[9px] px-2 py-1 rounded-lg transition-all" style={{ background: qcDropdown === "mods" ? "rgba(167,139,250,0.15)" : "rgba(255,255,255,0.04)", color: qcDropdown === "mods" ? "#a78bfa" : "#6B7280", border: `1px solid ${qcDropdown === "mods" ? "rgba(167,139,250,0.3)" : "rgba(255,255,255,0.07)"}` }}><Plus className="w-2.5 h-2.5" /> Modifier</button>
+                  <button onClick={() => setQcDropdown(qcDropdown === "tmpls" ? null : "tmpls")} className="flex items-center gap-1 text-[9px] px-2 py-1 rounded-lg transition-all" style={{ background: qcDropdown === "tmpls" ? "rgba(77,255,255,0.12)" : "rgba(255,255,255,0.04)", color: qcDropdown === "tmpls" ? "#4DFFFF" : "#6B7280", border: `1px solid ${qcDropdown === "tmpls" ? "rgba(77,255,255,0.25)" : "rgba(255,255,255,0.07)"}` }}><Plus className="w-2.5 h-2.5" /> Template</button>
+                  <button onClick={() => setQcDropdown(qcDropdown === "animals" ? null : "animals")} className="flex items-center gap-1 text-[9px] px-2 py-1 rounded-lg transition-all" style={{ background: qcDropdown === "animals" ? "rgba(255,176,0,0.12)" : "rgba(255,255,255,0.04)", color: qcDropdown === "animals" ? "#FFB000" : "#6B7280", border: `1px solid ${qcDropdown === "animals" ? "rgba(255,176,0,0.25)" : "rgba(255,255,255,0.07)"}` }}><Plus className="w-2.5 h-2.5" /> Animal</button>
+                </div>
+                {/* Dropdown */}
+                <AnimatePresence>
+                  {qcDropdown && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                      <div className="relative mb-1"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3" style={{ color: "#4b5563" }} /><input value={qcSearch} onChange={(e) => setQcSearch(e.target.value)} placeholder="Search..." className="w-full pl-8 pr-3 py-1.5 rounded-lg text-[10px] outline-none" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} /></div>
+                      <div className="max-h-40 overflow-y-auto space-y-0.5">
+                        {qcDropdown === "mods" && qcModList.slice(0, 20).map((m, i) => (<button key={i} onClick={() => { setComposeText((p) => p + (p ? "\n" : "") + m.mod); setQcDropdown(null); setQcSearch(""); }} className="w-full text-left px-2.5 py-1.5 rounded-lg text-[10px] transition-all hover:bg-white/5 truncate" style={{ color: "#A1A1AA" }}>{m.mod}</button>))}
+                        {qcDropdown === "tmpls" && qcTmplList.slice(0, 20).map((t, i) => (<button key={i} onClick={() => { setComposeText((p) => p + (p ? "\n\n" : "") + t.content); setQcDropdown(null); setQcSearch(""); }} className="w-full text-left px-2.5 py-1.5 rounded-lg text-[10px] transition-all hover:bg-white/5 truncate" style={{ color: "#A1A1AA" }}>{t.label}: {t.desc}</button>))}
+                        {qcDropdown === "animals" && qcAnimalList.slice(0, 20).map((a, i) => (<button key={i} onClick={() => { setComposeText((p) => p + (p ? "\n\n" : "") + a.prompt); setQcDropdown(null); setQcSearch(""); }} className="w-full text-left px-2.5 py-1.5 rounded-lg text-[10px] transition-all hover:bg-white/5 truncate" style={{ color: "#A1A1AA" }}>{a.emoji} {a.name} — {a.mode}</button>))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          </>
+        ) : (
+          <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.2 }} onClick={() => setShowQuickCompose(true)} className="fixed bottom-20 sm:bottom-6 right-4 z-30 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110" style={{ background: "rgba(20,22,26,0.9)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(8px)" }}>
+            <Sparkles className="w-5 h-5" style={{ color: zoneColor }} />
           </motion.button>
         )}
       </AnimatePresence>
@@ -1277,9 +1573,9 @@ export default function Home() {
       {/* ─── Footer ─── */}
       <footer className="mt-auto pb-20 sm:pb-0" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col items-center gap-2">
-          <div className="flex items-center gap-2 text-xs" style={{ color: "#4b5563" }}><Sparkles className="w-3.5 h-3.5" /><span>promptc OS — AI Prompt Engineering Operating System</span><span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa" }}>v3.3</span></div>
+          <div className="flex items-center gap-2 text-xs" style={{ color: "#4b5563" }}><Sparkles className="w-3.5 h-3.5" /><span>promptc OS — AI Prompt Engineering Operating System</span><span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa" }}>v3.4</span></div>
           <div className="flex items-center gap-3 text-[10px]" style={{ color: "#4b5563" }}>
-            <span>⌘K Search</span><span>·</span><span>⌘B Basket{history.length > 0 && ` (${history.length})`}</span><span>·</span><span>⌘1-6 Zones</span><span>·</span><span>? Shortcuts</span>
+            <span>⌘K Search</span><span>·</span><span>⌘B Basket{history.length > 0 && ` (${history.length})`}</span><span>·</span><span>⌘1-6 Zones</span><span>·</span><span>⌘P Compose</span><span>·</span><span>? Shortcuts</span>
           </div>
           <div className="flex items-center gap-2 text-[10px]" style={{ color: "#4b5563" }}>
             <span>{MODS.length} Modifiers</span><span>·</span>
