@@ -1,4 +1,26 @@
 ---
+Task ID: v3.0-upgrade
+Agent: Super Z (main)
+Task: Upgrade promptc OS from v2.2 to v3.0 — 8 upgrades implemented
+
+Work Log:
+- UPGRADE 1 (CommandPalette.tsx): Added keyboard navigation (ArrowUp/Down/Enter), zone quick-switch 3x2 grid when palette empty, keyboard shortcut hints bar at bottom, selected item highlight with rgba(167,139,250,0.08)
+- UPGRADE 2 (OnboardingTour.tsx): Expanded from 5 to 7 steps (added Basket + System Zone), changed localStorage key to "promptc-os-onboarded-v2" so existing users see new tour
+- UPGRADE 3 (page.tsx): Added WORKFLOW_PROMPTS record (21 prompts), updated WORKFLOWS_DATA with prompt field, workflow cards now show char count badge + Copy Prompt button
+- UPGRADE 4 (page.tsx): Added mobileMenuOpen state, hamburger Menu button on <sm screens, dropdown menu with zone buttons + keyboard shortcut hints, menu closes on zone selection
+- UPGRADE 5 (page.tsx): Enhancement "HOW TO USE" section now has a "Copy Guide" button that copies enh.howto (separate from existing content copy)
+- UPGRADE 6 (page.tsx): Version badge v2.2→v3.0, enhanced footer with keyboard shortcuts row (⌘K/⌘B/⌘1-6) and stats row (Modifiers/Templates/Workflows/Skills counts)
+- UPGRADE 7 (page.tsx): Self-Evolve dashboard now uses dynamic values (TOTAL_SKILLS, TOTAL_FILES, Math.floor(TOTAL_FILES*2.5)), added 4th card "Basket Items" → history.length, changed to 2x2/4-col grid
+- UPGRADE 8 (page.tsx): MONETIZE_AI_TOOLS now have starter field with actionable prompts, AI Tools section is expandable with "GET STARTED PROMPT" panel + Copy button
+
+Files modified:
+- src/components/CommandPalette.tsx (168→289 lines)
+- src/components/OnboardingTour.tsx (87→88 lines)
+- src/app/page.tsx (968→1037 lines)
+
+Lint: 0 errors from src/ files. All pre-existing warnings are from dist/ build artifacts.
+
+---
 Task ID: 1
 Agent: Super Z (main)
 Task: Fix blank/white screen error on promptc-os deployed sites

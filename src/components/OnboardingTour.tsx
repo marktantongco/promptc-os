@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronRight } from "lucide-react";
 
-const ONBOARDING_KEY = "promptc-os-onboarded-v1";
+const ONBOARDING_KEY = "promptc-os-onboarded-v2";
 
 interface TourStep {
   target: string;
@@ -17,6 +17,8 @@ const STEPS: TourStep[] = [
   { target: "composer", title: "Prompt Composer", desc: "In Activate > Composer, build structured prompts using the 8-layer framework. Assemble and copy with one click." },
   { target: "meta-builder", title: "Meta Builder", desc: "In Build > Meta Builder, transform any prompt using 3 AI methodologies: Quick Critique, Structured Analysis, and Expert Engineering." },
   { target: "quality-score", title: "Quality Score", desc: "In Validate > Quality Score, analyze any prompt across 4 dimensions: clarity, specificity, structure, and actionability." },
+  { target: "basket", title: "Collection Basket", desc: "Use the 🧺 Basket (⌘B) to collect prompts across zones. Pin important items, select multiple, sort, and export as markdown." },
+  { target: "system", title: "System Zone", desc: "The System zone houses your Skills Library (66+ skills), Compounding Dashboard, and all operating principles. This is your meta-control center." },
 ];
 
 export default function OnboardingTour({ onDone }: { onDone: (show: boolean) => void }) {
@@ -82,5 +84,5 @@ export default function OnboardingTour({ onDone }: { onDone: (show: boolean) => 
 }
 
 export function retriggerOnboarding() {
-  localStorage.removeItem(ONBOARDING_KEY);
+  localStorage.removeItem("promptc-os-onboarded-v2");
 }
