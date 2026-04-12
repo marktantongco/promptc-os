@@ -235,6 +235,8 @@ export default function Home() {
   const [basketClearConfirm, setBasketClearConfirm] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [basketSort, setBasketSort] = useState<"newest" | "oldest" | "longest" | "shortest" | "az">("newest");
+  const [expandedSkillId, setExpandedSkillId] = useState<string | null>(null);
+  const [basketFlash, setBasketFlash] = useState(false);
   const clearConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [metaPrompt, setMetaPrompt] = useState("");
@@ -254,10 +256,16 @@ export default function Home() {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); setShowPalette(true); }
       if (e.key === "Escape" && showHistory) { setShowHistory(false); }
       if ((e.metaKey || e.ctrlKey) && e.key === "b") { e.preventDefault(); setShowHistory((p) => !p); }
+      // ⌘1-6 zone switching
+      if ((e.metaKey || e.ctrlKey) && e.key >= "1" && e.key <= "6") {
+        e.preventDefault();
+        const idx = parseInt(e.key) - 1;
+        if (ZONES[idx]) handleZoneChange(ZONES[idx].id);
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [showHistory]);
+  }, [showHistory, handleZoneChange]);
 
   // Scroll-to-top listener
   useEffect(() => {
@@ -303,6 +311,8 @@ export default function Home() {
       };
       setHistory((p) => [item, ...p.slice(0, 99)]);
       toast.success("Added to basket!");
+      setBasketFlash(true);
+      setTimeout(() => setBasketFlash(false), 600);
       setTimeout(() => setCopiedId(null), 1800);
     } catch {
       toast.error("Failed to copy.");
@@ -535,7 +545,7 @@ export default function Home() {
             <div className="flex items-center gap-2.5 flex-shrink-0">
               <span className="text-xl">⚡</span>
               <span className="font-bold text-sm tracking-tight" style={{ fontFamily: "'DM Mono', monospace", color: zoneColor }}>promptc OS</span>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>v3.0</span>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>v3.1</span>
             </div>
             {/* Desktop zone tabs */}
             <div className="hidden sm:flex items-center gap-1 overflow-x-auto no-scrollbar">
@@ -562,9 +572,9 @@ export default function Home() {
               <Tip text="Re-trigger tour">
                 <button onClick={() => { retriggerOnboarding(); setShowOnboarding(true); }} className="p-1.5 rounded-lg transition-all hover:bg-white/5" style={{ color: "#6B7280" }}><HelpCircle className="w-3.5 h-3.5" /></button>
               </Tip>
-              <button onClick={() => setShowHistory(!showHistory)} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all hover:bg-white/5" style={{ color: "#6B7280" }}>
-                <span className="text-sm">🧺</span><span className="hidden sm:inline">Basket</span>
-                {history.length > 0 && <span className="basket-pulse w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold" style={{ background: zoneColor + "22", color: zoneColor }}>{history.length}</span>}
+              <button onClick={() => setShowHistory(!showHistory)} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all hover:bg-white/5 ${basketFlash ? 'scale-110' : ''}`} style={{ color: basketFlash ? zoneColor : "#6B7280" }}>
+                <span className={`text-sm transition-transform ${basketFlash ? 'scale-125' : ''}`}>🧺</span><span className="hidden sm:inline">Basket</span>
+                {history.length > 0 && <span className={`w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold transition-all ${basketFlash ? 'scale-125' : 'basket-pulse'}`} style={{ background: basketFlash ? zoneColor + "44" : zoneColor + "22", color: zoneColor }}>{history.length}</span>}
               </button>
             </div>
           </div>
@@ -815,7 +825,7 @@ export default function Home() {
 
             {/* ═══ MONETIZE ═══ */}
             {activeZone === "monetize" && (<>
-              {activeSubTab.monetize === "Top Prompts" && (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">{MONETIZE_TOP_PROMPTS.map((item, i) => { const id = `mon-top-${i}`; return (<div key={id} className="rounded-xl p-4 transition-all hover:-translate-y-0.5" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="flex items-center justify-between mb-2"><span className="text-[9px] font-mono px-2 py-0.5 rounded" style={{ background: `${zoneColor}15`, color: zoneColor }}>{item.cat}</span><span className="text-[9px] px-2 py-0.5 rounded font-bold" style={{ background: item.rev === "$$$" ? "rgba(239,68,68,0.12)" : item.rev === "$$" ? "rgba(234,179,8,0.12)" : "rgba(34,197,94,0.12)", color: item.rev === "$$$" ? "#ef4444" : item.rev === "$$" ? "#eab308" : "#22c55e" }}>Revenue: {item.rev}</span></div><h3 className="text-sm font-bold mb-2">{item.label}</h3><p className="text-[11px]" style={{ color: "#A1A1AA" }}>{item.desc}</p></div>); })}</div>)}
+              {activeSubTab.monetize === "Top Prompts" && (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">{MONETIZE_TOP_PROMPTS.map((item, i) => { const id = `mon-top-${i}`; return (<div key={id} className="rounded-xl p-4 transition-all hover:-translate-y-0.5" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="flex items-center justify-between mb-2"><span className="text-[9px] font-mono px-2 py-0.5 rounded" style={{ background: `${zoneColor}15`, color: zoneColor }}>{item.cat}</span><span className="text-[9px] px-2 py-0.5 rounded font-bold" style={{ background: item.rev === "$$$" ? "rgba(239,68,68,0.12)" : item.rev === "$$" ? "rgba(234,179,8,0.12)" : "rgba(34,197,94,0.12)", color: item.rev === "$$$" ? "#ef4444" : item.rev === "$$" ? "#eab308" : "#22c55e" }}>Revenue: {item.rev}</span></div><h3 className="text-sm font-bold mb-2">{item.label}</h3><p className="text-[11px] mb-3" style={{ color: "#A1A1AA" }}>{item.desc}</p><button onClick={() => handleCopy(`[${item.cat}] ${item.label}\n${item.desc}`, id)} className="flex items-center gap-1 text-[10px] px-2.5 py-1.5 rounded-lg font-medium transition-all" style={{ background: `${zoneColor}15`, color: zoneColor, border: `1px solid ${zoneColor}33` }}>{copiedId === id ? <><Check className="w-3 h-3" /> Added</> : <><Copy className="w-3 h-3" /> Add to Basket</>}</button></div>); })}</div>)}
               {activeSubTab.monetize === "SaaS Templates" && (<div className="space-y-3">{MONETIZE_SAAS.map((item, i) => { const dc = DIFF_COLORS[item.diff] || DIFF_COLORS.medium; return (<div key={i} className="rounded-xl p-4" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="flex items-center gap-2 mb-1"><h3 className="text-sm font-bold">{item.label}</h3><span className="text-[9px] px-2 py-0.5 rounded" style={{ background: dc.bg, color: dc.text }}>{dc.label}</span><span className="text-[9px] px-2 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.05)", color: "#6B7280" }}>~{item.time}</span></div><p className="text-xs mb-2" style={{ color: "#A1A1AA" }}>{item.desc}</p><p className="text-[10px] font-mono" style={{ color: zoneColor }}>Stack: {item.stack}</p></div>); })}</div>)}
               {activeSubTab.monetize === "Stacks" && (<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{MONETIZE_STACKS.map((item, i) => (<div key={i} className="rounded-xl p-5 transition-all hover:-translate-y-0.5" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><h3 className="text-sm font-bold mb-2">{item.label}</h3><div className="flex items-center gap-3 mb-2"><span className="text-[10px] font-mono" style={{ color: zoneColor }}>{item.time}</span><span className="text-[10px] font-mono px-2 py-0.5 rounded" style={{ background: `${zoneColor}15`, color: zoneColor }}>{item.income}</span></div><p className="text-xs" style={{ color: "#A1A1AA" }}>{item.desc}</p></div>))}</div>)}
               {activeSubTab.monetize === "AI Tools" && (<div className="space-y-3">{MONETIZE_AI_TOOLS.map((item, i) => { const aiId = `ai-tool-${i}`; return (<div key={i} className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="p-4 cursor-pointer" onClick={() => toggleExpand(aiId)}><div className="flex items-center justify-between"><div className="flex items-center gap-3"><h3 className="text-sm font-bold">{item.label}</h3><span className="text-[9px] font-mono px-2 py-0.5 rounded" style={{ background: `${zoneColor}15`, color: zoneColor }}>{item.cat}</span><span className="text-[9px] font-mono px-2 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.05)", color: "#6B7280" }}>{item.tier}</span></div><div className="flex items-center gap-2">{expandedItems.has(aiId) ? <ChevronDown className="w-3.5 h-3.5" style={{ color: "#4b5563" }} /> : <ChevronRight className="w-3.5 h-3.5" style={{ color: "#4b5563" }} />}</div></div><p className="text-xs mt-1" style={{ color: "#A1A1AA" }}>{item.desc}</p></div><AnimatePresence>{expandedItems.has(aiId) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><div className="px-4 pb-4"><div className="rounded-lg p-3" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.05)" }}><div className="flex items-center justify-between mb-2"><div className="text-[10px] font-mono" style={{ color: zoneColor }}>🚀 GET STARTED PROMPT</div><button onClick={(e) => { e.stopPropagation(); handleCopy(item.starter, aiId); }} className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] transition-all" style={{ background: `${zoneColor}15`, color: zoneColor }}>{copiedId === aiId ? <><Check className="w-2.5 h-2.5" /> Copied</> : <><Copy className="w-2.5 h-2.5" /> Copy</>}</button></div><p className="text-[11px] leading-relaxed" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{item.starter}</p></div></div></motion.div>)}</AnimatePresence></div>); })}</div>)}
@@ -873,17 +883,52 @@ export default function Home() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" {...stagger}>
                   {filteredSkills.map((skill) => {
                     const catColor = CATEGORY_COLORS[skill.category] || "#6B7280";
+                    const skillId = `skill-${skill.name}`;
+                    const isExpSkill = expandedSkillId === skillId;
+                    const catSkills = SKILLS_CATALOG.filter((s) => s.category === skill.category);
+                    const catFiles = catSkills.reduce((sum, s) => sum + s.files, 0);
                     return (
-                      <motion.div key={skill.name} {...staggerItem} className="rounded-xl p-4 transition-all hover:-translate-y-0.5 cursor-default" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-[9px] font-mono px-2 py-0.5 rounded-full" style={{ background: `${catColor}15`, color: catColor }}>{skill.category}</span>
-                          <span className="text-[9px] font-mono px-2 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#6B7280" }}>{skill.files} file{skill.files !== 1 ? "s" : ""}</span>
+                      <motion.div key={skill.name} {...staggerItem} className="rounded-xl overflow-hidden transition-all hover:-translate-y-0.5" style={{ background: "#14161A", border: isExpSkill ? `1px solid ${catColor}44` : "1px solid rgba(255,255,255,0.07)" }}>
+                        <div className="p-4 cursor-pointer" onClick={() => setExpandedSkillId(isExpSkill ? null : skillId)}>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[9px] font-mono px-2 py-0.5 rounded-full" style={{ background: `${catColor}15`, color: catColor }}>{skill.category}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[9px] font-mono px-2 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#6B7280" }}>{skill.files} file{skill.files !== 1 ? "s" : ""}</span>
+                              {isExpSkill ? <ChevronUp className="w-3 h-3" style={{ color: "#4b5563" }} /> : <ChevronDown className="w-3 h-3" style={{ color: "#4b5563" }} />}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-lg">{skill.icon}</span>
+                            <h3 className="text-sm font-bold" style={{ color: "#e4e4e7" }}>{skill.name}</h3>
+                          </div>
+                          <p className="text-xs leading-relaxed" style={{ color: "#A1A1AA" }}>{skill.description}</p>
                         </div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-lg">{skill.icon}</span>
-                          <h3 className="text-sm font-bold" style={{ color: "#e4e4e7" }}>{skill.name}</h3>
-                        </div>
-                        <p className="text-xs leading-relaxed line-clamp-2" style={{ color: "#A1A1AA" }}>{skill.description}</p>
+                        <AnimatePresence>
+                          {isExpSkill && (
+                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                              <div className="px-4 pb-4 space-y-3" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+                                <div className="pt-3 space-y-2">
+                                  <div className="flex items-center justify-between text-[10px]">
+                                    <span style={{ color: "#6B7280" }}>Category Stats</span>
+                                    <span style={{ color: catColor }}>{catSkills.length} skills · {catFiles} files</span>
+                                  </div>
+                                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
+                                    <div className="h-full rounded-full" style={{ width: `${(skill.files / catFiles) * 100}%`, background: `${catColor}55` }} />
+                                  </div>
+                                  <p className="text-[10px]" style={{ color: "#4b5563" }}>This skill accounts for {Math.round((skill.files / catFiles) * 100)}% of {skill.category} files</p>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button onClick={(e) => { e.stopPropagation(); handleCopy(`[${skill.icon} ${skill.name}] ${skill.description}`, skillId); }} className="flex-1 flex items-center justify-center gap-1 text-[10px] px-2.5 py-1.5 rounded-lg font-medium transition-all" style={{ background: `${catColor}15`, color: catColor, border: `1px solid ${catColor}33` }}>
+                                    <Copy className="w-3 h-3" /> Add to Basket
+                                  </button>
+                                  <button onClick={(e) => { e.stopPropagation(); const cat = SKILL_CATEGORIES.indexOf(skill.category); if (cat >= 0) { setActiveZone("system"); setActiveSubTab((p) => ({ ...p, system: "Skills Library" })); setSkillsCategoryFilter(skill.category); } }} className="flex items-center justify-center gap-1 text-[10px] px-2.5 py-1.5 rounded-lg font-medium transition-all" style={{ background: "rgba(255,255,255,0.04)", color: "#6B7280", border: "1px solid rgba(255,255,255,0.07)" }}>
+                                    <Search className="w-3 h-3" /> View Category
+                                  </button>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </motion.div>
                     );
                   })}
@@ -985,7 +1030,7 @@ export default function Home() {
 
               {/* Infographics */}
               {activeSubTab.system === "Infographics" && (<div className="max-w-4xl mx-auto"><h2 className="text-lg font-bold mb-2">Zone Overview Infographic</h2><p className="text-xs mb-6" style={{ color: "#A1A1AA" }}>Content distribution across all zones.</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">{ZONES.map((z, i) => { const tabs = ZONE_TABS[z.id] || []; const count = tabs.reduce((sum, t) => sum + (ZONE_TAB_COUNTS[z.id]?.[t] || 0), 0); return (<motion.div key={z.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className="rounded-xl p-4 text-center" style={{ background: "#14161A", border: `1px solid ${z.color}22` }}><span className="text-lg">{z.icon}</span><div className="text-xl font-bold mt-1" style={{ color: z.color }}><AnimatedCounter value={count} /></div><div className="text-[10px]" style={{ color: "#6B7280" }}>{z.label}</div></motion.div>); })}</div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">{ZONES.map((z, i) => { const tabs = ZONE_TABS[z.id] || []; const count = tabs.reduce((sum, t) => sum + (ZONE_TAB_COUNTS[z.id]?.[t] || 0), 0); const firstTab = tabs[0] || ""; return (<motion.div key={z.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} onClick={() => { handleZoneChange(z.id); if (firstTab) setActiveSubTab((p) => ({ ...p, [z.id]: firstTab })); }} className="rounded-xl p-4 text-center cursor-pointer transition-all hover:-translate-y-0.5" style={{ background: "#14161A", border: `1px solid ${z.color}22` }}><span className="text-lg">{z.icon}</span><div className="text-xl font-bold mt-1" style={{ color: z.color }}><AnimatedCounter value={count} /></div><div className="text-[10px]" style={{ color: "#6B7280" }}>{z.label}</div><div className="text-[9px] mt-1" style={{ color: "#4b5563" }}>Click to navigate →</div></motion.div>); })}</div>
                 {/* Modifier Coverage Heat Map */}
                 <div className="rounded-xl p-6 mb-6" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><h3 className="text-sm font-bold mb-4">Modifier Coverage Heat Map</h3><div className="space-y-1">{MOD_CATS.slice(0, 6).map((cat) => (<div key={cat} className="flex items-center gap-2"><span className="text-[10px] font-mono w-20 flex-shrink-0 text-right" style={{ color: "#6B7280" }}>{cat}</span><div className="flex-1 flex gap-0.5">{["Tasks", "Modifiers", "Templates", "Lint"].map((zone) => { const hasMatch = (cat === "Role" || cat === "Agent" || cat === "Productivity") && zone !== "Lint"; return <div key={zone} className="h-4 flex-1 rounded-sm transition-all" style={{ background: hasMatch ? `${zoneColor}44` : "rgba(255,255,255,0.04)" }} title={`${cat} × ${zone}: ${hasMatch ? "Applies" : "No direct link"}`} />; })}</div></div>))}</div><div className="flex items-center gap-3 mt-3 text-[9px]" style={{ color: "#4b5563" }}><div className="flex items-center gap-1"><div className="w-3 h-3 rounded-sm" style={{ background: `${zoneColor}44` }} /> Applies</div><div className="flex items-center gap-1"><div className="w-3 h-3 rounded-sm" style={{ background: "rgba(255,255,255,0.04)" }} /> No direct link</div></div></div>
               </div>)}
@@ -1019,11 +1064,11 @@ export default function Home() {
       {/* ─── Footer ─── */}
       <footer className="mt-auto" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col items-center gap-2">
-          <div className="flex items-center gap-2 text-xs" style={{ color: "#4b5563" }}><Sparkles className="w-3.5 h-3.5" /><span>promptc OS — AI Prompt Engineering Operating System</span></div>
+          <div className="flex items-center gap-2 text-xs" style={{ color: "#4b5563" }}><Sparkles className="w-3.5 h-3.5" /><span>promptc OS — AI Prompt Engineering Operating System</span><span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa" }}>v3.1</span></div>
           <div className="flex items-center gap-3 text-[10px]" style={{ color: "#4b5563" }}>
-            <span>⌘K Search</span><span>·</span><span>⌘B Basket</span><span>·</span><span>⌘1-6 Zones</span>
+            <span>⌘K Search</span><span>·</span><span>⌘B Basket{history.length > 0 && ` (${history.length})`}</span><span>·</span><span>⌘1-6 Zones</span>
           </div>
-          <div className="flex items-center gap-2 text-[10px]" style={{ color: "#333" }}>
+          <div className="flex items-center gap-2 text-[10px]" style={{ color: "#4b5563" }}>
             <span>{MODS.length} Modifiers</span><span>·</span>
             <span>{TMPLS.length} Templates</span><span>·</span>
             <span>{WORKFLOWS_DATA.length} Workflows</span><span>·</span>

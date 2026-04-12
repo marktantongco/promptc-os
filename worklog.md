@@ -21,6 +21,26 @@ Files modified:
 Lint: 0 errors from src/ files. All pre-existing warnings are from dist/ build artifacts.
 
 ---
+Task ID: v3.1-upgrade
+Agent: Super Z (main)
+Task: Upgrade promptc OS from v3.0 to v3.1 — comprehensive UX and interactivity upgrade
+
+Work Log:
+- UPGRADE 1: ⌘1-6 keyboard shortcuts for instant zone switching (metaKey/ctrlKey + 1-6)
+- UPGRADE 2: Skills Library — skill cards now expandable (click to reveal category stats, file % bar, "Add to Basket" and "View Category" buttons)
+- UPGRADE 3: Monetize Top Prompts — added "Add to Basket" button on each card with checkmark feedback
+- UPGRADE 4: Infographics tab — zone overview cards are now clickable, navigate to zone + first sub-tab with "Click to navigate →" hint
+- UPGRADE 5: Basket flash animation — nav basket badge scales up and changes color on successful copy (basketFlash state)
+- UPGRADE 6: Footer enhanced — v3.1 badge, dynamic basket count in shortcuts row (⌘B Basket (N))
+- UPGRADE 7: CSS — added basketFlash keyframe animation for future use
+
+Files modified:
+- src/app/page.tsx (1037→1082 lines, +45 net)
+- src/app/globals.css (250→258 lines, +8 net)
+
+Lint: 0 errors from src/ files. All pre-existing errors/warnings are from promptc-os-latest/dist/.
+
+---
 Task ID: 1
 Agent: Super Z (main)
 Task: Fix blank/white screen error on promptc-os deployed sites
