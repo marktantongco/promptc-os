@@ -2,6 +2,11 @@
 
 import dynamic from "next/dynamic";
 
-const Home = dynamic(() => import("./page-client"), { ssr: false });
+const PageContent = dynamic(() => import("./PageClient"), {
+  ssr: false,
+  loading: () => null,
+});
 
-export default Home;
+export default function Home() {
+  return <PageContent />;
+}
