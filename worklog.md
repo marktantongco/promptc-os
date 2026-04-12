@@ -442,3 +442,42 @@ Stage Summary:
 - globals.css: added basket-pulse keyframes animation
 - Zero lint errors in src/app/ and src/components/ (691 problems all in other files)
 - All existing functionality preserved: 6 zones, 8 system sub-tabs, all copy/expand/search features
+
+---
+Task ID: v3.3-deploy
+Agent: Super Z (main)
+Task: Upgrade to v3.3, deploy to GitHub + Vercel
+
+Work Log:
+- Fixed CommandPalette.tsx: removed WORKFLOWS_DATA import (defined in page.tsx, not promptc-data.ts)
+- Fixed build error: Framer Motion + React 19 SSR prerender crash ("Cannot access 'aF' before initialization")
+  - Split page.tsx into thin client wrapper (12 lines) + PageClient.tsx (1185 lines)
+  - Used next/dynamic with ssr:false in client component wrapper
+- Fixed stale git submodule reference (promptc-os-latest)
+- Regenerated clean package-lock.json (was corrupted by merge)
+- Set up GitHub remote: github.com/marktantongco/promptc-os
+- Pushed to GitHub with merge conflict resolution
+- Created Vercel deploy workflow (.github/workflows/deploy.yml)
+- Created GitHub secrets (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID) via NaCl encryption
+- Added vercel.json with .next output directory
+- V3.3 UPGRADES (5 features):
+  1. Keyboard shortcuts overlay (? key) with animated modal
+  2. Copy Zone button for bulk copy from 6 zone/tab combinations
+  3. Nav bar mini-stats badge (66S · 47M · 21W) on lg screens
+  4. Export basket as JSON with structured format
+  5. Version badges v3.3 in nav and footer
+
+Files modified:
+- src/app/page.tsx (1101→12, thin client wrapper with dynamic import)
+- src/app/PageClient.tsx (new, 1099→1185 lines, main app component)
+- src/components/CommandPalette.tsx (removed WORKFLOWS_DATA import)
+- .github/workflows/deploy.yml (CI/CD for Vercel)
+- vercel.json (output directory config)
+- package.json (renamed to promptc-os v3.2.0)
+- README.md (comprehensive documentation, 275 lines)
+- next.config.ts (removed standalone output, re-added for Vercel)
+
+Deployment:
+- GitHub: https://github.com/marktantongco/promptc-os
+- Vercel: https://my-project-markys-projects-b6633e43.vercel.app (deployed via GitHub Actions)
+- CI: GitHub Actions workflow auto-deploys on push to main
