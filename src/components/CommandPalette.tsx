@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Copy, ArrowRight } from "lucide-react";
 import {
   ZONES, MODS, TASKS, TMPLS, BRANDS, ANIMALS, CHAINS, ENHANCEMENTS,
-  LINT_RULES, SWAPS, WORKFLOWS_DATA,
+  LINT_RULES, SWAPS,
 } from "@/app/data/promptc-data";
 
 interface PaletteItem {
@@ -25,7 +25,6 @@ function buildSearchIndex(): PaletteItem[] {
   ENHANCEMENTS.forEach((e) => items.push({ label: e.label, zone: "build", tab: "Enhancements", type: "Enhancement", snippet: e.when }));
   LINT_RULES.forEach((r) => items.push({ label: r.check.slice(0, 60), zone: "validate", tab: "Lint Rules", type: "Lint Rule", snippet: r.fix }));
   SWAPS.forEach((s) => items.push({ label: `${s.bad} → ${s.good}`, zone: "validate", tab: "Word Swaps", type: "Word Swap", snippet: s.tip }));
-  WORKFLOWS_DATA.forEach((w) => items.push({ label: w.title, zone: "playbook", tab: "Workflows", type: "Workflow", snippet: w.purpose }));
   CHAINS.forEach((c) => items.push({ label: c.goal, zone: "playbook", tab: "Animal Chains", type: "Chain", snippet: c.best }));
   return items;
 }
