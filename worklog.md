@@ -294,3 +294,37 @@ Stage Summary:
 - promptc OS now has 6 zones with 8 system sub-tabs (was 6)
 - Skills Library browses all 66 installed skills with search and category filtering
 - Compounding Dashboard shows system health metrics and category distribution
+
+---
+Task ID: 7
+Agent: Super Z (main) + full-stack-developer subagent
+Task: Transform History into Basket — full text storage, persistence, per-item actions
+
+Work Log:
+- Audited full page.tsx (673 lines) identifying 7 issues
+- Critical: handleCopy truncated text to 200 chars — long prompts lost in basket
+- Critical: No per-item actions (copy again, remove)
+- High: No persistence — basket lost on page refresh
+- High: No Copy All or Export functionality
+- Medium: No basket search/filter
+- Low: Dead showFab state never connected
+- Low: 10+ unused lucide-react imports
+
+Fixes applied:
+- BasketItem interface with id, text (full), label (truncated), zone, time, chars
+- handleCopy stores FULL text, generates unique ID, 100 items max
+- localStorage persistence via promptc-basket key (load on mount, save on change)
+- copyAllBasket — copies all items combined with dividers
+- removeBasketItem — removes single item by ID
+- exportBasket — downloads as promptc-basket.md
+- clearBasket — clears all with toast
+- Basket Panel: search bar, 7 zone filter pills, expand/collapse cards, per-item Copy+Remove
+- Nav button: History → Basket with 🧺 icon
+- Removed dead showFab state + FAB section
+- Cleaned unused imports (Sparkles, RotateCcw, Download, Share2, ArrowUpRight, Brain, BookOpen, Info, Eye, ClipboardCopy, History)
+
+Stage Summary:
+- page.tsx: 673 → 814 lines (+141)
+- Commit: 865f68f
+- Zero lint errors in src/app/ and src/components/
+- Basket persists across page refreshes via localStorage
