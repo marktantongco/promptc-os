@@ -7,7 +7,7 @@ import {
   FileText, TrendingUp, Timer, Layers,
   Command, Cpu, BarChart3, ArrowRight, ArrowUpDown,
   FolderDown, FileDown, FileJson, Lightbulb, ArrowUp,
-  Trash2, CheckSquare, Square, Pin, Menu, Star,
+  Trash2, CheckSquare, Square, Pin, Menu, Star, MoreVertical,
 } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -211,47 +211,86 @@ function Tip({ children, text }: { children: React.ReactNode; text: string }) {
   );
 }
 
+// ─── localStorage helpers ────────────────────────────────────────────────
+const LS_PREFIX = "promptc-state-";
+function lsGet<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try { const v = localStorage.getItem(LS_PREFIX + key); return v !== null ? JSON.parse(v) : fallback; } catch { return fallback; }
+}
+function lsSet(key: string, value: unknown) {
+  try { localStorage.setItem(LS_PREFIX + key, JSON.stringify(value)); } catch {}
+}
+function lsSetDebounced(key: string, value: unknown, delay = 500) {
+  if (typeof window === "undefined") return;
+  setTimeout(() => lsSet(key, value), delay);
+}
+
+const DEFAULT_SUBTABS: Record<string, string> = { activate: "Tasks", build: "Master Prompt", validate: "Lint Rules", playbook: "Workflows", monetize: "Top Prompts", system: "Skills Library" };
+const DEFAULT_COMPOSER: Record<string, string> = { Role: "", Context: "", Objective: "", Constraints: "", Aesthetic: "", Planning: "", Output: "", Refinement: "" };
+
 // ═══════════════════════════════════════════════════════════════════════════
 export default function Home() {
-  const [activeZone, setActiveZone] = useState("activate");
-  const [activeSubTab, setActiveSubTab] = useState<Record<string, string>>({ activate: "Tasks", build: "Master Prompt", validate: "Lint Rules", playbook: "Workflows", monetize: "Top Prompts", system: "Skills Library" });
+  // ─── Feature 1: Auto-save state (localStorage-backed) ────────────────────
+  const [activeZone, setActiveZone] = useState(() => lsGet("zone", "activate"));
+  const [activeSubTab, setActiveSubTab] = useState<Record<string, string>>(() => lsGet("subtab", DEFAULT_SUBTABS));
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(() => lsGet("search", ""));
   const [history, setHistory] = useState<BasketItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [skillsSearchQuery, setSkillsSearchQuery] = useState("");
+  const [skillsSearchQuery, setSkillsSearchQuery] = useState(() => lsGet("skills-search", ""));
   const [skillsCategoryFilter, setSkillsCategoryFilter] = useState<string>("all");
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [quickStartDismissed, setQuickStartDismissed] = useState(false);
+  const [quickStartDismissed, setQuickStartDismissed] = useState(() => lsGet("quickstart-dismissed", false));
   const [skillStep, setSkillStep] = useState(0);
   const [skillForm, setSkillForm] = useState<Record<number, string>>({});
   const [basketExpandId, setBasketExpandId] = useState<string | null>(null);
-  const [basketSearch, setBasketSearch] = useState("");
-  const [basketZoneFilter, setBasketZoneFilter] = useState("all");
+  const [basketSearch, setBasketSearch] = useState(() => lsGet("basket-search", ""));
+  const [basketZoneFilter, setBasketZoneFilter] = useState(() => lsGet("basket-zone-filter", "all"));
   const [basketSelected, setBasketSelected] = useState<Set<string>>(new Set());
   const [basketClearConfirm, setBasketClearConfirm] = useState(false);
   // Animal system states
-  const [animalUserInput, setAnimalUserInput] = useState("");
+  const [animalUserInput, setAnimalUserInput] = useState(() => lsGet("animal-input", ""));
   const [animalGenResult, setAnimalGenResult] = useState<string | null>(null);
-  const [chainUserInput, setChainUserInput] = useState("");
+  const [chainUserInput, setChainUserInput] = useState(() => lsGet("chain-input", ""));
   const [chainGenResult, setChainGenResult] = useState<string | null>(null);
   const [expandedChainIdx, setExpandedChainIdx] = useState<number | null>(null);
-  const [basketSort, setBasketSort] = useState<"newest" | "oldest" | "longest" | "shortest" | "az">("newest");
+  const [basketSort, setBasketSort] = useState<"newest" | "oldest" | "longest" | "shortest" | "az">(() => lsGet("basket-sort", "newest"));
   const [expandedSkillId, setExpandedSkillId] = useState<string | null>(null);
   const [basketFlash, setBasketFlash] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const clearConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [metaPrompt, setMetaPrompt] = useState("");
+  const [metaPrompt, setMetaPrompt] = useState(() => lsGet("meta-prompt", ""));
   const [metaResults, setMetaResults] = useState<Record<1 | 2 | 3, ResultState>>({ 1: { content: null, loading: false, error: null, expanded: false }, 2: { content: null, loading: false, error: null, expanded: false }, 3: { content: null, loading: false, error: null, expanded: false } });
-  const [qaInput, setQaInput] = useState("");
+  const [qaInput, setQaInput] = useState(() => lsGet("qa-input", ""));
   const [qaResult, setQaResult] = useState<{ scores: { clarity: number; specificity: number; structure: number; actionability: number }; feedback: string } | null>(null);
   const [qaLoading, setQaLoading] = useState(false);
-  const [composerFields, setComposerFields] = useState<Record<string, string>>({ Role: "", Context: "", Objective: "", Constraints: "", Aesthetic: "", Planning: "", Output: "", Refinement: "" });
+  const [composerFields, setComposerFields] = useState<Record<string, string>>(() => lsGet("composer-fields", DEFAULT_COMPOSER));
   const [composerResult, setComposerResult] = useState<string | null>(null);
+
+  // ─── Feature 1: Auto-save useEffects ────────────────────────────────────
+  useEffect(() => { lsSet("zone", activeZone); }, [activeZone]);
+  useEffect(() => { lsSet("subtab", activeSubTab); }, [activeSubTab]);
+  useEffect(() => { lsSetDebounced("search", searchQuery); }, [searchQuery]);
+  useEffect(() => { lsSetDebounced("skills-search", skillsSearchQuery); }, [skillsSearchQuery]);
+  useEffect(() => { lsSet("quickstart-dismissed", quickStartDismissed); }, [quickStartDismissed]);
+  useEffect(() => { lsSetDebounced("basket-search", basketSearch); }, [basketSearch]);
+  useEffect(() => { lsSet("basket-zone-filter", basketZoneFilter); }, [basketZoneFilter]);
+  useEffect(() => { lsSet("basket-sort", basketSort); }, [basketSort]);
+  useEffect(() => { lsSetDebounced("animal-input", animalUserInput); }, [animalUserInput]);
+  useEffect(() => { lsSetDebounced("chain-input", chainUserInput); }, [chainUserInput]);
+  useEffect(() => { lsSetDebounced("meta-prompt", metaPrompt); }, [metaPrompt]);
+  useEffect(() => { lsSetDebounced("qa-input", qaInput); }, [qaInput]);
+  useEffect(() => { lsSetDebounced("composer-fields", composerFields); }, [composerFields]);
+
+  // ─── Feature 2: Mobile More menu ────────────────────────────────────────
+  const [showMobileMore, setShowMobileMore] = useState(false);
+
+  // ─── Feature 3: Expanded workflow index ─────────────────────────────────
+  const [expandedWorkflowIdx, setExpandedWorkflowIdx] = useState<number | null>(null);
 
   const zoneColor = ZONES.find((z) => z.id === activeZone)?.color || "#4DFFFF";
   const mainRef = useRef<HTMLDivElement>(null);
@@ -870,7 +909,7 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">{filteredWorkflows.map((wf, i) => { const wfId = `wf-${i}`; return (<div key={i} className="rounded-xl p-4 transition-all hover:-translate-y-0.5" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="flex items-center justify-between mb-1"><div className="text-[10px] font-mono" style={{ color: zoneColor }}>{wf.cat}</div><span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#6B7280" }}>{wf.prompt.length} chars</span></div><h3 className="text-sm font-bold mb-1">{wf.title}</h3><p className="text-xs mb-2" style={{ color: "#A1A1AA" }}>{wf.purpose}</p><p className="text-[10px] mb-3" style={{ color: "#6B7280" }}>Best for: {wf.best}</p><button onClick={() => handleCopy(wf.prompt, wfId)} className="flex items-center gap-1 text-[10px] px-2.5 py-1.5 rounded-lg font-medium transition-all" style={{ background: `${zoneColor}15`, color: zoneColor, border: `1px solid ${zoneColor}33` }}>{copiedId === wfId ? <><Check className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy Prompt</>}</button></div>); })}</div></div>)}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">{filteredWorkflows.map((wf, i) => { const wfId = `wf-${i}`; const isExp = expandedWorkflowIdx === i; return (<div key={i} className="rounded-xl p-4 transition-all hover:-translate-y-0.5 cursor-pointer" onClick={() => setExpandedWorkflowIdx(isExp ? null : i)} style={{ background: "#14161A", border: `1px solid ${isExp ? `${zoneColor}55` : "rgba(255,255,255,0.07)"}` }}><div className="flex items-center justify-between mb-1"><div className="text-[10px] font-mono" style={{ color: zoneColor }}>{wf.cat}</div><span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#6B7280" }}>{wf.prompt.length} chars</span></div><h3 className="text-sm font-bold mb-1">{wf.title}</h3><p className="text-xs mb-2" style={{ color: "#A1A1AA" }}>{wf.purpose}</p><p className="text-[10px] mb-3" style={{ color: "#6B7280" }}>Best for: {wf.best}</p><button onClick={(e) => { e.stopPropagation(); handleCopy(wf.prompt, wfId); }} className="flex items-center gap-1 text-[10px] px-2.5 py-1.5 rounded-lg font-medium transition-all" style={{ background: `${zoneColor}15`, color: zoneColor, border: `1px solid ${zoneColor}33` }}>{copiedId === wfId ? <><Check className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy Prompt</>}</button><AnimatePresence>{isExp && (<motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="overflow-hidden" onClick={(e) => e.stopPropagation()}><div className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}><div className="flex items-center justify-between mb-2"><span className="text-[10px] font-mono" style={{ color: zoneColor }}>PROMPT PREVIEW</span><button onClick={() => handleCopy(wf.prompt, `wf-preview-${i}`)} className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-lg font-medium transition-all" style={{ background: `${zoneColor}15`, color: zoneColor, border: `1px solid ${zoneColor}33` }}>{copiedId === `wf-preview-${i}` ? <><Check className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}</button></div><pre className="p-3 rounded-lg text-xs leading-relaxed whitespace-pre-wrap" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.05)", color: "#A1A1AA", fontFamily: "monospace", maxHeight: "240px", overflowY: "auto" }}>{wf.prompt}</pre></div></motion.div>)}</AnimatePresence></div>); })}</div></div>)}
               {activeSubTab.playbook === "Animal Chains" && (<div className="max-w-3xl space-y-4">
                 {/* Chain User Input Generator */}
                 <div className="rounded-xl p-4" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}>
@@ -1185,28 +1224,55 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* ─── iOS Bottom Tab Bar (mobile only) ─── */}
+      {/* ─── iOS Bottom Tab Bar (mobile only) — 5 visible tabs + More ─── */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50" style={{ background: "rgba(11,13,16,0.95)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.08)", paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
         <div className="flex items-center justify-around px-1 pt-1.5 pb-2">
-          {ZONES.map((z) => {
+          {ZONES.slice(0, 5).map((z) => {
             const isActive = activeZone === z.id;
             return (
-              <button key={z.id} onClick={() => handleZoneChange(z.id)} className="flex flex-col items-center gap-0.5 py-0.5 px-1.5 rounded-lg transition-all min-w-0" style={{ color: isActive ? z.color : "#4b5563" }}>
-                <span className={`text-lg transition-transform ${isActive ? 'scale-110' : ''}`}>{z.icon}</span>
+              <button key={z.id} onClick={() => { setShowMobileMore(false); handleZoneChange(z.id); }} className="flex flex-col items-center gap-0.5 py-0.5 px-2 rounded-lg transition-all min-w-0" style={{ color: isActive ? z.color : "#4b5563" }}>
+                <span className={`text-lg transition-transform ${isActive ? "scale-110" : ""}`}>{z.icon}</span>
                 <span className="text-[9px] font-medium truncate max-w-[56px]">{z.label.slice(0, 6)}</span>
                 {isActive && <div className="w-1 h-1 rounded-full mt-0.5" style={{ background: z.color }} />}
               </button>
             );
           })}
-          <button onClick={() => setShowHistory(!showHistory)} className="flex flex-col items-center gap-0.5 py-0.5 px-1.5 rounded-lg transition-all relative" style={{ color: showHistory ? zoneColor : "#4b5563" }}>
+          {/* More button */}
+          <button onClick={() => setShowMobileMore(!showMobileMore)} className="flex flex-col items-center gap-0.5 py-0.5 px-2 rounded-lg transition-all relative" style={{ color: showMobileMore ? zoneColor : "#4b5563" }}>
             <div className="relative">
-              <span className="text-lg">🧺</span>
-              {history.length > 0 && <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 flex items-center justify-center rounded-full text-[7px] font-bold" style={{ background: zoneColor, color: "#0B0D10" }}>{history.length > 9 ? '9+' : history.length}</span>}
+              <MoreVertical className="w-5 h-5" />
+              {history.length > 0 && <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 flex items-center justify-center rounded-full text-[7px] font-bold" style={{ background: zoneColor, color: "#0B0D10" }}>{history.length > 9 ? "9+" : history.length}</span>}
             </div>
-            <span className="text-[9px] font-medium">Basket</span>
+            <span className="text-[9px] font-medium">More</span>
           </button>
         </div>
       </div>
+
+      {/* ─── Mobile More Menu (slide-up overlay) ─── */}
+      <AnimatePresence>
+        {showMobileMore && (<>
+          {/* Backdrop — tap to close */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="sm:hidden fixed inset-0 z-[60]" style={{ background: "rgba(0,0,0,0.5)" }} onClick={() => setShowMobileMore(false)} />
+          {/* Menu panel */}
+          <motion.div initial={{ opacity: 0, y: "100%" }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="sm:hidden fixed bottom-0 left-0 right-0 z-[70] rounded-t-2xl" style={{ background: "rgba(20,22,26,0.98)", borderTop: "1px solid rgba(255,255,255,0.1)", paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+            <div className="flex justify-center pt-3 pb-2"><div className="w-8 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.15)" }} /></div>
+            <div className="px-4 pb-4 space-y-1">
+              <button onClick={() => { setShowMobileMore(false); handleZoneChange("system"); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left" style={{ color: activeZone === "system" ? ZONES[5].color : "#A1A1AA", background: activeZone === "system" ? "rgba(167,139,250,0.1)" : "transparent" }}>
+                <span className="text-lg">🔄</span><span className="text-sm font-medium">System</span><span className="ml-auto text-[10px]" style={{ color: "#4b5563" }}>⌘6</span>
+              </button>
+              <button onClick={() => { setShowMobileMore(false); setShowHistory(true); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left" style={{ color: showHistory ? zoneColor : "#A1A1AA", background: showHistory ? `${zoneColor}10` : "transparent" }}>
+                <span className="text-lg">🧺</span><span className="text-sm font-medium">Basket</span>{history.length > 0 && <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: `${zoneColor}15`, color: zoneColor }}>{history.length}</span>}
+              </button>
+              <button onClick={() => { setShowMobileMore(false); setShowPalette(true); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left" style={{ color: "#A1A1AA" }}>
+                <Command className="w-5 h-5" /><span className="text-sm font-medium">Command Palette</span><span className="ml-auto text-[10px]" style={{ color: "#4b5563" }}>⌘K</span>
+              </button>
+              <button onClick={() => { setShowMobileMore(false); retriggerOnboarding(); setShowOnboarding(true); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left" style={{ color: "#A1A1AA" }}>
+                <HelpCircle className="w-5 h-5" /><span className="text-sm font-medium">Onboarding Tour</span>
+              </button>
+            </div>
+          </motion.div>
+        </>)}
+      </AnimatePresence>
 
       {/* ─── Footer ─── */}
       <footer className="mt-auto pb-20 sm:pb-0" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>

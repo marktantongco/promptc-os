@@ -481,3 +481,54 @@ Deployment:
 - GitHub: https://github.com/marktantongco/promptc-os
 - Vercel: https://my-project-markys-projects-b6633e43.vercel.app (deployed via GitHub Actions)
 - CI: GitHub Actions workflow auto-deploys on push to main
+
+---
+Task ID: v3.4-features
+Agent: Super Z (main)
+Task: Implement 3 major features — Auto-Save, Mobile Bottom Nav, Workflow Preview
+
+Work Log:
+
+FEATURE 1: Auto-Save Framework (Persist State Across Refresh)
+- Created 3 localStorage helper functions: lsGet<T>, lsSet, lsSetDebounced
+- All use `promptc-state-` key prefix for namespacing
+- 14 state values now load from localStorage on mount via lazy useState initializers:
+  - activeZone, activeSubTab, searchQuery, skillsSearchQuery, quickStartDismissed,
+  - basketSearch, basketZoneFilter, basketSort, animalUserInput, chainUserInput,
+  - metaPrompt, qaInput, composerFields
+- 13 useEffect hooks persist state to localStorage on change
+- Text inputs use 500ms debounced saves to avoid excessive writes
+- Boolean/enum states use immediate saves
+- Existing basket localStorage persistence (promptc-basket key) preserved unchanged
+- DEFAULT_SUBTABS and DEFAULT_COMPOSER constants extracted for DRY fallback values
+
+FEATURE 2: Mobile Bottom Navigation (iOS-style)
+- Replaced flat 6-zone + basket bottom bar with 5 visible tabs + More button
+- Visible tabs: Activate, Build, Validate, Playbook, Monetize (ZONES.slice(0,5))
+- "More" tab uses MoreVertical icon from lucide-react
+- Basket count badge moved to More button when items exist
+- Added showMobileMore state for the vertical menu
+- More menu slides up from bottom with spring animation (AnimatePresence)
+- Menu items: System zone, Basket, Command Palette (⌘K), Onboarding Tour
+- Semi-transparent backdrop closes menu on tap
+- Menu has iOS-style drag handle indicator at top
+- Zone/button clicks inside menu close menu first
+
+FEATURE 3: Playbook Workflow Preview on Selection
+- Added expandedWorkflowIdx state (number | null) to track expanded workflow
+- Workflow cards are now clickable (cursor-pointer) — click toggles expand
+- Expanded card shows full prompt preview in monospace <pre> block
+- Prompt preview has max-height 240px with scroll for long prompts
+- "Copy Prompt" button inside expanded area (separate ID to avoid conflict)
+- Copy Prompt button on card surface uses stopPropagation to not toggle expand
+- Expanded card border highlighted with zoneColor
+- AnimatePresence with height: 0 → auto animation for smooth expand/collapse
+
+Files modified:
+- src/app/PageClient.tsx (1230→1295 lines, +65 net)
+
+New imports: MoreVertical from lucide-react
+New state: showMobileMore, expandedWorkflowIdx
+New helpers: lsGet, lsSet, lsSetDebounced, LS_PREFIX, DEFAULT_SUBTABS, DEFAULT_COMPOSER
+
+Lint: 0 errors from src/app/PageClient.tsx
