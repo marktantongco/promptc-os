@@ -1,41 +1,17 @@
 # ⚡ promptc OS v3.2
 
-**AI Prompt Engineering Operating System** — A comprehensive 6-zone workspace for building, validating, and monetizing AI prompts. Built with Next.js 16, Tailwind CSS 4, and Framer Motion.
+**AI Prompt Engineering Operating System** — A comprehensive 6-zone workspace for building, validating, and monetizing AI prompts. 47 modifiers, 21 workflows, 66 skills, and a complete design system — all copy-ready.
 
-## Overview
-
-promptc OS is a production-grade prompt engineering environment that treats prompt creation as a systematic engineering discipline. It provides structured tools across 6 interconnected zones — from initial activation through building, validation, playbook orchestration, monetization, and system management.
-
-The app includes a universal **Collection Basket** (⌘B) for gathering prompts across all zones, a **Command Palette** (⌘K) for instant search, and a **Skills Library** with 66 registered skills across 13 categories.
+**Live App:** [promptc-os.vercel.app](https://promptc-os.vercel.app)  
+**Playbook:** [promptc-os-playbook.pdf](./promptc-os-playbook.pdf) — The Master Prompt Engineering Playbook (25-page ebook)
 
 ---
 
-## Architecture
+## What is promptc OS?
 
-```
-promptc-os/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx              # Main app (1,100 lines) — all 6 zones + basket
-│   │   ├── layout.tsx            # Root layout
-│   │   ├── globals.css           # Theme, animations, custom scrollbar
-│   │   ├── data/
-│   │   │   ├── promptc-data.ts   # Core data layer (1,337 lines) — 22 exports
-│   │   │   └── skills-catalog.ts # Skills registry (162 lines) — 66 skills
-│   │   └── api/
-│   │       ├── generate/route.ts # Meta Builder AI endpoint
-│   │       └── analyze/route.ts  # Quality Score AI endpoint
-│   ├── components/
-│   │   ├── CommandPalette.tsx    # ⌘K search — 289 lines
-│   │   └── OnboardingTour.tsx    # First-visit tutorial — 7 steps
-│   └── lib/
-│       ├── db.ts                 # Database config
-│       └── utils.ts              # Utilities
-├── .github/AGENTS.md             # AI agent operating instructions
-└── worklog.md                    # Development changelog
-```
+promptc OS is a production-grade prompt engineering environment that treats prompt creation as a systematic engineering discipline. It provides structured tools across 6 interconnected zones — from initial activation through building, validation, playbook orchestration, monetization, and system management.
 
-**Total source:** ~9,100 lines across 55+ files.
+Every prompt, modifier, template, and workflow in the system is **copy-ready** — paste directly into ChatGPT, Claude, Gemini, or any AI chat. The universal Collection Basket (⌘B) lets you gather your favorite prompts across all zones, and the Command Palette (⌘K) provides instant search across the entire library.
 
 ---
 
@@ -47,11 +23,11 @@ The starting zone. Browse, search, and collect the building blocks of great prom
 
 | Sub-tab | Contents | Count |
 |---------|----------|-------|
-| **Tasks** | Ready-to-use task prompts (copy & paste into any AI chat) | 8 |
-| **Modifiers** | 47 prompt modifiers across 10 categories (Role, Agent, Format, Output, Tone, Persona, Productivity, Logic, Style, Domain) | 47 |
-| **Templates** | Pre-built prompt templates for common use cases | 6 |
-| **Brands** | Brand voice systems with unique characteristics | 5 |
-| **Animals** | 7 animal thinking modes (Eagle, Owl, Rabbit, Ant, Dolphin, Beaver, Elephant) | 7 |
+| **Tasks** | Ready-to-use task prompts (YouTube, Coding, Business, Research, UI/UX, Image AI, Copy, Email) | 8 |
+| **Modifiers** | Prompt modifiers across 9 categories (Role, Output, Reasoning, Speed, Strategy, Hack, Data, Agent, Productivity) | 47 |
+| **Templates** | Pre-built prompt templates (Web App, Mobile, Brand, Landing Page, Dashboard, API Design, AI Agent, MCP Server, Skill Docs, Automation Pipeline, Notion System, Meta templates, Brand systems) | 20 |
+| **Brands** | Complete brand design systems (powerUP, SaaS/B2B, E-commerce, Fintech, Insurance, Creative Agency) | 6 |
+| **Animals** | 7 animal thinking modes (Rabbit, Owl, Ant, Eagle, Dolphin, Beaver, Elephant) | 7 |
 | **Composer** | 8-layer prompt builder (Role → Context → Objective → Constraints → Aesthetic → Planning → Output → Refinement) | 1 tool |
 
 ### 🔵 2. Build — Construct & Transform
@@ -60,8 +36,8 @@ Turn raw ideas into polished, production-ready prompts.
 
 | Sub-tab | Contents |
 |---------|----------|
-| **Master Prompt** | The foundational system prompt that sets AI behavior |
-| **Enhancements** | 7 enhancement techniques with "What it does" + "How to use" guides |
+| **Master Prompt** | The foundational system prompt that sets AI behavior (10 core rules + advocacy mode + writing rules) |
+| **Enhancements** | 8 advanced techniques (Self-Refinement Loop, Chain-of-Thought, Self-Consistency, Tweak Protocol, Prompt Diff, Zero-Shot CoT, Role + Constraint Stack, Mega-Prompt Assembly) |
 | **Meta Builder** | 3 AI-powered prompt transformers: Quick Critique, Structured Analysis, Expert Engineering |
 
 ### 🟡 3. Validate — Test & Improve
@@ -70,10 +46,10 @@ Quality assurance for your prompts.
 
 | Sub-tab | Contents |
 |---------|----------|
-| **Lint Rules** | Automated lint checks across 5 segments (Universal, UI/UX, Code, Content, Agent) |
-| **Word Swaps** | Weak → strong word replacements across 3 levels (Critical, Improvement, Polish) |
-| **Vocabulary** | Domain terminology reference with definitions and usage tips |
-| **Quality Score** | AI-powered 4-dimension analysis (Clarity, Specificity, Structure, Actionability) with radar chart |
+| **Lint Rules** | 28 automated lint checks across 5 segments (Universal, UI/UX, Code, Content, Agent) |
+| **Word Swaps** | 40+ weak → strong word replacements across 4 levels (beginner, misconception, advanced, hack) |
+| **Vocabulary** | 60+ design terms with CSS implementations (fx, motion, 3d, layout, data) |
+| **Quality Score** | AI-powered 4-dimension analysis (Clarity, Specificity, Structure, Actionability) |
 
 ### 🟠 4. Playbook — Orchestrate & Execute
 
@@ -81,10 +57,10 @@ Systematic workflows for complex projects.
 
 | Sub-tab | Contents |
 |---------|----------|
-| **Workflows** | 21 production workflows across 6 categories (Design, Dev, Business, Mobile, AI/ML, Content, Security, DevOps) |
-| **Animal Chains** | Multi-animal thinking sequences for complex problems |
-| **Design Combos** | Design element combinations with psychological rationale |
-| **Typography** | Display + mono font pairings with use-case recommendations |
+| **Workflows** | 21 production workflows (Design, Dev, Business, Mobile, AI/ML, Content, Security, DevOps) |
+| **Animal Chains** | 6 multi-animal thinking sequences for complex problem-solving |
+| **Design Combos** | 12 design element combinations with psychological rationale |
+| **Typography** | 4 display + mono font pairings with use-case recommendations |
 
 ### 🔴 5. Monetize — Earn & Scale
 
@@ -93,11 +69,11 @@ Turn prompt engineering skills into revenue.
 | Sub-tab | Contents |
 |---------|----------|
 | **Top Prompts** | 6 highest-value prompt products with revenue potential indicators |
-| **SaaS Templates** | 6 automation blueprints (easy/medium/hard difficulty, with tech stacks) |
-| **Stacks** | 4 income strategies from Week 1 quick wins to Month 2-6 hybrid stacks |
+| **SaaS Templates** | 6 automation blueprints (easy/medium/hard, with tech stacks and time estimates) |
+| **Stacks** | 4 income strategies (Quick Win → Active → Passive → Hybrid) |
 | **AI Tools** | 5 agent frameworks (OpenClaw, ZeroClaw, Agno, CrewAI, Claude Code) with starter prompts |
 | **Compounding** | The compounding system philosophy — build once, runs forever |
-| **Pricing Guide** | 4-tier pricing matrix (Free / $5 Starter / $15 Pro / $49 Business) |
+| **Pricing Guide** | Revenue tier strategy guide |
 
 ### 🟣 6. System — Meta-Control & Skills
 
@@ -105,13 +81,13 @@ The control center for the entire operating system.
 
 | Sub-tab | Contents |
 |---------|----------|
-| **Skills Library** | 66 skills across 13 categories — expandable cards with category stats and basket integration |
+| **Skills Library** | 66 skills across 13 categories with category stats |
 | **Compounding** | System health dashboard with category distribution visualization |
-| **Principles** | 6 core operating principles (No One-Off Work, THE RULE, Plan→Validate→Execute, etc.) |
-| **Skill Builder** | 6-step wizard for building production-ready skills (Concept → Prototype → Evaluate → Codify → Cron → Monitor) |
-| **Workflow Patterns** | Visual step-flow patterns (Plan→Validate→Execute, 6-step skill lifecycle) |
+| **Principles** | 6 core operating principles |
+| **Skill Builder** | 6-step wizard (Concept → Prototype → Evaluate → Codify → Cron → Monitor) |
+| **Workflow Patterns** | Visual step-flow patterns (Plan→Validate→Execute) |
 | **Self-Evolve** | Growth tracking dashboard with dynamic metrics |
-| **Infographics** | Zone overview with clickable navigation cards + modifier coverage heat map |
+| **Infographics** | Zone overview + modifier coverage heat map |
 | **Package Docs** | Generate comprehensive markdown reference document |
 
 ---
@@ -120,41 +96,73 @@ The control center for the entire operating system.
 
 ### 🧺 Collection Basket (⌘B)
 - Collect prompts from any zone — click copy and it auto-adds to basket
-- **Pin** important items to the top
-- **Favorite** items with ⭐ star indicator
+- **Pin** important items, **Favorite** with star indicator
 - **Multi-select** with batch copy, remove, and export
 - **Sort** by newest, oldest, longest, shortest, A→Z
-- **Search** and filter by zone
-- **Duplicate detection** — warns if you try to add the same prompt twice
-- **Export** to markdown (.md file download)
+- **Search** and filter by zone, **duplicate detection**
+- **Export** to markdown (.md) and JSON formats
 - **localStorage persistence** — survives page reloads (up to 100 items)
-- **Flash animation** on the nav badge when items are added
 
 ### 🔍 Command Palette (⌘K)
 - Fuzzy search across all modifiers, templates, tasks, workflows, brands, animals, enhancements, lint rules, word swaps, and chains
-- Zone quick-switch grid (6 zones, click to jump)
-- Keyboard navigation (↑↓ arrows, Enter to select)
+- Zone quick-switch grid, keyboard navigation (arrows + Enter)
 - Recently copied items section
-- Results grouped by zone with type badges
 
 ### ⌨️ Keyboard Shortcuts
 | Shortcut | Action |
 |----------|--------|
 | `⌘K` / `Ctrl+K` | Open Command Palette |
 | `⌘B` / `Ctrl+B` | Toggle Basket panel |
+| `⌘P` / `Ctrl+P` | Quick Compose |
 | `⌘1` through `⌘6` | Switch to Zone 1-6 |
-| `Escape` | Close Basket panel |
+| `?` | Keyboard shortcuts overlay |
+| `Escape` | Close panels |
 
-### 🎯 Onboarding Tour
-- 7-step guided tour for first-time visitors
-- Covers zones, task cards, composer, meta builder, quality score, basket, and system zone
-- Auto-triggers on first visit; re-trigger via ❓ button in nav
+### 🎯 Auto-Save Persistence
+- Current zone, sub-tab, search queries, input fields all saved to localStorage
+- Basket items persist across sessions
+- Composer fields, animal/chain inputs, meta prompt text preserved
+- Session timer tracks engagement time
+
+### 📱 Mobile Navigation
+- iOS-style bottom tab bar with 5 primary zones + "More" vertical menu
+- Touch-optimized, 44px touch targets
+- Responsive design across all breakpoints
+
+### 🔀 Cross-Zone Forwarding
+- Forward any collected prompt to Build (Meta Builder), Validate (Quality Score), or Activate (Animals) zones
+- Auto-fills the relevant input field in the target zone
+- Visual indicator shows forwarded content state
 
 ### 📊 Skills Library
-- 66 skills across 13 categories (AI/LLM, Web Search, Documents, Prompt Engineering, Skill Management, Web Dev, Animation, Content, Business, Agent Frameworks, Analysis, Data Viz, Utilities)
-- Expandable cards with category statistics and file contribution bars
-- "Add to Basket" and "View Category" actions
-- Search and category filter
+- 66 skills across 13 categories (AI/LLM Core, Web Search, Document Generation, Prompt Engineering, Skill Management, Web Development, Animation & Visual, Content & Marketing, Business & Research, Agent Frameworks, Analysis & Thinking, Data Visualization, Utilities)
+- Expandable cards with category statistics, search and category filter
+
+---
+
+## The Prompt Master Playbook
+
+A 25-page ebook showcasing the best prompts, tips, and frameworks from promptc OS. Available as both PDF and HTML:
+
+| File | Description |
+|------|-------------|
+| [promptc-os-playbook.pdf](./promptc-os-playbook.pdf) | The complete playbook (PDF, 25 pages) |
+| [promptc-os-ebook.html](./promptc-os-ebook.html) | Source HTML (viewable in browser) |
+
+### Playbook Contents
+1. **The 6-Zone Operating System** — Complete overview of all zones with stats
+2. **The Master System Prompt** — Copy-ready master prompt + advocacy mode
+3. **Top 10 Quick-Fire Modifiers** — Hand-picked modifiers with pro tips
+4. **8 Copy-Ready Task Prompts** — Production prompts for every use case
+5. **The 7-Animal Thinking System** — Each animal + chain combinations
+6. **The 8-Layer Mega Prompt Framework** — Complete architecture reference
+7. **8 Advanced Enhancement Techniques** — Self-refinement, CoT, stacking
+8. **6 Complete Brand Design Systems** — Ready-to-use brand prompts
+9. **The Word Swap Quick Reference** — Beginner to hack-level swaps
+10. **Top 5 Production Workflows** — Complete workflow prompts
+11. **Monetize: Turn Prompts Into Profit** — Revenue strategies + SaaS templates
+12. **The Skills Library: 66 Powers** — Complete skill breakdown
+13. **Design Vocabulary Quick Reference** — 60+ terms with CSS implementations
 
 ---
 
@@ -170,7 +178,9 @@ The control center for the entire operating system.
 | **Lucide React** | 0.525 | Icon library |
 | **Sonner** | 2 | Toast notifications |
 | **React Markdown** | 10 | Markdown rendering |
-| **z-ai-web-dev-sdk** | 0.0.17 | AI API integration |
+| **React DnD Kit** | 6.3 / 10 | Drag-and-drop |
+| **Zustand** | 5 | State management |
+| **z-ai-web-dev-sdk** | 0.017 | AI API integration (Meta Builder, Quality Score) |
 | **Bun** | — | JavaScript runtime |
 
 ---
@@ -184,7 +194,7 @@ The control center for the entire operating system.
 ### Local Development
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/promptc-os.git
+git clone https://github.com/marktantongco/promptc-os.git
 cd promptc-os
 
 # Install dependencies
@@ -209,34 +219,61 @@ Or connect your GitHub repo directly at [vercel.com/new](https://vercel.com/new)
 
 ---
 
+## Architecture
+
+```
+promptc-os/
+├── src/
+│   ├── app/
+│   │   ├── page.tsx              # Server component entry point
+│   │   ├── layout.tsx            # Root layout with fonts
+│   │   ├── globals.css           # Theme, animations, custom scrollbar
+│   │   ├── PageClient.tsx        # Core client component (1,591 lines)
+│   │   ├── data/
+│   │   │   ├── promptc-data.ts   # Core data layer (1,337 lines) — 22 exports
+│   │   │   └── skills-catalog.ts # Skills registry (162 lines) — 66 skills
+│   │   └── api/
+│   │       ├── generate/route.ts # Meta Builder AI endpoint
+│   │       └── analyze/route.ts  # Quality Score AI endpoint
+│   ├── components/
+│   │   ├── CommandPalette.tsx    # ⌘K search across all data
+│   │   └── OnboardingTour.tsx    # First-visit tutorial
+│   └── lib/
+│       ├── db.ts                 # Database config
+│       └── utils.ts              # Utilities
+├── promptc-os-playbook.pdf       # The Prompt Master Playbook (ebook)
+├── promptc-os-ebook.html        # Playbook source HTML
+├── .github/AGENTS.md             # AI agent operating instructions
+└── worklog.md                    # Development changelog
+```
+
+---
+
 ## Data Layer
 
-The entire prompt engineering knowledge base lives in two files:
-
 **`src/app/data/promptc-data.ts`** (1,337 lines, 22 exports)
-- `MASTER` — The master system prompt
-- `ZONES` — 6 zone definitions with colors and icons
-- `MODS` / `MOD_CATS` — 47 modifiers across 10 categories
-- `TASKS` — 8 task prompts
-- `TMPLS` — 6 templates
-- `BRANDS` — 5 brand systems
+- `MASTER` / `ADVOCATE` — System prompt foundations
+- `ZONES` — 6 zone definitions
+- `MODS` / `MOD_CATS` — 47 modifiers, 9 categories
+- `TASKS` — 8 task prompts (YouTube, Coding, Business, Research, UI/UX, Image AI, Copy, Email)
+- `TMPLS` — 20 templates (Web App, Mobile, Brand, Landing Page, Dashboard, Meta x3, Brand x5, API Design, AI Agent, MCP Server, Skill Docs, Automation Pipeline, Notion System)
+- `BRANDS` — 6 brand systems (powerUP, SaaS, E-commerce, Fintech, Insurance, Creative Agency)
 - `ANIMALS` — 7 animal thinking modes
-- `CHAINS` — Multi-animal chains
-- `ENHANCEMENTS` — 7 enhancement techniques
-- `LINT_RULES` — Automated lint checks (5 segments)
-- `SWAPS` / `SWAP_LEVELS` — Word swap replacements
-- `VOCAB` / `VOCAB_CATS` — Domain vocabulary
-- `COMBOS` — Design element combinations
-- `TYPO` / `TYPO_USECASES` — Font pairings
-- `LAYERS` / `LAYER_TPL` — Composer layer definitions
-- `WORKFLOW_PROMPTS` — 21 workflow prompt templates
+- `CHAINS` — 6 multi-animal chains
+- `LAYERS` / `LAYER_TPL` — 8-layer composer framework
+- `ENHANCEMENTS` — 8 enhancement techniques with howto guides
+- `LINT_RULES` — 28 lint rules across 5 segments
+- `SWAPS` / `SWAP_LEVELS` — 40+ word swaps across 4 levels
+- `VOCAB` / `VOCAB_CATS` — 60+ design vocabulary terms
+- `COMBOS` — 12 design combinations
+- `TYPO` / `TYPO_USECASES` — 4 typography pairings
 
 **`src/app/data/skills-catalog.ts`** (162 lines)
-- `SKILLS_CATALOG` — 66 skill definitions
-- `SKILL_CATEGORIES` — 13 MECE categories
+- `SKILLS_CATALOG` — 66 skill definitions with categories and file counts
+- `SKILL_CATEGORIES` — 13 categories
 - `CATEGORY_ICONS` / `CATEGORY_COLORS` — Visual mapping
 - `CATEGORY_COUNTS` — Derived statistics
-- `TOTAL_SKILLS`, `TOTAL_CATEGORIES`, `TOTAL_FILES` — Aggregated counts
+- `TOTAL_SKILLS` (66), `TOTAL_CATEGORIES` (13), `TOTAL_FILES` (derived)
 
 ---
 
@@ -244,10 +281,10 @@ The entire prompt engineering knowledge base lives in two files:
 
 | Version | Changes |
 |---------|---------|
-| **v3.2** | SaaS/Stacks basket buttons, favorites system (⭐), tooltips, dynamic self-evolve, filtered count indicator |
-| **v3.1** | ⌘1-6 zone shortcuts, expandable skill cards, Monetize basket buttons, interactive infographics, basket flash animation |
-| **v3.0** | CommandPalette keyboard nav, OnboardingTour expansion, workflow char counts + copy, mobile menu, enhancement guides, AI Tools starter prompts |
-| **v2.2** | Basket multi-select, reorder, pinning, duplicate detection, confirm clear, sort, close button, overlay backdrop |
+| **v3.2** | SaaS/Stacks basket buttons, favorites system, tooltips, dynamic self-evolve, filtered count indicator, auto-save persistence, iOS mobile bottom nav, Quick Compose, cross-zone forwarding, expanded workflow preview |
+| **v3.1** | Command Palette keyboard nav, OnboardingTour expansion, workflow char counts + copy, mobile menu, enhancement guides, AI Tools starter prompts |
+| **v3.0** | CommandPalette, OnboardingTour, workflow char counts, mobile menu, enhancement guides, AI Tools starter prompts |
+| **v2.2** | Basket multi-select, reorder, pinning, duplicate detection, confirm clear, sort, close button |
 | **v2.0** | History Clipboard → Collection Basket, Skills Library browser, Compounding Dashboard |
 
 ---
@@ -269,4 +306,4 @@ Private repository. All rights reserved.
 
 ---
 
-*Built with ⚡ by promptc OS — AI Prompt Engineering Operating System*
+*Built with ⚡ by [promptc OS](https://promptc-os.vercel.app) — AI Prompt Engineering Operating System*

@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>promptc OS - The Master Prompt Engineering Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@page { size: A4; margin: 0; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: #0B0D10; color: #E2E8F0; font-family: 'Inter', sans-serif; line-height: 1.6; }
+body { width: 210mm; }
+.page { width: 210mm; min-height: 297mm; padding: 0; position: relative; overflow: hidden; page-break-after: always; }
+.page:last-child { page-break-after: auto; }
+
+/* ── Cover ── */
+.cover-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 50%, rgba(77,255,255,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 30%, rgba(123,92,255,0.06) 0%, transparent 50%); }
+.cover-content { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 60px 70px; }
+.cover-badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #4DFFFF; border: 1px solid rgba(77,255,255,0.3); padding: 6px 16px; border-radius: 4px; margin-bottom: 30px; width: fit-content; }
+.cover-title { font-family: 'Space Grotesk', sans-serif; font-size: 56px; font-weight: 700; line-height: 1.05; color: #FFFFFF; margin-bottom: 12px; }
+.cover-title span { color: #4DFFFF; }
+.cover-subtitle { font-size: 18px; color: #A1A1AA; max-width: 460px; margin-bottom: 40px; line-height: 1.7; }
+.cover-stats { display: flex; gap: 32px; }
+.cover-stat { text-align: left; }
+.cover-stat .num { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; color: #FFFFFF; }
+.cover-stat .label { font-size: 11px; color: #6B7280; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+.cover-line { position: absolute; bottom: 70px; left: 70px; right: 70px; height: 1px; background: rgba(255,255,255,0.08); }
+.cover-footer { position: absolute; bottom: 40px; left: 70px; right: 70px; display: flex; justify-content: space-between; font-size: 11px; color: #6B7280; font-family: 'JetBrains Mono', monospace; }
+
+/* ── Content Pages ── */
+.content { padding: 50px 60px; position: relative; }
+.page-num { position: absolute; bottom: 25px; right: 60px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #4DFFFF; opacity: 0.5; }
+.chapter-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #4DFFFF; margin-bottom: 8px; }
+h1 { font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700; color: #FFFFFF; margin-bottom: 6px; line-height: 1.2; }
+h2 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; color: #FFFFFF; margin-bottom: 10px; margin-top: 24px; }
+h3 { font-size: 15px; font-weight: 600; color: #E2E8F0; margin-bottom: 8px; }
+p { font-size: 12.5px; color: #A1A1AA; line-height: 1.7; margin-bottom: 12px; }
+p strong { color: #E2E8F0; }
+.intro-text { font-size: 13.5px; color: #CBD5E1; line-height: 1.8; }
+.highlight-box { background: rgba(77,255,255,0.05); border: 1px solid rgba(77,255,255,0.15); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+.highlight-box p { color: #CBD5E1; font-size: 12px; }
+.highlight-box .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #4DFFFF; margin-bottom: 8px; }
+.prompt-block { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 14px 18px; margin: 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #CBD5E1; line-height: 1.65; white-space: pre-wrap; word-wrap: break-word; }
+.prompt-block .prompt-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: #6B7280; margin-bottom: 6px; display: block; }
+.divider { height: 1px; background: rgba(255,255,255,0.06); margin: 20px 0; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 16px; }
+.card h3 { font-size: 13px; color: #FFFFFF; margin-bottom: 6px; }
+.card p { font-size: 11px; color: #A1A1AA; margin-bottom: 6px; line-height: 1.6; }
+.tip-badge { display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; margin-bottom: 6px; }
+.tip-best { background: rgba(77,255,255,0.12); color: #4DFFFF; }
+.tip-hot { background: rgba(255,107,0,0.12); color: #FF6B00; }
+.tip-pro { background: rgba(167,139,250,0.12); color: #a78bfa; }
+.animal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+.animal-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 14px; }
+.animal-card .emoji { font-size: 22px; margin-bottom: 4px; }
+.animal-card .name { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: #FFFFFF; }
+.animal-card .mode { font-size: 10px; color: #6B7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.animal-card p { font-size: 10.5px; color: #A1A1AA; margin: 0; line-height: 1.5; }
+.zone-bar { display: flex; gap: 0; margin: 16px 0; border-radius: 6px; overflow: hidden; }
+.zone-item { flex: 1; text-align: center; padding: 10px 4px; font-size: 9px; font-weight: 600; color: #FFFFFF; letter-spacing: 0.5px; }
+.zone-item .z-icon { font-size: 16px; display: block; margin-bottom: 2px; }
+.table-wrap { width: 100%; margin: 12px 0; border-collapse: collapse; font-size: 11px; }
+.table-wrap th { text-align: left; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: #6B7280; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.table-wrap td { padding: 7px 10px; color: #CBD5E1; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+.table-wrap tr:hover td { background: rgba(255,255,255,0.02); }
+.stat-row { display: flex; gap: 16px; margin: 16px 0; }
+.stat-box { flex: 1; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 14px; text-align: center; }
+.stat-box .s-num { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; color: #FFFFFF; }
+.stat-box .s-label { font-size: 9px; color: #6B7280; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+.flow-steps { display: flex; gap: 0; margin: 16px 0; align-items: center; }
+.flow-step { flex: 1; text-align: center; padding: 10px 6px; }
+.flow-step .f-num { width: 28px; height: 28px; border-radius: 50%; background: rgba(77,255,255,0.1); color: #4DFFFF; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; margin: 0 auto 6px; }
+.flow-step .f-label { font-size: 10px; color: #CBD5E1; line-height: 1.3; }
+.flow-arrow { color: #4DFFFF; font-size: 14px; opacity: 0.4; padding: 0 2px; }
+.back-cover { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 60px; position: relative; }
+.back-cover h1 { font-size: 40px; margin-bottom: 12px; }
+.back-cover p { color: #6B7280; font-size: 13px; }
+.url-box { margin-top: 30px; padding: 12px 28px; border: 1px solid rgba(77,255,255,0.2); border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #4DFFFF; letter-spacing: 0.5px; }
+.small-text { font-size: 10px; color: #4D4D4D; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ PAGE 1: COVER ═══════════════════════ -->
+<div class="page">
+  <div class="cover-bg"></div>
+  <div class="cover-content">
+    <div class="cover-badge">Prompt Engineering OS v3.2</div>
+    <h1 class="cover-title">The Prompt<br><span>Master</span> Playbook</h1>
+    <p class="cover-subtitle">A curated collection of award-winning prompts, frameworks, and quick tips from the promptc OS project. Hand-picked for maximum impact.</p>
+    <div class="cover-stats">
+      <div class="cover-stat"><div class="num">47+</div><div class="label">Modifiers</div></div>
+      <div class="cover-stat"><div class="num">21</div><div class="label">Workflows</div></div>
+      <div class="cover-stat"><div class="num">66</div><div class="label">Skills</div></div>
+      <div class="cover-stat"><div class="num">6</div><div class="label">Zones</div></div>
+    </div>
+  </div>
+  <div class="cover-line"></div>
+  <div class="cover-footer"><span>promptc-os.vercel.app</span><span>2026 Edition</span></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 2: THE 6-ZONE SYSTEM ═══════════════════════ -->
+<div class="page">
+  <div class="content">
+    <div class="chapter-label">Chapter 01</div>
+    <h1>The 6-Zone Operating System</h1>
+    <p class="intro-text">promptc OS is organized into six interconnected zones, each serving a distinct purpose in the prompt engineering lifecycle. Think of it as an operating system for your AI interactions, from activation to monetization.</p>
+
+    <div class="zone-bar">
+      <div class="zone-item" style="background:rgba(77,255,255,0.15)"><span class="z-icon">⚡</span>ACTIVATE</div>
+      <div class="zone-item" style="background:rgba(255,107,0,0.15)"><span class="z-icon">🏗</span>BUILD</div>
+      <div class="zone-item" style="background:rgba(34,197,94,0.15)"><span class="z-icon">✅</span>VALIDATE</div>
+      <div class="zone-item" style="background:rgba(255,176,0,0.15)"><span class="z-icon">📋</span>PLAYBOOK</div>
+      <div class="zone-item" style="background:rgba(255,215,0,0.15)"><span class="z-icon">💰</span>MONETIZE</div>
+      <div class="zone-item" style="background:rgba(167,139,250,0.15)"><span class="z-icon">🔄</span>SYSTEM</div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>⚡ Activate Zone</h3>
+        <p>Your launchpad. Contains 8 ready-to-use task prompts (YouTube, Coding, Business, Research, UI/UX, Image AI, Copy, Email), 47 modifiers across 9 categories, 20 templates, 6 brand systems, and the 7-animal thinking framework. Every prompt here is copy-ready — paste directly into any AI.</p>
+      </div>
+      <div class="card">
+        <h3>🏗 Build Zone</h3>
+        <p>The engineering lab. Houses the Master Prompt (your AI's core operating instructions), 8 advanced enhancement techniques including Self-Refinement Loop and Chain-of-Thought, and a 3-tier Meta Prompt system (Quick Critique, Structured Analysis, Expert Engineering). This is where raw prompts become production-grade.</p>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:12px">
+      <div class="card">
+        <h3>✅ Validate Zone</h3>
+        <p>Quality assurance for prompts. Features 28 lint rules across 5 segments (Universal, UI/UX, Code, Content, Agent), 40+ word swaps from beginner to hack level, 60+ design vocabulary terms, and a Quality Score system that evaluates clarity, specificity, structure, and actionability on a 1-10 scale.</p>
+      </div>
+      <div class="card">
+        <h3>📋 Playbook Zone</h3>
+        <p>The strategy library. Contains 21 production workflows (Design, Dev, Business, Mobile, AI/ML, Content, Security, DevOps), 6 animal chain combinations for complex problem-solving, 12 design combos, and 4 typography pairings. Each workflow comes with a complete, copy-ready prompt.</p>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-box"><div class="s-num" style="color:#4DFFFF">8</div><div class="s-label">Task Prompts</div></div>
+      <div class="stat-box"><div class="s-num" style="color:#FF6B00">47</div><div class="s-label">Modifiers</div></div>
+      <div class="stat-box"><div class="s-num" style="color:#22c55e">21</div><div class="s-label">Workflows</div></div>
+      <div class="stat-box"><div class="s-num" style="color:#FFB000">20</div><div class="s-label">Templates</div></div>
+      <div class="stat-box"><div class="s-num" style="color:#FFD700">40+</div><div class="s-label">Word Swaps</div></div>
+    </div>
+  </div>
+  <div class="page-num">02</div>
+</div>
+
+<!-- ═══════════════════════ PAGE 3: THE MASTER PROMPT ═══════════════════════ -->
+<div class="page">
+  <div class="content">
+    <div class="chapter-label">Chapter 02</div>
+    <h1>The Master System Prompt</h1>
+    <p class="intro-text">Every great AI interaction starts with a great system prompt. This is the foundation that transforms any AI from a generic assistant into a focused, high-output partner. Copy this once, paste it at the top of any conversation, and watch the quality difference immediately.</p>
+
+    <div class="highlight-box">
+      <div class="label">★ Editor's Pick — #1 Most Impactful Prompt</div>
+      <p>Use this as your default system prompt for every new AI conversation. It establishes advocacy mode, eliminates filler, and forces working code. The 10 core rules alone will save you hours of back-and-forth.</p>
+    </div>
+
+    <div class="prompt-block">
+<span class="prompt-label">The Master Prompt — Copy Ready</span>
+You are my expert AI assistant, business partner, and creative strategist.
+Act in MY best interest — identify what I truly need, not just what I asked.
+
+CORE RULES:
+1. No filler. No fluff. No disclaimers.
+2. Give WORKING code only — never pseudocode.
+3. Rank ideas by impact — not just list them.
+4. Always flag a better/faster way if one exists.
+5. Default to expert-level unless told otherwise.
+6. Vague request? Assume smartly, state it, proceed.
+7. Something risky? Flag it — then do it anyway unless I say stop.
+8. Never ask me to repeat context from this conversation.
+9. Format for scanability: headers, bullets, bold key points.
+10. End every complex answer with ⚡ Recommended Next Step.
+
+ADVOCACY MODE:
+- Warn me before I make a mistake.
+- Suggest better approaches even when I didn't ask.
+- Optimize for my long-term success — not just the task.
+- Push back if you have a strong reason.
+- Quality over speed — always.
+
+WRITING RULES:
+- Short sentences. Every word earns its place.
+- Simple language — 4th grade reading level.
+- One idea per sentence. Make it digestible.
+- Think deeply. Write clearly. Let ideas lead.</div>
+
+    <div class="divider"></div>
+
+    <h2>The Advocacy Mode</h2>
+    <p>This companion prompt transforms your AI from a passive responder into an active advisor. It gives the AI permission to push back, warn you about mistakes, and optimize for your long-term success rather than just completing the immediate task. When combined with the Master Prompt, it creates a powerful partnership dynamic.</p>
+
+    <div class="prompt-block">
+<span class="prompt-label">Advocacy Mode — Copy Ready</span>
+For this entire conversation, I want you to be my advocate, not just my assistant. That means:
+- If I'm about to make a mistake, warn me.
+- If there's a better approach, tell me even if I didn't ask.
+- Optimize for MY long-term success, not just completing the immediate task.
+- If something I ask for could hurt my project, business, or goals, flag it.
+- Prioritize quality over speed unless I say otherwise.
+- I give you permission to push back on my ideas if you have a good reason.</div>
+
+    <h2>Quick Tip: How to Use These Together</h2>
+    <p>Paste the Master Prompt first as your system instructions. Then paste Advocacy Mode right after it. Now every response will be filtered through expert-level standards with an active advisory lens. This combination alone eliminates 80% of common AI output problems: filler text, hedging, incomplete code, and generic advice.</p>
+  </div>
+  <div class="page-num">03</div>
+</div>
+
+<!-- ═══════════════════════ PAGE 4: TOP 10 MODIFIERS ═══════════════════════ -->
+<div class="page">
+  <div class="content">
+    <div class="chapter-label">Chapter 03</div>
+    <h1>Top 10 Quick-Fire Modifiers</h1>
+    <p class="intro-text">Modifiers are single-line additions that dramatically change AI output quality. Append any of these to the end of your prompt. Each one is battle-tested and comes with a pro tip explaining exactly when and why to use it.</p>
+
+    <table class="table-wrap">
+      <thead><tr><th style="width:40%">Modifier</th><th style="width:15%">Category</th><th>Pro Tip</th></tr></thead>
+      <tbody>
+        <tr><td><strong>"think step by step before answering,"</strong></td><td>Reasoning</td><td>Triggers chain-of-thought — measurably improves complex reasoning by forcing the AI to decompose the problem before responding.</td></tr>
+        <tr><td><strong>"give me the 80/20 version,"</strong></td><td>Speed</td><td>Highest-leverage change. Add "don't explain what you cut" to get pure signal with zero filler.</td></tr>
+        <tr><td><strong>"what am I missing or not asking that I should be?"</strong></td><td>Strategy</td><td>The #1 blind spot revealer. Use at the end of strategy sessions to uncover hidden risks and opportunities.</td></tr>
+        <tr><td><strong>"find the flaw in this reasoning first,"</strong></td><td>Reasoning</td><td>Best adversarial prompt. Use before presenting plans to stakeholders to pre-empt criticism.</td></tr>
+        <tr><td><strong>"give me 3 wildly different approaches,"</strong></td><td>Output</td><td>Breaks the average-output trap. Forces creative divergence before committing to one direction.</td></tr>
+        <tr><td><strong>"cite your confidence level 1-10 per claim,"</strong></td><td>Reasoning</td><td>Separates facts from speculation. Essential for research, analysis, and any decision-support prompt.</td></tr>
+        <tr><td><strong>"what's the fastest path to first dollar?"</strong></td><td>Strategy</td><td>Cuts scope creep on product builds. Revenue-first filter for every business idea or feature request.</td></tr>
+        <tr><td><strong>"you are a staff engineer doing a code review,"</strong></td><td>Role</td><td>Gets security, scale, and edge-case concerns automatically — no need to ask for them separately.</td></tr>
+        <tr><td><strong>"give me a checklist I can follow without re-reading this,"</strong></td><td>Productivity</td><td>Converts explanations into executable checklists. Best for implementation guides and SOPs.</td></tr>
+        <tr><td><strong>"identify second-order effects,"</strong></td><td>Reasoning</td><td>Forces systems thinking beyond the immediate solution. Reveals unintended consequences early.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="highlight-box">
+      <div class="label">How to Stack Modifiers</div>
+      <p>Combine 2-3 modifiers for compound effect. Example: <strong>"think step by step" + "give me 3 wildly different approaches" + "cite your confidence level 1-10"</strong> — this forces structured reasoning, creative divergence, and honest uncertainty quantification in a single prompt.</p>
+    </div>
+
+    <h2>Modifier Categories at a Glance</h2>
+    <div class="stat-row">
+      <div class="stat-box"><div class="s-num" style="color:#a78bfa">5</div><div class="s-label">Role</div></div>
+      <div class="stat-box"><div class="s-num" style="color:#4DFFFF">7</div><div class="s-label">Output</div></div>
+      <div class="stat-box"><div class="s-num" style="color:#22c55e">6</div><div class="s-label">Reasoning</div></div>
+      <div class="stat-box"><div class="s-num" style="color:#FF6B00">5</div><div class="s-label">Speed</div></div>
+      <div class="stat-box"><div class="s-num" style="color:#FFB000">5</div><div class="s-label">Strategy</div></div>
+    </div>
+  </div>
+  <div class="page-num">04</div>
+</div>
+
+<!-- ═══════════════════════ PAGE 5: TASK PROMPTS ═══════════════════════ -->
+<div class="page">
+  <div class="content">
+    <div class="chapter-label">Chapter 04</div>
+    <h1>8 Copy-Ready Task Prompts</h1>
+    <p class="intro-text">These are complete, production-ready prompts. Paste any of them into your AI and replace the bracketed section with your specific context. No modification needed — they work as-is.</p>
+
+    <h2>💻 Senior Coding Engineer</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Task: Coding — Copy Ready</span>
+You are a senior software engineer and architect.
+When I describe a feature, always:
+- Ask clarifying questions ONLY if something is truly ambiguous
+- Write production-ready code, not demo code
+- Add error handling automatically
+- Explain the "why" behind any non-obvious decision in a single comment
+- Flag performance or security concerns before I ask</div>
+
+    <h2>✍️ Direct-Response Copywriter</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Task: Copy — Copy Ready</span>
+You are a direct-response copywriter. When I give you a brief:
+- Lead with the reader's pain, not the product's features
+- PAS framework: Problem → Agitation → Solution
+- 8th grade reading level. One idea per sentence.
+- Every headline passes the "so what?" test
+- Specific CTA: name the action AND the benefit
+- No corporate speak. No passive voice.
+
+Brief: [describe what you need]</div>
+
+    <h2>📸 AI Image Prompt Engineer</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Task: Image AI — Copy Ready</span>
+You are an expert AI image prompt engineer. Build the prompt in layers:
+1. SUBJECT: who/what, pose, expression, action
+2. LENS: camera body, lens mm, aperture, focal technique
+3. LIGHTING: key light, fill ratio, color temp, modifiers
+4. ENVIRONMENT: location, time of day, weather, atmosphere
+5. RENDER: film stock or engine, color grade, post style
+--ar [ratio] --style raw --v 6.1 --q 2
+
+Subject: [describe here]</div>
+
+    <h2>📊 Business COO</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Task: Business — Copy Ready</span>
+Act as my COO and strategist. When I describe a problem or goal:
+- Identify the fastest path to results (the 80/20 solution)
+- Separate what I MUST do from what is optional
+- Give me a prioritized action plan, not just advice
+- Tell me what successful people in this space actually do, not just theory</div>
+
+    <h2>📧 Email Sequence Creator</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Task: Email — Copy Ready</span>
+You are an email marketing specialist. Create a 5-email sequence:
+1. Welcome: hook + what they get + one quick win
+2. Value: teach something genuinely useful (no pitch)
+3. Case study: before, after, specific numbers
+4. Objection: address the #1 reason people don't buy
+5. Offer: clear, specific, time-aware CTA
+
+Each email: Subject line + Preview text + Body (max 300 words)
+Product: [describe] | Audience: [who] | Goal: [action]</div>
+
+    <p><strong>Also available:</strong> YouTube Growth Strategist, UI/UX Designer, Research Assistant — all equally copy-ready with the same depth of specificity.</p>
+  </div>
+  <div class="page-num">05</div>
+</div>
+
+<!-- ═══════════════════════ PAGE 6: ANIMAL THINKING ═══════════════════════ -->
+<div class="page">
+  <div class="content">
+    <div class="chapter-label">Chapter 05</div>
+    <h1>The 7-Animal Thinking System</h1>
+    <p class="intro-text">Each animal represents a distinct cognitive mode. Type your idea or problem, select an animal, and get a completely different perspective. Combine multiple animals for breakthrough insights that no single perspective could produce alone.</p>
+
+    <div class="animal-grid">
+      <div class="animal-card">
+        <div class="emoji">🐇</div>
+        <div class="name">Rabbit</div>
+        <div class="mode">Multiply Ideas</div>
+        <p>Takes one idea and generates 10 distinct variations by changing angle, audience, and format. Perfect for brainstorming sessions and content ideation.</p>
+      </div>
+      <div class="animal-card">
+        <div class="emoji">🦉</div>
+        <div class="name">Owl</div>
+        <div class="mode">Deep Analysis</div>
+        <p>Slow, observant, analytical. Examines from multiple perspectives and identifies hidden factors that most people overlook. For complex decisions.</p>
+      </div>
+      <div class="animal-card">
+        <div class="emoji">🐜</div>
+        <div class="name">Ant</div>
+        <div class="mode">Break Into Steps</div>
+        <p>Breaks any goal into the smallest realistic steps. Turns overwhelming projects into manageable daily actions. For execution planning.</p>
+      </div>
+      <div class="animal-card">
+        <div class="emoji">🦅</div>
+        <div class="name">Eagle</div>
+        <div class="mode">Big Picture Strategy</div>
+        <p>Views from above. Explains long-term strategy and how all pieces connect. For strategic planning and vision alignment.</p>
+      </div>
+      <div class="animal-card">
+        <div class="emoji">🐬</div>
+        <div class="name">Dolphin</div>
+        <div class="mode">Creative Solutions</div>
+        <p>Curious, playful, inventive. Generates creative solutions that most people would not normally consider. For innovation and problem-solving.</p>
+      </div>
+      <div class="animal-card">
+        <div class="emoji">🦫</div>
+        <div class="name">Beaver</div>
+        <div class="mode">Build Systems</div>
+        <p>Designs practical, step-by-step systems that solve problems methodically. For SOPs, automation, and process design.</p>
+      </div>
+    </div>
+
+    <div class="animal-card" style="margin: 4px 0; display:block;">
+      <div class="emoji">🐘</div>
+      <div class="name">Elephant</div>
+      <div class="mode">Cross-Field Connections</div>
+      <p>Connects ideas to insights from other fields such as psychology, economics, science, or history. Leverages the power of analogical thinking to find solutions that domain experts would miss entirely.</p>
+    </div>
+
+    <div class="divider"></div>
+    <h2>Animal Chains — Combined Power</h2>
+    <p>When one animal is not enough, chain them together for compound thinking. Here are the hand-picked combinations for specific goals:</p>
+
+    <table class="table-wrap">
+      <thead><tr><th>Goal</th><th>Chain</th><th>Best For</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Build AI Content System</strong></td><td>🦅 Eagle → 🦫 Beaver → 🐜 Ant</td><td>Automated content pipelines</td></tr>
+        <tr><td><strong>Solve Complex Problem</strong></td><td>🦉 Owl → 🐬 Dolphin → 🐘 Elephant</td><td>Product design, breakthroughs</td></tr>
+        <tr><td><strong>Brainstorm Product</strong></td><td>🐇 Rabbit → 🦅 Eagle → 🐜 Ant</td><td>Product ideation, channels</td></tr>
+        <tr><td><strong>Design Workflow</strong></td><td>🦫 Beaver → 🐜 Ant → 🦉 Owl</td><td>Automation scripts, SOPs</td></tr>
+        <tr><td><strong>Generate Viral Content</strong></td><td>🐇 Rabbit → 🐬 Dolphin → 🦅 Eagle</td><td>Social media, campaigns</td></tr>
+        <tr><td><strong>Validate Business</strong></td><td>🦉 Owl → 🐘 Elephant → 🦅 Eagle</td><td>Startup validation, venture</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="page-num">06</div>
+</div>
+
+<!-- ═══════════════════════ PAGE 7: 8-LAYER FRAMEWORK ═══════════════════════ -->
+<div class="page">
+  <div class="content">
+    <div class="chapter-label">Chapter 06</div>
+    <h1>The 8-Layer Mega Prompt Framework</h1>
+    <p class="intro-text">This is the complete architecture for building production-grade prompts. Each layer addresses a specific failure mode. Miss one, and your prompt produces generic output. Use all eight, and your results will be measurably superior to 99% of prompts people write.</p>
+
+    <div class="flow-steps">
+      <div class="flow-step"><div class="f-num">1</div><div class="f-label"><strong>Role</strong><br>Who the AI acts as</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="f-num">2</div><div class="f-label"><strong>Context</strong><br>Product, audience</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="f-num">3</div><div class="f-label"><strong>Objective</strong><br>Success criteria</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="f-num">4</div><div class="f-label"><strong>Constraints</strong><br>Quality guardrails</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="f-num">5</div><div class="f-label"><strong>Aesthetic</strong><br>Visual / tone</div></div>
+    </div>
+    <div class="flow-steps" style="margin-top:4px;">
+      <div class="flow-step"><div class="f-num">6</div><div class="f-label"><strong>Planning</strong><br>Reason first</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="f-num">7</div><div class="f-label"><strong>Output</strong><br>Exact format</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="f-num">8</div><div class="f-label"><strong>Refinement</strong><br>Self-critique</div></div>
+    </div>
+
+    <table class="table-wrap">
+      <thead><tr><th>Layer</th><th>Purpose</th><th>If You Miss It</th></tr></thead>
+      <tbody>
+        <tr><td><strong>01 Role</strong></td><td>Who the AI acts as — expertise, seniority, perspective</td><td>Generic, shallow responses</td></tr>
+        <tr><td><strong>02 Context</strong></td><td>Product, audience, platform, existing constraints</td><td>Misaligned output</td></tr>
+        <tr><td><strong>03 Objective</strong></td><td>One clear sentence of what success looks like</td><td>Aimless generation</td></tr>
+        <tr><td><strong>04 Constraints</strong></td><td>Quality guardrails: mobile-first, WCAG AA, 60fps</td><td>Mediocre, unconstrained output</td></tr>
+        <tr><td><strong>05 Aesthetic</strong></td><td>Design language, tone, brand alignment keywords</td><td>Visually dull or off-brand</td></tr>
+        <tr><td><strong>06 Planning</strong></td><td>Architecture before generation — information hierarchy</td><td>Structural mistakes</td></tr>
+        <tr><td><strong>07 Output</strong></td><td>Exact format: files, schema, structure specified</td><td>Incomplete or disorganized output</td></tr>
+        <tr><td><strong>08 Refinement</strong></td><td>Self-critique before final — two polish passes</td><td>First-draft quality only</td></tr>
+      </tbody>
+    </table>
+
+    <div class="highlight-box">
+      <div class="label">★ Editor's Tip — The 80/20 of This Framework</div>
+      <p>If you only apply three layers, make it these: <strong>Role</strong> (set expertise), <strong>Constraints</strong> (set quality floor), and <strong>Output</strong> (set exact format). These three eliminate 80% of common AI failures: generic responses, unbounded output, and wrong format. Add the other five when quality truly matters.</p>
+    </div>
+  </div>
+  <div class="page-num">07</div>
+</div>
+
+<!-- ═══════════════════════ PAGE 8: ENHANCEMENTS ═══════════════════════ -->
+<div class="page">
+  <div class="content">
+    <div class="chapter-label">Chapter 07</div>
+    <h1>8 Advanced Enhancement Techniques</h1>
+    <p class="intro-text">These techniques transform good prompts into exceptional ones. Each addresses a specific quality problem and includes a ready-to-use template you can append to any prompt.</p>
+
+    <h2>🏆 #1: Self-Refinement Loop</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Highest Impact Enhancement — Append to Any Prompt</span>
+After generating your first draft, do NOT show it.
+Instead:
+1. Critique it — is it generic? Does every section earn its place?
+2. Refine once for structure — cut anything that doesn't serve the goal.
+3. Refine once for polish — fix inconsistencies, improve specificity.
+Output the final version only. No commentary, no "here's the refined version".</div>
+
+    <h2>#2: Chain-of-Thought</h2>
+    <div class="prompt-block">
+<span class="prompt-label">For Complex Reasoning — Add Before Your Request</span>
+Let's think step by step. Before answering:
+1. Identify what type of problem this is.
+2. List the key constraints and unknowns.
+3. Consider 2-3 approaches.
+4. Select best approach — explain why in one sentence.
+Then answer.</div>
+
+    <h2>#3: Role + Constraint Stack</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Biggest Quality Multiplier Per Word Added</span>
+You are a [senior staff engineer] who has shipped [3 production systems handling 10M+ users].
+You write for [practitioners], not beginners.
+Prioritize [correctness] over [brevity]. No pseudocode. No TODOs. Full error handling.
+Never suggest multiple approaches — pick the best one and commit.</div>
+
+    <h2>#4: Zero-Shot CoT</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Simplest Quality Hack — One Line</span>
+Think carefully before answering. Show your reasoning.</div>
+
+    <h2>#5: Prompt Diff (A/B Testing)</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Before Deploying Prompts to Production</span>
+Compare these two prompts. For each, score 1-10 on:
+Clarity · Constraints · Predictability · Specificity
+
+Prompt A: [paste prompt A]
+Prompt B: [paste prompt B]
+
+Output:
+1. Scores table
+2. Which performs better and why (2 sentences)
+3. Rewrite of the weaker prompt</div>
+
+    <div class="highlight-box">
+      <div class="label">Pro Tip: Enhancement Stacking Order</div>
+      <p>Always apply enhancements in this order: (1) Role + Constraint Stack first (sets the quality floor), (2) Chain-of-Thought second (improves reasoning), (3) Self-Refinement Loop last (polishes output). Adding Self-Refinement without Chain-of-Thought works, but the reverse order is less effective.</p>
+    </div>
+  </div>
+  <div class="page-num">08</div>
+</div>
+
+<!-- ═══════════════════════ PAGE 9: BRAND SYSTEMS ═══════════════════════ -->
+<div class="page">
+  <div class="content">
+    <div class="chapter-label">Chapter 08</div>
+    <h1>6 Complete Brand Design Systems</h1>
+    <p class="intro-text">Each brand system is a production-ready prompt that generates a complete design language: color palette, typography, motion, copy rules, and UX constraints. Copy the one matching your project type and paste it into any AI for instant brand consistency.</p>
+
+    <table class="table-wrap">
+      <thead><tr><th>Brand</th><th>Use Case</th><th>Key Principles</th></tr></thead>
+      <tbody>
+        <tr><td><strong>✨ powerUP</strong></td><td>Motivational, Creator, Personal Brand</td><td>Dark-mode native, typography-first, one accent per screen, white space = intelligence</td></tr>
+        <tr><td><strong>💼 SaaS / B2B</strong></td><td>SaaS Platform, Enterprise Tool</td><td>Function before form, information hierarchy, mobile-first, WCAG AA minimum</td></tr>
+        <tr><td><strong>🛒 E-commerce</strong></td><td>Retail, DTC Brand, Marketplace</td><td>CTA above fold, price visible always, checkout in 3 steps max, thumb-zone CTAs</td></tr>
+        <tr><td><strong>💰 Fintech</strong></td><td>Finance, Banking, Investment App</td><td>Green = gain ONLY, Red = loss ONLY, tabular-nums mandatory, minimal motion</td></tr>
+        <tr><td><strong>🛡 Insurance</strong></td><td>Insurtech, Benefits Platform</td><td>Plain language over jargon, 3-step quote flow, claims tracking like packages</td></tr>
+        <tr><td><strong>🎨 Creative Agency</strong></td><td>Design Studio, Production House</td><td>Work leads over UI, whitespace is design, every hover tells a story</td></tr>
+      </tbody>
+    </table>
+
+    <div class="highlight-box">
+      <div class="label">★ Most Versatile: The powerUP Brand</div>
+      <p>Start here. The powerUP system works for almost any creative or personal project. Its dark-mode native approach with sparse neon accents creates an immediately premium feel. The typography-first design rule ("type does the work, effects support") prevents the most common design mistake: over-decoration.</p>
+    </div>
+
+    <h2>powerUP Brand — Color Palette</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Brand Essence — Copy Ready</span>
+Brand essence: Activated potential. Directed energy. Intelligent lift.
+
+COLOR PALETTE
+- Background: #0B0D10 (void black), #14161A (charcoal)
+- Accents (sparse): cyan #4DFFFF · violet #7B5CFF · magenta #FF4FD8 · amber #FFB000
+- Text: #FFFFFF (primary) · #A1A1AA (secondary) · #6B7280 (muted)
+
+MOTION: Bias always upward. cubic-bezier(0.16, 1, 0.3, 1). Duration: 180ms micro, 320ms standard.
+DESIGN RULES: Typography-first, dark-mode native, one accent per screen, white space = intelligence.
+TONE: Confident. Modern. Calm. Inevitable.
+AVOID: over-decoration, excessive gradients, visual noise, SaaS clichés.</div>
+
+    <p><strong>Fintech Critical Rule:</strong> NEVER use red for branding. NEVER use green decoratively. Green means gain. Red means loss. This semantic color coding is non-negotiable in financial interfaces — it prevents catastrophic user confusion.</p>
+  </div>
+  <div class="page-num">09</div>
+</div>
+
+<!-- ═══════════════════════ PAGE 10: WORD SWAPS ═══════════════════════ -->
+<div class="page">
+  <div class="content">
+    <div class="chapter-label">Chapter 09</div>
+    <h1>The Word Swap Quick Reference</h1>
+    <p class="intro-text">The single fastest way to improve any prompt: replace vague words with specific terms. These swaps are organized from beginner to hack level. Each one comes with a rationale explaining why the replacement is better.</p>
+
+    <h2>Beginner Swaps — Fix These First</h2>
+    <table class="table-wrap">
+      <thead><tr><th>❌ Say This</th><th>✅ Say This Instead</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><strong>"nice"</strong></td><td>"clear and intentional"</td><td>Specificity forces AI to make design decisions</td></tr>
+        <tr><td><strong>"modern"</strong></td><td>"glassmorphism / neo-brutalism"</td><td>"Modern" means nothing to an AI</td></tr>
+        <tr><td><strong>"beautiful"</strong></td><td>"visually precise with intentional contrast ratio"</td><td>Beauty is subjective. Contrast ratio is measurable</td></tr>
+        <tr><td><strong>"responsive"</strong></td><td>"fluid grid at 375/768/1280/1920px breakpoints"</td><td>Name the breakpoints or it's guesswork</td></tr>
+        <tr><td><strong>"fast"</strong></td><td>"LCP &lt;2.5s, CLS &lt;0.1, FID &lt;100ms"</td><td>Web Vitals are the universal standard</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Advanced Swaps — Precision Level</h2>
+    <table class="table-wrap">
+      <thead><tr><th>❌ Say This</th><th>✅ Say This Instead</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><strong>"smooth animation"</strong></td><td>"cubic-bezier(0.16,1,0.3,1) 320ms spring easing"</td><td>Spring easing feels physical</td></tr>
+        <tr><td><strong>"glassmorphism"</strong></td><td>"backdrop-filter:blur(20px), rgba(255,255,255,0.06), border:1px solid rgba(255,255,255,0.12)"</td><td>Specify all three properties</td></tr>
+        <tr><td><strong>"good typography"</strong></td><td>"modular scale 1.25, line-height 1.6 body / 1.1 display, clamp() for fluid sizing"</td><td>Modular scale creates harmony</td></tr>
+        <tr><td><strong>"interactive"</strong></td><td>"hover 150ms ease-out, press 80ms scale(0.97), focus-visible 2px ring offset-2"</td><td>Spec all three states consistently</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Hack-Level Swaps — Expert Precision</h2>
+    <table class="table-wrap">
+      <thead><tr><th>❌ Say This</th><th>✅ Say This Instead</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><strong>"write good copy"</strong></td><td>"hook (problem) → agitation → solution → proof → CTA"</td><td>PAS framework converts better</td></tr>
+        <tr><td><strong>"secure it"</strong></td><td>"input validation (zod), parameterized queries, CORS, rate limiting, JWT rotation"</td><td>Security is a checklist</td></tr>
+        <tr><td><strong>"make it faster"</strong></td><td>"profile first: measure LCP, TTFB, JS execution — then optimize bottleneck only"</td><td>Profile before you optimize</td></tr>
+        <tr><td><strong>"make it scalable"</strong></td><td>"stateless functions, horizontal scaling, read replicas, CDN, queue for async"</td><td>Scalability is architecture</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="page-num">10</div>
+</div>
+
+<!-- ═══════════════════════ PAGE 11: TOP WORKFLOWS ═══════════════════════ -->
+<div class="page">
+  <div class="content">
+    <div class="chapter-label">Chapter 10</div>
+    <h1>Top 5 Production Workflows</h1>
+    <p class="intro-text">These workflows are complete, step-by-step prompt systems for building real products. Each one addresses a specific use case and includes all the context, constraints, and output format needed. Copy-paste and replace bracketed sections.</p>
+
+    <h2>🎨 Design System Creation</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Workflow: Design — Full Product Design System</span>
+Create a comprehensive design system for [product]. Include:
+- Color palette (primary, secondary, neutral, semantic)
+- Typography scale (4 levels)
+- Spacing system (4px grid)
+- Component library (buttons, inputs, cards, modals)
+- Icon set guidelines
+- Documentation structure
+Output as structured markdown with code tokens for values.</div>
+
+    <h2>💻 Full-Stack Application</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Workflow: Dev — Complete Web Application</span>
+Build a complete [app type] with:
+- Next.js 15 frontend, REST API with validation
+- PostgreSQL database schema (3-5 core tables)
+- Authentication (OAuth + JWT)
+- CRUD operations for all models
+- Responsive UI with Tailwind CSS
+- Error handling, loading states
+- Deployment config for Vercel</div>
+
+    <h2>🤖 AI Agent Design</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Workflow: AI — Autonomous Agent System</span>
+Design an autonomous AI agent for [task]. Include:
+- Agent architecture (ReAct / Plan-and-Execute)
+- Tool definitions (5-8 tools with schemas)
+- Memory system (short-term + long-term)
+- Error recovery strategy
+- Human-in-the-loop checkpoints
+- Evaluation metrics
+- Deployment plan with fallback mechanisms</div>
+
+    <h2>📊 Market Research Report</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Workflow: Business — Comprehensive Market Analysis</span>
+Conduct market research for [industry/product]. Include:
+- TAM/SAM/SOM analysis
+- 5 key competitor profiles with SWOT
+- Target user personas (3 segments)
+- Pricing benchmarking
+- Market trends (3 key trends)
+- Barriers to entry assessment
+- Go-to-market recommendation with timeline</div>
+
+    <h2>🔒 Security Audit</h2>
+    <div class="prompt-block">
+<span class="prompt-label">Workflow: Security — Full Application Review</span>
+Perform a security audit for [application type]. Include:
+- OWASP Top 10 checklist
+- Authentication vulnerability assessment
+- Input validation review
+- Data exposure risks
+- API security headers
+- Dependency vulnerability scan approach
+- Incident response plan
+- Security hardening recommendations</div>
+
+    <p><strong>16 more workflows available</strong> in the Playbook Zone covering: Landing Page Design, API Design, Database Schema, Product Roadmap, Pricing Strategy, Competitive Analysis, Content Strategy, Email Sequence, Social Media Strategy, User Onboarding, Dashboard Design, Mobile App Design, React Native Build, ML Pipeline, CI/CD Pipeline, and Monitoring Setup.</p>
+  </div>
+  <div class="page-num">11</div>
+</div>
+
+<!-- ═══════════════════════ PAGE 12: MONETIZE ═══════════════════════ -->
+<div class="page">
+  <div class="content">
+    <div class="chapter-label">Chapter 11</div>
+    <h1>Monetize: Turn Prompts Into Profit</h1>
+    <p class="intro-text">The Monetize Zone is not just theory — it contains actionable templates, real SaaS blueprints, and income stack strategies. Here are the hand-picked highlights for generating real revenue from prompt engineering skills.</p>
+
+    <h2>Top 6 Profit Prompts</h2>
+    <table class="table-wrap">
+      <thead><tr><th>Prompt</th><th>Description</th><th>Revenue</th></tr></thead>
+      <tbody>
+        <tr><td><strong>SaaS AI MVP in 1 Weekend</strong></td><td>Build complete SaaS with Next.js + Supabase + Groq + Stripe + Vercel</td><td>$$$</td></tr>
+        <tr><td><strong>Prompt Pack → First Sale in 48hrs</strong></td><td>10 copy-ready prompts for Gumroad with niche, title, pro tip</td><td>$</td></tr>
+        <tr><td><strong>Newsletter → $1k/mo in 90 Days</strong></td><td>Beehiiv + referral program + sponsorships content system</td><td>$$</td></tr>
+        <tr><td><strong>Consulting → Productized Offer</strong></td><td>Fixed-scope, fixed-price with Notion portal + Loom async delivery</td><td>$$</td></tr>
+        <tr><td><strong>Agency → SaaS Transition</strong></td><td>6-month plan from services to product</td><td>$$$</td></tr>
+        <tr><td><strong>MCP Tool → Paid Product</strong></td><td>Build MCP server for Claude Desktop, monetize with npm/Stripe</td><td>$$$</td></tr>
+      </tbody>
+    </table>
+
+    <h2>The Income Stack Framework</h2>
+    <div class="stat-row">
+      <div class="stat-box"><div class="s-num" style="color:#22c55e">$100-500</div><div class="s-label">Week 1 — Quick Win</div></div>
+      <div class="stat-box"><div class="s-num" style="color:#FF6B00">$500-5k</div><div class="s-label">Week 2-4 — Active</div></div>
+      <div class="stat-box"><div class="s-num" style="color:#FFB000">$500-10k/mo</div><div class="s-label">Month 1-3 — Passive</div></div>
+      <div class="stat-box"><div class="s-num" style="color:#a78bfa">$2k-20k/mo</div><div class="s-label">Month 2-6 — Hybrid</div></div>
+    </div>
+
+    <h2>SaaS Templates That Ship</h2>
+    <table class="table-wrap">
+      <thead><tr><th>Template</th><th>Stack</th><th>Difficulty</th><th>Time</th></tr></thead>
+      <tbody>
+        <tr><td>AI Content Pipeline</td><td>n8n + Airtable + WordPress</td><td style="color:#eab308">Medium</td><td>2-3 days</td></tr>
+        <tr><td>Lead Capture & Qualification</td><td>n8n + Typeform + OpenAI + HubSpot</td><td style="color:#ef4444">Hard</td><td>5-7 days</td></tr>
+        <tr><td>Site & Competitor Monitor</td><td>n8n + PagerDuty + Google Sheets</td><td style="color:#22c55e">Easy</td><td>1 day</td></tr>
+        <tr><td>Invoice Automation</td><td>Make + Airtable + PDF.co + Gmail</td><td style="color:#eab308">Medium</td><td>2-3 days</td></tr>
+        <tr><td>MCP Agent Pipeline</td><td>MCP SDK + Node.js + WordPress</td><td style="color:#ef4444">Hard</td><td>7-10 days</td></tr>
+        <tr><td>CRM Sync System</td><td>Zapier + HubSpot + Gmail + Sheets</td><td style="color:#22c55e">Easy</td><td>1-2 days</td></tr>
+      </tbody>
+    </table>
+
+    <div class="highlight-box">
+      <div class="label">★ Fastest Path to Revenue</div>
+      <p>Sell a prompt pack on Gumroad. Create 10 prompts, price at $9-19, write a compelling product description using the Copy task prompt from this book, and set up a simple landing page. Zero setup cost. First sale within 48 hours is achievable with the right niche selection.</p>
+    </div>
+  </div>
+  <div class="page-num">12</div>
+</div>
+
+<!-- ═══════════════════════ PAGE 13: SKILLS LIBRARY ═══════════════════════ -->
+<div class="page">
+  <div class="content">
+    <div class="chapter-label">Chapter 12</div>
+    <h1>The Skills Library: 66 Powers</h1>
+    <p class="intro-text">promptc OS integrates with a library of 66 production skills across 13 categories. Each skill can be invoked independently or combined for compound effects. Here is the full breakdown of capabilities available at your fingertips.</p>
+
+    <div class="stat-row">
+      <div class="stat-box"><div class="s-num">9</div><div class="s-label">AI / LLM Core</div></div>
+      <div class="stat-box"><div class="s-num">8</div><div class="s-label">Web Search</div></div>
+      <div class="stat-box"><div class="s-num">5</div><div class="s-label">Document Gen</div></div>
+      <div class="stat-box"><div class="s-num">4</div><div class="s-label">Prompt Eng</div></div>
+      <div class="stat-box"><div class="s-num">5</div><div class="s-label">Web Dev</div></div>
+      <div class="stat-box"><div class="s-num">3</div><div class="s-label">Animation</div></div>
+    </div>
+    <div class="stat-row" style="margin-top:8px;">
+      <div class="stat-box"><div class="s-num">6</div><div class="s-label">Content</div></div>
+      <div class="stat-box"><div class="s-num">7</div><div class="s-label">Business</div></div>
+      <div class="stat-box"><div class="s-num">4</div><div class="s-label">Agent</div></div>
+      <div class="stat-box"><div class="s-num">5</div><div class="s-label">Analysis</div></div>
+      <div class="stat-box"><div class="s-num">1</div><div class="s-label">Data Viz</div></div>
+      <div class="stat-box"><div class="s-num">4</div><div class="s-label">Utilities</div></div>
+    </div>
+
+    <h2>Must-Know Skills</h2>
+    <table class="table-wrap">
+      <thead><tr><th>Skill</th><th>Category</th><th>What It Does</th></tr></thead>
+      <tbody>
+        <tr><td><strong>LLM</strong></td><td>AI / LLM Core</td><td>Chat completions via z-ai-web-dev-sdk for conversational AI</td></tr>
+        <tr><td><strong>VLM</strong></td><td>AI / LLM Core</td><td>Vision-based AI chat for image understanding and analysis</td></tr>
+        <tr><td><strong>image-generation</strong></td><td>AI / LLM Core</td><td>AI image creation from text descriptions (multiple sizes)</td></tr>
+        <tr><td><strong>web-search</strong></td><td>Web Search</td><td>Real-time web search for current information retrieval</td></tr>
+        <tr><td><strong>docx</strong></td><td>Document Gen</td><td>Word document creation and editing (85 files, most comprehensive)</td></tr>
+        <tr><td><strong>pdf</strong></td><td>Document Gen</td><td>PDF generation with cover, TOC, charts, and forms</td></tr>
+        <tr><td><strong>fullstack-dev</strong></td><td>Web Development</td><td>Next.js 16 + TypeScript + Tailwind CSS 4 full-stack apps</td></tr>
+        <tr><td><strong>ui-ux-pro-max</strong></td><td>Web Development</td><td>UI/UX design intelligence and implementation guidance</td></tr>
+        <tr><td><strong>skill-creator</strong></td><td>Skill Management</td><td>Create, modify, evaluate, and benchmark skills</td></tr>
+        <tr><td><strong>charts</strong></td><td>Data Visualization</td><td>Charts via matplotlib, ECharts, D3.js, and Mermaid</td></tr>
+        <tr><td><strong>mcp-builder</strong></td><td>Agent Frameworks</td><td>MCP server builder for Claude Desktop integration</td></tr>
+        <tr><td><strong>chain-of-thought</strong></td><td>Prompt Eng</td><td>Chain-of-thought reasoning for complex problem-solving</td></tr>
+      </tbody>
+    </table>
+
+    <div class="highlight-box">
+      <div class="label">Skill Combinations That Compound</div>
+      <p><strong>Research + docx + charts</strong> → Generate a market research report with embedded data visualizations. <strong>LLM + web-search + pdf</strong> → Build an AI-powered research assistant that outputs structured PDF reports. <strong>image-generation + fullstack-dev</strong> → Create a web app that generates images on demand. Skills compound like interest — each one makes the system smarter.</p>
+    </div>
+  </div>
+  <div class="page-num">13</div>
+</div>
+
+<!-- ═══════════════════════ PAGE 14: DESIGN VOCAB ═══════════════════════ -->
+<div class="page">
+  <div class="content">
+    <div class="chapter-label">Chapter 13</div>
+    <h1>Design Vocabulary Quick Reference</h1>
+    <p class="intro-text">60+ terms that transform vague design requests into precise, AI-understandable instructions. Use these exact terms in your prompts for dramatically better visual output. Each includes the CSS or implementation detail.</p>
+
+    <h2>Visual Effects (Top Picks)</h2>
+    <table class="table-wrap">
+      <thead><tr><th>Term</th><th>Implementation</th><th>Pro Tip</th></tr></thead>
+      <tbody>
+        <tr><td><strong>glassmorphism</strong></td><td>backdrop-filter:blur(20px) + rgba fill + 1px border</td><td>Pair with colorful background behind it</td></tr>
+        <tr><td><strong>neo-brutalism</strong></td><td>Thick black borders, flat fills, hard drop shadows</td><td>Works best monochromatic</td></tr>
+        <tr><td><strong>bento grid</strong></td><td>Asymmetric mosaic, cards spanning multiple columns</td><td>Gap consistency is the only rule</td></tr>
+        <tr><td><strong>neon accent</strong></td><td>Single saturated color against void-black</td><td>One accent per screen maximum</td></tr>
+        <tr><td><strong>dark-mode native</strong></td><td>Designed dark-first, light mode is adaptation</td><td>Elevation changes: higher = lighter</td></tr>
+        <tr><td><strong>claymorphism</strong></td><td>Inflated 3D soft shapes, multi-layer inner shadows</td><td>inner-shadow: inset 0 -6px 12px is the key</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Motion & Interaction (Top Picks)</h2>
+    <table class="table-wrap">
+      <thead><tr><th>Term</th><th>Implementation</th><th>Pro Tip</th></tr></thead>
+      <tbody>
+        <tr><td><strong>spring physics</strong></td><td>Framer: type:'spring', stiffness:400, damping:30</td><td>High stiffness + low damping = snappy</td></tr>
+        <tr><td><strong>micro-interactions</strong></td><td>Sub-200ms feedback on every state change</td><td>Every interaction needs a state</td></tr>
+        <tr><td><strong>skeleton loading</strong></td><td>Animated shimmer matching exact content shape</td><td>Must mirror real content dimensions</td></tr>
+        <tr><td><strong>scroll-trigger</strong></td><td>GSAP ScrollTrigger or Framer viewport prop</td><td>GSAP: start:'top 80%' end:'top 20%'</td></tr>
+        <tr><td><strong>variable font</strong></td><td>font-variation-settings: 'wght' 100 to 900</td><td>One file, infinite styles</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Layout & System (Top Picks)</h2>
+    <table class="table-wrap">
+      <thead><tr><th>Term</th><th>Implementation</th><th>Pro Tip</th></tr></thead>
+      <tbody>
+        <tr><td><strong>8pt grid</strong></td><td>All spacing is a multiple of 8px</td><td>4px tight, 8px gaps, 16/24/32/48/64px layout</td></tr>
+        <tr><td><strong>fluid typography</strong></td><td>clamp(min, fluid, max) for scalable sizes</td><td>Eliminates typography breakpoints</td></tr>
+        <tr><td><strong>container queries</strong></td><td>@container (min-width: 400px)</td><td>True component-level responsiveness</td></tr>
+        <tr><td><strong>editorial layout</strong></td><td>Magazine-style: oversized type, text-image overlap</td><td>Break the grid intentionally</td></tr>
+        <tr><td><strong>data storytelling</strong></td><td>Sequence charts + annotations to guide viewer</td><td>Start with insight in the title</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="page-num">14</div>
+</div>
+
+<!-- ═══════════════════════ PAGE 15: BACK COVER ═══════════════════════ -->
+<div class="page">
+  <div class="back-cover">
+    <div class="cover-bg"></div>
+    <div style="position:relative;z-index:2;">
+      <div class="cover-badge" style="margin:0 auto 24px;">promptc OS v3.2</div>
+      <h1 style="text-align:center;">Start Building<br><span style="color:#4DFFFF;">Better Prompts</span><br>Today</h1>
+      <p style="text-align:center;max-width:380px;margin:0 auto;">47 modifiers. 21 workflows. 66 skills. 6 brand systems. Every single one is copy-ready.</p>
+      <div class="url-box">promptc-os.vercel.app</div>
+      <p class="small-text">Built with Next.js 16 · TypeScript · Tailwind CSS · Framer Motion</p>
+      <p class="small-text" style="margin-top:8px;">2026 Edition — promptc OS Project by Mark Tantongco</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
