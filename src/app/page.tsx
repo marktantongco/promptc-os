@@ -4,10 +4,10 @@ import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Copy, Check, ChevronDown, ChevronRight, Sparkles, Loader2,
-  Zap, Target, Wrench, X, RotateCcw, Search, History, HelpCircle,
-  Download, FileText, Share2, ArrowUpRight, TrendingUp, Timer, Layers,
-  Command, Eye, Brain, Cpu, BookOpen, BarChart3, ArrowRight, Info,
-  FolderDown, ClipboardCopy, FileDown, Lightbulb, ArrowUp,
+  Zap, Target, Wrench, X, Search, HelpCircle,
+  FileText, TrendingUp, Timer, Layers,
+  Command, Cpu, BarChart3, ArrowRight,
+  FolderDown, FileDown, Lightbulb, ArrowUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -25,7 +25,14 @@ import {
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 interface ResultState { content: string | null; loading: boolean; error: string | null; expanded: boolean; }
-interface HistoryItem { text: string; zone: string; time: string; }
+interface BasketItem {
+  id: string;
+  text: string;
+  label: string;
+  zone: string;
+  time: string;
+  chars: number;
+}
 
 // ─── Sub-tab definitions per zone ─────────────────────────────────────────
 const ZONE_TABS: Record<string, string[]> = {
@@ -184,10 +191,9 @@ export default function Home() {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [history, setHistory] = useState<BasketItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
-  const [showFab, setShowFab] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [skillsSearchQuery, setSkillsSearchQuery] = useState("");
   const [skillsCategoryFilter, setSkillsCategoryFilter] = useState<string>("all");
@@ -195,6 +201,9 @@ export default function Home() {
   const [quickStartDismissed, setQuickStartDismissed] = useState(false);
   const [skillStep, setSkillStep] = useState(0);
   const [skillForm, setSkillForm] = useState<Record<number, string>>({});
+  const [basketExpandId, setBasketExpandId] = useState<string | null>(null);
+  const [basketSearch, setBasketSearch] = useState("");
+  const [basketZoneFilter, setBasketZoneFilter] = useState("all");
 
   const [metaPrompt, setMetaPrompt] = useState("");
   const [metaResults, setMetaResults] = useState<Record<1 | 2 | 3, ResultState>>({ 1: { content: null, loading: false, error: null, expanded: false }, 2: { content: null, loading: false, error: null, expanded: false }, 3: { content: null, loading: false, error: null, expanded: false } });
@@ -223,10 +232,75 @@ export default function Home() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Load basket from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("promptc-basket");
+      if (saved) setHistory(JSON.parse(saved));
+    } catch {}
+  }, []);
+
+  // Save basket to localStorage on change
+  useEffect(() => {
+    try {
+      if (history.length > 0) localStorage.setItem("promptc-basket", JSON.stringify(history));
+      else localStorage.removeItem("promptc-basket");
+    } catch {}
+  }, [history]);
+
   const toggleExpand = useCallback((id: string) => { setExpandedItems((p) => { const n = new Set(p); if (n.has(id)) { n.delete(id); } else { n.add(id); } return n; }); }, []);
   const handleCopy = useCallback(async (text: string, id: string) => {
-    try { await navigator.clipboard.writeText(text); setCopiedId(id); setHistory((p) => [{ text: text.slice(0, 200), zone: activeZone, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }, ...p.slice(0, 49)]); toast.success("Copied!"); setTimeout(() => setCopiedId(null), 1800); } catch { toast.error("Failed to copy."); }
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      const item: BasketItem = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        text,
+        label: text.length > 120 ? text.slice(0, 120) + "..." : text,
+        zone: activeZone,
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        chars: text.length,
+      };
+      setHistory((p) => [item, ...p.slice(0, 99)]);
+      toast.success("Added to basket!");
+      setTimeout(() => setCopiedId(null), 1800);
+    } catch {
+      toast.error("Failed to copy.");
+    }
   }, [activeZone]);
+
+  // Copy all basket items
+  const copyAllBasket = useCallback(async () => {
+    if (history.length === 0) { toast.error("Basket is empty."); return; }
+    const all = history.map((h) => h.text).join("\n\n---\n\n");
+    try { await navigator.clipboard.writeText(all); toast.success(`Copied ${history.length} items!`); } catch { toast.error("Failed."); }
+  }, [history]);
+
+  // Remove single basket item
+  const removeBasketItem = useCallback((id: string) => {
+    setHistory((p) => p.filter((h) => h.id !== id));
+    toast.info("Removed.");
+  }, []);
+
+  // Export basket as markdown
+  const exportBasket = useCallback(() => {
+    if (history.length === 0) { toast.error("Basket is empty."); return; }
+    let md = "# promptc OS — Basket Export\n\n";
+    history.forEach((h, i) => {
+      md += `## ${i + 1}. [${h.zone}] — ${h.time} (${h.chars} chars)\n\n${h.text}\n\n---\n\n`;
+    });
+    const blob = new Blob([md], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "promptc-basket.md"; a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Exported!");
+  }, [history]);
+
+  // Clear entire basket
+  const clearBasket = useCallback(() => {
+    setHistory([]);
+    toast.info("Basket cleared.");
+  }, []);
   const handleMetaGenerate = useCallback(async (mt: 1 | 2 | 3) => {
     if (!metaPrompt.trim()) { toast.error("Enter a prompt first."); return; }
     setMetaResults((p) => ({ ...p, [mt]: { content: null, loading: true, error: null, expanded: true } }));
@@ -252,6 +326,18 @@ export default function Home() {
     if (skillsSearchQuery.trim()) { const q = skillsSearchQuery.toLowerCase(); list = list.filter((s) => s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)); }
     return list;
   }, [skillsCategoryFilter, skillsSearchQuery]);
+
+  const filteredBasket = useMemo(() => {
+    let list = history;
+    if (basketZoneFilter !== "all") list = list.filter((h) => h.zone === basketZoneFilter);
+    if (basketSearch.trim()) {
+      const q = basketSearch.toLowerCase();
+      list = list.filter((h) => h.text.toLowerCase().includes(q) || h.zone.toLowerCase().includes(q));
+    }
+    return list;
+  }, [history, basketZoneFilter, basketSearch]);
+
+  const basketTotalChars = useMemo(() => history.reduce((s, h) => s + h.chars, 0), [history]);
 
   const handleSelectFromPalette = useCallback((zone: string, tab: string) => { handleZoneChange(zone); setActiveSubTab((p) => ({ ...p, [zone]: tab })); }, [handleZoneChange]);
 
@@ -347,7 +433,7 @@ export default function Home() {
                 <button onClick={() => { retriggerOnboarding(); setShowOnboarding(true); }} className="p-1.5 rounded-lg transition-all hover:bg-white/5" style={{ color: "#6B7280" }}><HelpCircle className="w-3.5 h-3.5" /></button>
               </Tip>
               <button onClick={() => setShowHistory(!showHistory)} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all hover:bg-white/5" style={{ color: "#6B7280" }}>
-                <History className="w-3.5 h-3.5" /><span className="hidden sm:inline">History</span>
+                <span className="text-sm">🧺</span><span className="hidden sm:inline">Basket</span>
                 {history.length > 0 && <span className="w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold" style={{ background: zoneColor + "22", color: zoneColor }}>{history.length}</span>}
               </button>
             </div>
@@ -355,17 +441,83 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* ─── History Panel ─── */}
+      {/* ─── Basket Panel ─── */}
       <AnimatePresence>{showHistory && (
-        <motion.div initial={{ opacity: 0, x: 300 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 300 }} transition={{ duration: 0.25 }} className="fixed top-14 right-0 bottom-0 z-40 w-80 sm:w-96 overflow-y-auto" style={{ background: "#14161A", borderLeft: "1px solid rgba(255,255,255,0.07)" }}>
+        <motion.div initial={{ opacity: 0, x: 300 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 300 }} transition={{ duration: 0.25 }} className="fixed top-14 right-0 bottom-0 z-40 w-96 sm:w-[28rem] overflow-y-auto" style={{ background: "#14161A", borderLeft: "1px solid rgba(255,255,255,0.07)" }}>
           <div className="p-4 flex flex-col gap-3">
-            <div className="flex items-center justify-between"><h3 className="text-sm font-bold" style={{ color: zoneColor }}>📋 Copy History</h3><button onClick={() => { setHistory([]); toast.info("Cleared."); }} className="text-[10px] px-2 py-1 rounded border" style={{ borderColor: "rgba(239,68,68,0.3)", color: "#ef4444" }}>CLEAR</button></div>
-            {history.length === 0 ? <p className="text-xs text-center py-8" style={{ color: "#4b5563" }}>No copies yet</p> : history.map((h, i) => (
-              <div key={i} className="rounded-lg p-3" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)" }}>
-                <div className="flex items-center justify-between mb-1"><span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: `${ZONES.find(z => z.id === h.zone)?.color || "#4DFFFF"}15`, color: ZONES.find(z => z.id === h.zone)?.color || "#4DFFFF" }}>{h.zone}</span><span className="text-[9px]" style={{ color: "#4b5563" }}>{h.time}</span></div>
-                <p className="text-xs leading-relaxed line-clamp-3" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{h.text}</p>
+            {/* Header */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold" style={{ color: zoneColor }}>🧺 Basket</h3>
+                <button onClick={() => { if (history.length > 0) { clearBasket(); } }} className="text-[10px] px-2 py-1 rounded border" style={{ borderColor: "rgba(239,68,68,0.3)", color: "#ef4444" }}>CLEAR</button>
               </div>
-            ))}
+              <p className="text-[10px]" style={{ color: "#4b5563" }}>{history.length} items · {basketTotalChars.toLocaleString()} chars total</p>
+              <div className="flex gap-1.5">
+                <button onClick={copyAllBasket} className="flex-1 text-[10px] px-2 py-1.5 rounded-lg font-medium transition-all" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.25)" }}>COPY ALL</button>
+                <button onClick={exportBasket} className="flex-1 text-[10px] px-2 py-1.5 rounded-lg font-medium transition-all" style={{ background: "rgba(77,255,255,0.08)", color: "#4DFFFF", border: "1px solid rgba(77,255,255,0.2)" }}>EXPORT .md</button>
+                <button onClick={() => { if (history.length > 0) { clearBasket(); } }} className="flex-1 text-[10px] px-2 py-1.5 rounded-lg font-medium transition-all" style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.2)" }}>CLEAR</button>
+              </div>
+            </div>
+
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#4b5563" }} />
+              <input value={basketSearch} onChange={(e) => setBasketSearch(e.target.value)} placeholder="Search basket..." className="w-full pl-9 pr-4 py-2 rounded-lg text-xs outline-none" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} />
+            </div>
+
+            {/* Zone filter pills */}
+            <div className="flex gap-1 overflow-x-auto no-scrollbar">
+              {["all", ...ZONES.map((z) => z.id)].map((z) => (
+                <button key={z} onClick={() => setBasketZoneFilter(z)} className="px-2 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all" style={{ color: basketZoneFilter === z ? (z === "all" ? "#a78bfa" : ZONES.find((zz) => zz.id === z)?.color || "#4DFFFF") : "#6B7280", background: basketZoneFilter === z ? (z === "all" ? "rgba(167,139,250,0.12)" : `${ZONES.find((zz) => zz.id === z)?.color || "#4DFFFF"}15`) : "transparent", border: `1px solid ${basketZoneFilter === z ? (z === "all" ? "rgba(167,139,250,0.3)" : `${ZONES.find((zz) => zz.id === z)?.color || "#4DFFFF"}33`) : "rgba(255,255,255,0.07)"}` }}>{z === "all" ? "All" : z}</button>
+              ))}
+            </div>
+
+            {/* Items */}
+            {filteredBasket.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-2xl mb-2">🧺</p>
+                <p className="text-xs" style={{ color: "#6B7280" }}>Your basket is empty</p>
+                <p className="text-[10px] mt-1" style={{ color: "#4b5563" }}>Copy prompts from any zone and they'll appear here.</p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {filteredBasket.map((h) => {
+                  const zColor = ZONES.find((z) => z.id === h.zone)?.color || "#4DFFFF";
+                  const isExpanded = basketExpandId === h.id;
+                  return (
+                    <motion.div key={h.id} layout className="rounded-lg cursor-pointer transition-all" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)" }} onClick={() => setBasketExpandId(isExpanded ? null : h.id)}>
+                      {/* Row 1: zone badge + time + chars */}
+                      <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: `${zColor}15`, color: zColor }}>{h.zone}</span>
+                          <span className="text-[9px]" style={{ color: "#4b5563" }}>{h.time}</span>
+                        </div>
+                        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#6B7280" }}>{h.chars} chars</span>
+                      </div>
+                      {/* Row 2: text */}
+                      <div className="px-3 pb-1.5">
+                        <AnimatePresence mode="wait">
+                          {isExpanded ? (
+                            <motion.p key="full" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-[11px] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{h.text}</motion.p>
+                          ) : (
+                            <motion.p key="trunc" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-[11px] leading-relaxed line-clamp-3" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{h.label}</motion.p>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                      {/* Row 3: actions */}
+                      <div className="flex items-center gap-2 px-3 pb-2.5">
+                        <button onClick={(e) => { e.stopPropagation(); handleCopy(h.text, h.id); }} className="flex items-center gap-1 text-[10px] px-2 py-1 rounded transition-all hover:bg-white/5" style={{ color: "#a78bfa" }}>
+                          <Copy className="w-3 h-3" /> Copy
+                        </button>
+                        <button onClick={(e) => { e.stopPropagation(); removeBasketItem(h.id); }} className="flex items-center gap-1 text-[10px] px-2 py-1 rounded transition-all hover:bg-white/5" style={{ color: "#ef4444" }}>
+                          <X className="w-3 h-3" /> Remove
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </motion.div>
       )}</AnimatePresence>
@@ -631,18 +783,7 @@ export default function Home() {
         </AnimatePresence>
       </main>
 
-      {/* ─── FAB (Export & Share) ─── */}
-      <div className="fixed bottom-6 right-6 z-30" onMouseEnter={() => setShowFab(true)} onMouseLeave={() => setShowFab(false)}>
-        <AnimatePresence>{showFab && (<motion.div initial={{ opacity: 0, y: 10, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.9 }} transition={{ duration: 0.15 }} className="absolute bottom-12 right-0 rounded-xl p-1.5 flex flex-col gap-1" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
-          <button onClick={() => exportMarkdown("all")} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs hover:bg-white/5 transition-colors text-left" style={{ color: "#A1A1AA" }}><FileDown className="w-3.5 h-3.5" /> Export All</button>
-          <button onClick={() => exportMarkdown("zone")} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs hover:bg-white/5 transition-colors text-left" style={{ color: "#A1A1AA" }}><FileDown className="w-3.5 h-3.5" /> Export Zone</button>
-          <button onClick={copyComposerFull} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs hover:bg-white/5 transition-colors text-left" style={{ color: "#A1A1AA" }}><ClipboardCopy className="w-3.5 h-3.5" /> Copy Composer</button>
-          <button onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success("URL copied!"); }} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs hover:bg-white/5 transition-colors text-left" style={{ color: "#A1A1AA" }}><Share2 className="w-3.5 h-3.5" /> Share Link</button>
-        </motion.div>)}</AnimatePresence>
-        <button className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110" style={{ background: "linear-gradient(135deg, #a78bfa, #4DFFFF)", boxShadow: "0 4px 20px rgba(167,139,250,0.3)" }}>
-          <Download className="w-5 h-5 text-black" />
-        </button>
-      </div>
+
 
       {/* ─── Scroll to Top ─── */}
       <AnimatePresence>
