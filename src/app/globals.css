@@ -146,6 +146,10 @@
   scrollbar-width: none;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   v3.5 — MICRO INTERACTIONS & VISUAL CUE SYSTEM
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 /* ─── Fade animations ──────────────────────────────────────────────────── */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(16px); }
@@ -178,6 +182,298 @@
   50% { box-shadow: 0 0 12px 4px rgba(167,139,250,0.2); }
   100% { box-shadow: 0 0 0 0 rgba(167,139,250,0); }
 }
+
+/* ─── Micro-interaction: Button Press ────────────────────────────── */
+@keyframes btnPress {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+.btn-press:active {
+  animation: btnPress 0.15s ease-out;
+}
+
+/* ─── Micro-interaction: Hover Lift ──────────────────────────────── */
+.hover-lift {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+/* ─── Micro-interaction: Subtle Glow ─────────────────────────────── */
+@keyframes subtleGlow {
+  0%, 100% { box-shadow: 0 0 8px 0 var(--glow-color, rgba(167,139,250,0.15)); }
+  50% { box-shadow: 0 0 16px 2px var(--glow-color, rgba(167,139,250,0.25)); }
+}
+.subtle-glow {
+  animation: subtleGlow 3s ease-in-out infinite;
+}
+
+/* ─── Micro-interaction: Copy Success Ripple ─────────────────────── */
+@keyframes copyRipple {
+  0% { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+.copy-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.copy-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(34,197,94,0.3) 0%, transparent 70%);
+  animation: copyRipple 0.5s ease-out forwards;
+  pointer-events: none;
+}
+
+/* ─── Micro-interaction: Card Hover Glow Border ──────────────────── */
+.card-glow {
+  position: relative;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.card-glow:hover {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 0 20px -5px var(--card-glow-color, rgba(167,139,250,0.1));
+}
+
+/* ─── Micro-interaction: Input Focus Ring ────────────────────────── */
+.input-focus-ring {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input-focus-ring:focus {
+  border-color: rgba(167,139,250,0.5) !important;
+  box-shadow: 0 0 0 3px rgba(167,139,250,0.1);
+}
+
+/* ─── Skeleton Loading Shimmer ───────────────────────────────────── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+/* ─── Scrollable Container with Fade Edges ───────────────────────── */
+.scroll-fade-container {
+  position: relative;
+}
+.scroll-fade-container::before,
+.scroll-fade-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.scroll-fade-container::before {
+  left: 0;
+  background: linear-gradient(to right, #0B0D10, transparent);
+}
+.scroll-fade-container::after {
+  right: 0;
+  background: linear-gradient(to left, #0B0D10, transparent);
+}
+.scroll-fade-container.has-scroll-left::before {
+  opacity: 1;
+}
+.scroll-fade-container.has-scroll-right::after {
+  opacity: 1;
+}
+
+/* ─── Navigation Arrow Buttons ───────────────────────────────────── */
+.nav-scroll-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 22, 26, 0.95);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  color: #A1A1AA;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+.nav-scroll-btn:hover {
+  background: rgba(30, 32, 38, 0.98);
+  color: #FFFFFF;
+  border-color: rgba(255,255,255,0.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.nav-scroll-btn:active {
+  transform: translateY(-50%) scale(0.92);
+}
+.nav-scroll-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.nav-scroll-left {
+  left: 4px;
+}
+.nav-scroll-right {
+  right: 4px;
+}
+
+/* ─── Zone Active Indicator Top Bar ──────────────────────────────── */
+@keyframes zoneGlow {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+.zone-active-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  animation: zoneGlow 3s ease-in-out infinite;
+}
+
+/* ─── Tooltip Enhancements ───────────────────────────────────────── */
+.tip-enhanced {
+  position: relative;
+}
+.tip-enhanced .tip-content {
+  position: absolute;
+  z-index: 50;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: nowrap;
+  max-width: 280px;
+  text-align: center;
+  pointer-events: none;
+  background: #1e1e24;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #A1A1AA;
+  box-shadow: 0 8px 24px -4px rgba(0,0,0,0.5);
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.tip-enhanced:hover .tip-content {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.tip-enhanced .tip-content .tip-shortcut {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: var(--font-geist-mono), monospace;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #e4e4e7;
+}
+
+/* ─── Status Badge Micro-animation ───────────────────────────────── */
+@keyframes badgePop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.badge-pop {
+  animation: badgePop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ─── Smooth Color Transition Utility ────────────────────────────── */
+.color-transition {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ─── Active Tab Indicator (dot + underline) ─────────────────────── */
+.tab-indicator {
+  position: relative;
+}
+.tab-indicator.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ─── Mobile Bottom Nav Active Haptic Feel ───────────────────────── */
+@keyframes hapticBounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(0.92); }
+  60% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.haptic-bounce {
+  animation: hapticBounce 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Keyboard Shortcut Badge ────────────────────────────────────── */
+.kbd-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-family: var(--font-geist-mono), monospace;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #6B7280;
+  line-height: 1.4;
+}
+
+/* ─── Progress Ring ──────────────────────────────────────────────── */
+@keyframes progressRingFill {
+  from { stroke-dashoffset: 283; }
+}
+.progress-ring-fill {
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Staggered Children Entry ───────────────────────────────────── */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0.02s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.04s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.06s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.08s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.10s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.12s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.14s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.16s; }
+.stagger-children > *:nth-child(9) { animation-delay: 0.18s; }
+.stagger-children > *:nth-child(10) { animation-delay: 0.20s; }
+.stagger-children > *:nth-child(n+11) { animation-delay: 0.22s; }
 
 /* ─── Markdown result styling ──────────────────────────────────────────── */
 .markdown-result h2 {

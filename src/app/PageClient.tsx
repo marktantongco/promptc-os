@@ -2,13 +2,13 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Copy, Check, ChevronDown, ChevronUp, ChevronRight, Sparkles, Loader2,
+  Copy, Check, ChevronDown, ChevronUp, ChevronRight, ChevronLeft, Sparkles, Loader2,
   Zap, Target, Wrench, X, Search, HelpCircle,
   FileText, TrendingUp, Timer, Layers,
-  Command, Cpu, BarChart3, ArrowRight, ArrowUpDown,
+  Command, Cpu, BarChart3, ArrowRight, ArrowLeft, ArrowUpDown,
   FolderDown, FileDown, FileJson, Lightbulb, ArrowUp,
   Trash2, CheckSquare, Square, Pin, Menu, Star, MoreVertical,
-  Plus, Send,
+  Plus, Send, Keyboard,
 } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -180,8 +180,89 @@ const DIFF_COLORS: Record<string, { bg: string; text: string; label: string }> =
 
 // ─── Animation variants ───────────────────────────────────────────────────
 const fadeSlide = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -8 }, transition: { duration: 0.25, ease: "easeOut" } };
-const stagger = { animate: { transition: { staggerChildren: 0.04 } } };
-const staggerItem = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 } };
+const stagger = { animate: { transition: { staggerChildren: 0.03 } } };
+const staggerItem = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } };
+
+// ─── Scrollable Container with Arrow Indicators ─────────────────────
+function ScrollableWithArrows({ children, className }: { children: React.ReactNode; className?: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    checkScroll();
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    const observer = new ResizeObserver(checkScroll);
+    observer.observe(el);
+    return () => { el.removeEventListener("scroll", checkScroll); observer.disconnect(); };
+  }, [checkScroll, children]);
+
+  const scroll = useCallback((dir: "left" | "right") => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir === "left" ? -180 : 180, behavior: "smooth" });
+  }, []);
+
+  return (
+    <div className="relative scroll-fade-container">
+      <button
+        onClick={() => scroll("left")}
+        className={`nav-scroll-btn nav-scroll-left ${canScrollLeft ? "visible" : ""}`}
+        aria-label="Scroll left"
+      >
+        <ChevronLeft className="w-3.5 h-3.5" />
+      </button>
+      <div ref={containerRef} className={`overflow-x-auto no-scrollbar ${className || ""}`}>
+        {children}
+      </div>
+      <button
+        onClick={() => scroll("right")}
+        className={`nav-scroll-btn nav-scroll-right ${canScrollRight ? "visible" : ""}`}
+        aria-label="Scroll right"
+      >
+        <ChevronRight className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+}
+
+// ─── Skeleton Loader ────────────────────────────────────────────────
+function Skeleton({ lines = 3, className }: { lines?: number; className?: string }) {
+  return (
+    <div className={`space-y-2 ${className || ""}`}>
+      {Array.from({ length: lines }).map((_, i) => (
+        <div key={i} className="skeleton-shimmer" style={{ height: i === lines - 1 ? 20 : 14, width: `${60 + Math.random() * 40}%` }} />
+      ))}
+    </div>
+  );
+}
+
+// ─── Enhanced Tooltip with shortcut hint ────────────────────────────
+function TipEnhanced({ children, text, shortcut }: { children: React.ReactNode; text: string; shortcut?: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="tip-enhanced" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+      {children}
+      <AnimatePresence>
+        {show && (
+          <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} transition={{ duration: 0.15 }}
+            className="tip-content">
+            {text}{shortcut && <span className="tip-shortcut">{shortcut}</span>}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 // ─── Animated Counter ────────────────────────────────────────────────────
 function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
@@ -197,7 +278,7 @@ function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: strin
   return <span ref={ref}>{count}{suffix}</span>;
 }
 
-// ─── Tooltip ─────────────────────────────────────────────────────────────
+// ─── Tooltip (kept for backward compat) ────────────────────────────────
 function Tip({ children, text }: { children: React.ReactNode; text: string }) {
   const [show, setShow] = useState(false);
   return (
@@ -207,7 +288,7 @@ function Tip({ children, text }: { children: React.ReactNode; text: string }) {
         {show && (
           <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} transition={{ duration: 0.15 }}
             className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 rounded-lg text-[11px] leading-relaxed whitespace-nowrap max-w-xs text-center pointer-events-none"
-            style={{ background: "#1e1e24", border: "1px solid rgba(255,255,255,0.1)", color: "#A1A1AA" }}>
+            style={{ background: "#1e1e24", border: "1px solid rgba(255,255,255,0.1)", color: "#A1A1AA", boxShadow: "0 8px 24px -4px rgba(0,0,0,0.5)" }}>
             {text}
           </motion.div>
         )}
@@ -740,36 +821,45 @@ export default function Home() {
 
       {/* ─── Nav ─── */}
       <nav className="sticky top-0 z-50" style={{ background: "rgba(11,13,16,0.92)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        {/* Zone Active Top Glow Bar */}
+        <div className="zone-active-glow" style={{ background: `linear-gradient(90deg, transparent, ${zoneColor}44, transparent)` }} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center gap-2.5 flex-shrink-0">
-              <span className="text-xl">⚡</span>
-              <span className="font-bold text-sm tracking-tight" style={{ fontFamily: "'DM Mono', monospace", color: zoneColor }}>promptc OS</span>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>v3.4</span>
+              <motion.span className="text-xl" whileHover={{ rotate: 15, scale: 1.1 }} transition={{ duration: 0.2 }}>⚡</motion.span>
+              <span className="font-bold text-sm tracking-tight color-transition" style={{ fontFamily: "'DM Mono', monospace", color: zoneColor }}>promptc OS</span>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded badge-pop" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>v3.5</span>
             </div>
-            {/* Desktop zone tabs */}
-            <div className="hidden sm:flex items-center gap-1 overflow-x-auto no-scrollbar">
-              {ZONES.map((z) => (
-                <Tip key={z.id} text={z.sub}>
-                  <button onClick={() => handleZoneChange(z.id)} className="relative px-3 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap" style={{ color: activeZone === z.id ? z.color : "#6B7280", background: activeZone === z.id ? `${z.color}12` : "transparent" }}>
-                    <span className="flex items-center gap-1.5"><span>{z.icon}</span><span>{z.label}</span></span>
-                    {activeZone === z.id && <motion.div layoutId="zoneIndicator" className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full" style={{ background: z.color }} />}
-                  </button>
-                </Tip>
-              ))}
+            {/* Desktop zone tabs — with arrow indicators */}
+            <div className="hidden sm:block flex-1 mx-4">
+              <ScrollableWithArrows className="flex items-center gap-1 px-1">
+                {ZONES.map((z, idx) => (
+                  <TipEnhanced key={z.id} text={z.sub} shortcut={`⌘${idx + 1}`}>
+                    <button onClick={() => handleZoneChange(z.id)} className="btn-press relative px-3 py-1.5 text-xs font-medium rounded-lg color-transition whitespace-nowrap" style={{ color: activeZone === z.id ? z.color : "#6B7280", background: activeZone === z.id ? `${z.color}12` : "transparent" }}>
+                      <span className="flex items-center gap-1.5"><span>{z.icon}</span><span>{z.label}</span></span>
+                      {activeZone === z.id && <motion.div layoutId="zoneIndicator" className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full" style={{ background: z.color }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
+                    </button>
+                  </TipEnhanced>
+                ))}
+              </ScrollableWithArrows>
             </div>
-            {/* Mobile: nav moves to bottom tab bar */}
+            {/* Right action buttons */}
             <div className="flex items-center gap-1">
-              <Tip text="Search (⌘K)">
-                <button onClick={() => setShowPalette(true)} className="p-1.5 rounded-lg transition-all hover:bg-white/5" style={{ color: "#6B7280" }}><Command className="w-3.5 h-3.5" /></button>
-              </Tip>
-              <Tip text="Re-trigger tour">
-                <button onClick={() => { retriggerOnboarding(); setShowOnboarding(true); }} className="p-1.5 rounded-lg transition-all hover:bg-white/5" style={{ color: "#6B7280" }}><HelpCircle className="w-3.5 h-3.5" /></button>
-              </Tip>
-              <button onClick={() => setShowHistory(!showHistory)} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all hover:bg-white/5 ${basketFlash ? 'scale-110' : ''}`} style={{ color: basketFlash ? zoneColor : "#6B7280" }}>
-                <span className={`text-sm transition-transform ${basketFlash ? 'scale-125' : ''}`}>🧺</span><span className="hidden sm:inline">Basket</span>
-                {history.length > 0 && <span className={`w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold transition-all ${basketFlash ? 'scale-125' : 'basket-pulse'}`} style={{ background: basketFlash ? zoneColor + "44" : zoneColor + "22", color: zoneColor }}>{history.length}</span>}
-              </button>
+              <TipEnhanced text="Command Palette" shortcut="⌘K">
+                <button onClick={() => setShowPalette(true)} className="btn-press p-1.5 rounded-lg transition-all hover:bg-white/5" style={{ color: "#6B7280" }}><Command className="w-3.5 h-3.5" /></button>
+              </TipEnhanced>
+              <TipEnhanced text="Keyboard Shortcuts" shortcut="?">
+                <button onClick={() => setShowShortcuts(p => !p)} className="btn-press p-1.5 rounded-lg transition-all hover:bg-white/5" style={{ color: "#6B7280" }}><Keyboard className="w-3.5 h-3.5" /></button>
+              </TipEnhanced>
+              <TipEnhanced text="Re-trigger Tour">
+                <button onClick={() => { retriggerOnboarding(); setShowOnboarding(true); }} className="btn-press p-1.5 rounded-lg transition-all hover:bg-white/5" style={{ color: "#6B7280" }}><HelpCircle className="w-3.5 h-3.5" /></button>
+              </TipEnhanced>
+              <TipEnhanced text="Basket" shortcut="⌘B">
+                <button onClick={() => setShowHistory(!showHistory)} className={`btn-press flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all hover:bg-white/5 ${basketFlash ? 'scale-110' : ''}`} style={{ color: basketFlash ? zoneColor : "#6B7280" }}>
+                  <span className={`text-sm transition-transform ${basketFlash ? 'scale-125' : ''}`}>🧺</span><span className="hidden sm:inline">Basket</span>
+                  {history.length > 0 && <span className={`w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold transition-all ${basketFlash ? 'scale-125 badge-pop' : 'basket-pulse'}`} style={{ background: basketFlash ? zoneColor + "44" : zoneColor + "22", color: zoneColor }}>{history.length}</span>}
+                </button>
+              </TipEnhanced>
             </div>
           </div>
         </div>
@@ -846,11 +936,11 @@ export default function Home() {
             <div className="text-[9px] text-right" style={{ color: "#4b5563" }}>Sort: {basketSort === "newest" ? "Newest first" : basketSort === "oldest" ? "Oldest first" : basketSort === "longest" ? "Longest first" : basketSort === "shortest" ? "Shortest first" : "A→Z"} · ⌘B toggle</div>
 
             {/* Zone filter pills */}
-            <div className="flex gap-1 overflow-x-auto no-scrollbar">
+            <ScrollableWithArrows className="flex gap-1 mb-0">
               {["all", ...ZONES.map((z) => z.id)].map((z) => (
                 <button key={z} onClick={() => setBasketZoneFilter(z)} className="px-2 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all" style={{ color: basketZoneFilter === z ? (z === "all" ? "#a78bfa" : ZONES.find((zz) => zz.id === z)?.color || "#4DFFFF") : "#6B7280", background: basketZoneFilter === z ? (z === "all" ? "rgba(167,139,250,0.12)" : `${ZONES.find((zz) => zz.id === z)?.color || "#4DFFFF"}15`) : "transparent", border: `1px solid ${basketZoneFilter === z ? (z === "all" ? "rgba(167,139,250,0.3)" : `${ZONES.find((zz) => zz.id === z)?.color || "#4DFFFF"}33`) : "rgba(255,255,255,0.07)"}` }}>{z === "all" ? "All" : z}</button>
               ))}
-            </div>
+            </ScrollableWithArrows>
 
             {/* Smart Recommendations */}
             {history.length >= 2 && basketTab === "items" && (
@@ -1068,21 +1158,24 @@ export default function Home() {
 
       {/* ─── Sub-Tabs ─── */}
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 pt-4">
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+        <ScrollableWithArrows className="flex items-center gap-2 pb-1">
           {(ZONE_TABS[activeZone] || []).map((tab) => {
             const cnt = ZONE_TAB_COUNTS[activeZone]?.[tab];
+            const isActive = activeSubTab[activeZone] === tab;
             return (
-              <button key={tab} onClick={() => setActiveSubTab({ ...activeSubTab, [activeZone]: tab })} className="px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition-all flex items-center gap-1.5" style={{ color: activeSubTab[activeZone] === tab ? zoneColor : "#6B7280", background: activeSubTab[activeZone] === tab ? `${zoneColor}18` : "transparent", border: `1px solid ${activeSubTab[activeZone] === tab ? `${zoneColor}44` : "rgba(255,255,255,0.07)"}` }}>
-                {tab}{cnt !== undefined && <span className="text-[9px] opacity-60">({cnt})</span>}
-              </button>
+              <TipEnhanced key={tab} text={`${cnt ?? ""} items in ${tab}`}>
+                <button onClick={() => setActiveSubTab({ ...activeSubTab, [activeZone]: tab })} className={`btn-press tab-indicator ${isActive ? "active" : ""} px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap flex items-center gap-1.5`} style={{ color: isActive ? zoneColor : "#6B7280", background: isActive ? `${zoneColor}18` : "transparent", border: `1px solid ${isActive ? `${zoneColor}44` : "rgba(255,255,255,0.07)"}` }}>
+                  {tab}{cnt !== undefined && <span className="text-[9px] opacity-60">({cnt})</span>}
+                </button>
+              </TipEnhanced>
             );
           })}
-          <Tip text="Copy all content from this zone tab">
-            <button onClick={copyZoneContent} className="ml-auto flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] font-medium rounded-lg transition-all" style={{ color: zoneColor, background: `${zoneColor}10`, border: `1px solid ${zoneColor}30` }}>
+          <TipEnhanced text="Copy all content from this zone tab" shortcut="⌘⇧C">
+            <button onClick={copyZoneContent} className="ml-auto flex-shrink-0 btn-press flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] font-medium rounded-lg color-transition" style={{ color: zoneColor, background: `${zoneColor}10`, border: `1px solid ${zoneColor}30` }}>
               <Layers className="w-3 h-3" /><span className="hidden sm:inline">Copy Zone</span>
             </button>
-          </Tip>
-        </div>
+          </TipEnhanced>
+        </ScrollableWithArrows>
       </div>
 
       {/* ─── Main Content ─── */}
@@ -1098,7 +1191,7 @@ export default function Home() {
                   <button onClick={() => setQuickStartDismissed(true)} className="p-1 rounded hover:bg-white/10"><X className="w-4 h-4" style={{ color: "#6B7280" }} /></button>
                 </motion.div>
               )}
-              {activeSubTab.activate === "Tasks" && (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" {...stagger}>{TASKS.map((task) => (<motion.div key={task.label} {...staggerItem} className="rounded-xl p-5 transition-all hover:-translate-y-0.5" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold">{task.label}</h3><button onClick={() => handleCopy(task.content, `task-${task.label}`)} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">{copiedId === `task-${task.label}` ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" style={{ color: "#6B7280" }} />}</button></div><pre className="text-[11px] leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{task.content.slice(0, 200)}...</pre></motion.div>))}</div>)}
+              {activeSubTab.activate === "Tasks" && (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" {...stagger}>{TASKS.map((task) => (<motion.div key={task.label} {...staggerItem} className="hover-lift card-glow rounded-xl p-5" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold">{task.label}</h3><button onClick={() => handleCopy(task.content, `task-${task.label}`)} className="btn-press p-1.5 rounded-lg hover:bg-white/10 transition-colors">{copiedId === `task-${task.label}` ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" style={{ color: "#6B7280" }} />}</button></div><pre className="text-[11px] leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{task.content.slice(0, 200)}...</pre></motion.div>))}</div>)}
 
               {activeSubTab.activate === "Modifiers" && (<div>
                 <div className="mb-4 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#4b5563" }} /><input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search modifiers..." className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} /></div>
@@ -1136,7 +1229,7 @@ export default function Home() {
 
               {activeSubTab.build === "Enhancements" && (<div className="space-y-4">{ENHANCEMENTS.map((enh, i) => { const id = `enh-${i}`; return (<Tip key={id} text={`When: ${enh.when}`}><div className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="p-4 cursor-pointer" onClick={() => toggleExpand(id)}><div className="flex items-center justify-between"><div className="flex items-center gap-3"><span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded" style={{ background: `${zoneColor}15`, color: zoneColor }}>0{i + 1}</span><h3 className="text-sm font-bold">{enh.label}</h3></div><div className="flex items-center gap-2"><span className="text-[10px] px-2 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.05)", color: "#6B7280" }}>{enh.when}</span>{expandedItems.has(id) ? <ChevronDown className="w-3.5 h-3.5" style={{ color: "#4b5563" }} /> : <ChevronRight className="w-3.5 h-3.5" style={{ color: "#4b5563" }} />}</div></div></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><div className="px-4 pb-4 space-y-3"><div className="rounded-lg p-3" style={{ background: "#0B0D10" }}><div className="flex items-center justify-between mb-1"><div className="text-[10px] font-mono" style={{ color: zoneColor }}>WHAT IT DOES</div><button onClick={() => handleCopy(enh.content, `content-${id}`)} className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px]" style={{ background: `${zoneColor}15`, color: zoneColor }}>{copiedId === `content-${id}` ? <><Check className="w-2.5 h-2.5" /> Copied</> : <><Copy className="w-2.5 h-2.5" /> Copy</>}</button></div><pre className="text-[11px] leading-relaxed whitespace-pre-wrap" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{enh.content}</pre></div><div className="rounded-lg p-3" style={{ background: "#0B0D10" }}><div className="flex items-center justify-between mb-1"><div className="text-[10px] font-mono" style={{ color: zoneColor }}>HOW TO USE</div><button onClick={() => handleCopy(enh.howto, `guide-${id}`)} className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px]" style={{ background: `${zoneColor}15`, color: zoneColor }}>{copiedId === `guide-${id}` ? <><Check className="w-2.5 h-2.5" /> Copied</> : <><Copy className="w-2.5 h-2.5" /> Copy Guide</>}</button></div><pre className="text-[11px] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{enh.howto}</pre></div></div></motion.div>)}</AnimatePresence></div></Tip>); })}</div>)}
 
-              {activeSubTab.build === "Meta Builder" && (<div><div className="mb-6"><h2 className="text-lg font-bold mb-2">Meta Prompt Builder</h2><p className="text-xs mb-4" style={{ color: "#A1A1AA" }}>Transform your prompts with three expert AI methodologies.</p><div className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><textarea value={metaPrompt} onChange={(e) => setMetaPrompt(e.target.value)} placeholder="Paste or type your prompt here..." rows={5} className="w-full bg-transparent text-sm p-4 outline-none resize-none" style={{ color: "#e2e8f0", fontFamily: "monospace" }} /></div></div><div className="grid grid-cols-1 md:grid-cols-3 gap-4">{META_PROMPTS.map((meta) => { const Icon = meta.icon; const state = metaResults[meta.id]; return (<div key={meta.id} className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: `1px solid ${meta.accent}33` }}><div className="p-4"><div className="flex items-center gap-2 mb-3"><div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: `${meta.accent}15` }}><Icon className="w-4 h-4" style={{ color: meta.accent }} /></div><div><span className="text-[10px] font-mono" style={{ color: "#6B7280" }}>#{meta.id}</span><h3 className="text-xs font-bold">{meta.title}</h3></div></div><p className="text-[11px] mb-3" style={{ color: "#6B7280" }}>{meta.description}</p><button onClick={() => handleMetaGenerate(meta.id)} disabled={state.loading || !metaPrompt.trim()} className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-40" style={{ background: `${meta.accent}15`, color: meta.accent, border: `1px solid ${meta.accent}33` }}>{state.loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Analyzing...</> : <><Sparkles className="w-3.5 h-3.5" /> Generate</>}</button></div><AnimatePresence>{(state.content || state.error || state.loading) && (<motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden"><div style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}><div className="px-4 py-2 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}><span className="text-[10px] font-mono" style={{ color: "#6B7280" }}>{state.error ? "ERROR" : "RESULT"}</span>{state.content && <button onClick={() => handleCopy(state.content, `meta-${meta.id}`)} className="p-1 rounded hover:bg-white/10">{copiedId === `meta-${meta.id}` ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#4b5563" }} />}</button>}</div><div className="p-4 max-h-80 overflow-y-auto">{state.loading && <div className="space-y-2">{[...Array(3)].map((_, j) => <div key={j} className="h-3 rounded-full animate-pulse" style={{ background: "rgba(255,255,255,0.04)", width: `${70 + Math.random() * 30}%` }} />)}</div>}{state.error && <p className="text-xs" style={{ color: "#ef4444" }}>{state.error}</p>}{state.content && !state.loading && <div className="markdown-result text-xs"><ReactMarkdown>{state.content}</ReactMarkdown></div>}</div></div></motion.div>)}</AnimatePresence></div>); })}</div></div>)}
+              {activeSubTab.build === "Meta Builder" && (<div><div className="mb-6"><h2 className="text-lg font-bold mb-2">Meta Prompt Builder</h2><p className="text-xs mb-4" style={{ color: "#A1A1AA" }}>Transform your prompts with three expert AI methodologies.</p><div className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><textarea value={metaPrompt} onChange={(e) => setMetaPrompt(e.target.value)} placeholder="Paste or type your prompt here..." rows={5} className="w-full bg-transparent text-sm p-4 outline-none resize-none" style={{ color: "#e2e8f0", fontFamily: "monospace" }} /></div></div><div className="grid grid-cols-1 md:grid-cols-3 gap-4">{META_PROMPTS.map((meta) => { const Icon = meta.icon; const state = metaResults[meta.id]; return (<div key={meta.id} className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: `1px solid ${meta.accent}33` }}><div className="p-4"><div className="flex items-center gap-2 mb-3"><div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: `${meta.accent}15` }}><Icon className="w-4 h-4" style={{ color: meta.accent }} /></div><div><span className="text-[10px] font-mono" style={{ color: "#6B7280" }}>#{meta.id}</span><h3 className="text-xs font-bold">{meta.title}</h3></div></div><p className="text-[11px] mb-3" style={{ color: "#6B7280" }}>{meta.description}</p><button onClick={() => handleMetaGenerate(meta.id)} disabled={state.loading || !metaPrompt.trim()} className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-40" style={{ background: `${meta.accent}15`, color: meta.accent, border: `1px solid ${meta.accent}33` }}>{state.loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Analyzing...</> : <><Sparkles className="w-3.5 h-3.5" /> Generate</>}</button></div><AnimatePresence>{(state.content || state.error || state.loading) && (<motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden"><div style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}><div className="px-4 py-2 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}><span className="text-[10px] font-mono" style={{ color: "#6B7280" }}>{state.error ? "ERROR" : "RESULT"}</span>{state.content && <button onClick={() => handleCopy(state.content, `meta-${meta.id}`)} className="p-1 rounded hover:bg-white/10">{copiedId === `meta-${meta.id}` ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#4b5563" }} />}</button>}</div><div className="p-4 max-h-80 overflow-y-auto">{state.loading && <Skeleton lines={5} className="py-1" />}{state.error && <p className="text-xs" style={{ color: "#ef4444" }}>{state.error}</p>}{state.content && !state.loading && <div className="markdown-result text-xs"><ReactMarkdown>{state.content}</ReactMarkdown></div>}</div></div></motion.div>)}</AnimatePresence></div>); })}</div></div>)}
             </>)}
 
             {/* ═══ VALIDATE ═══ */}
@@ -1240,16 +1333,16 @@ export default function Home() {
                 </div>
 
                 {/* Category Filter Pills */}
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar mb-6 pb-1">
-                  <button onClick={() => setSkillsCategoryFilter("all")} className="px-3 py-1.5 text-[10px] font-medium rounded-full whitespace-nowrap transition-all flex items-center gap-1" style={{ color: skillsCategoryFilter === "all" ? "#a78bfa" : "#6B7280", background: skillsCategoryFilter === "all" ? "rgba(167,139,250,0.15)" : "transparent", border: `1px solid ${skillsCategoryFilter === "all" ? "rgba(167,139,250,0.3)" : "rgba(255,255,255,0.07)"}` }}>
+                <ScrollableWithArrows className="flex items-center gap-2 mb-6 pb-1">
+                  <button onClick={() => setSkillsCategoryFilter("all")} className="btn-press px-3 py-1.5 text-[10px] font-medium rounded-full whitespace-nowrap flex items-center gap-1" style={{ color: skillsCategoryFilter === "all" ? "#a78bfa" : "#6B7280", background: skillsCategoryFilter === "all" ? "rgba(167,139,250,0.15)" : "transparent", border: `1px solid ${skillsCategoryFilter === "all" ? "rgba(167,139,250,0.3)" : "rgba(255,255,255,0.07)"}` }}>
                     All <span className="opacity-60">({TOTAL_SKILLS})</span>
                   </button>
                   {CATEGORY_COUNTS.map((cc) => (
-                    <button key={cc.category} onClick={() => setSkillsCategoryFilter(cc.category)} className="px-3 py-1.5 text-[10px] font-medium rounded-full whitespace-nowrap transition-all flex items-center gap-1" style={{ color: skillsCategoryFilter === cc.category ? (CATEGORY_COLORS[cc.category] || "#a78bfa") : "#6B7280", background: skillsCategoryFilter === cc.category ? `${(CATEGORY_COLORS[cc.category] || "#a78bfa")}18` : "transparent", border: `1px solid ${skillsCategoryFilter === cc.category ? `${(CATEGORY_COLORS[cc.category] || "#a78bfa")}44` : "rgba(255,255,255,0.07)"}` }}>
+                    <button key={cc.category} onClick={() => setSkillsCategoryFilter(cc.category)} className="btn-press px-3 py-1.5 text-[10px] font-medium rounded-full whitespace-nowrap flex items-center gap-1" style={{ color: skillsCategoryFilter === cc.category ? (CATEGORY_COLORS[cc.category] || "#a78bfa") : "#6B7280", background: skillsCategoryFilter === cc.category ? `${(CATEGORY_COLORS[cc.category] || "#a78bfa")}18` : "transparent", border: `1px solid ${skillsCategoryFilter === cc.category ? `${(CATEGORY_COLORS[cc.category] || "#a78bfa")}44` : "rgba(255,255,255,0.07)"}` }}>
                       <span>{cc.icon}</span><span className="hidden sm:inline">{cc.category}</span><span className="opacity-60">({cc.count})</span>
                     </button>
                   ))}
-                </div>
+                </ScrollableWithArrows>
 
                 {/* Skills Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" {...stagger}>
@@ -1573,9 +1666,13 @@ export default function Home() {
       {/* ─── Footer ─── */}
       <footer className="mt-auto pb-20 sm:pb-0" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col items-center gap-2">
-          <div className="flex items-center gap-2 text-xs" style={{ color: "#4b5563" }}><Sparkles className="w-3.5 h-3.5" /><span>promptc OS — AI Prompt Engineering Operating System</span><span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa" }}>v3.4</span></div>
+          <div className="flex items-center gap-2 text-xs" style={{ color: "#4b5563" }}><Sparkles className="w-3.5 h-3.5" /><span>promptc OS — AI Prompt Engineering Operating System</span><span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa" }}>v3.5</span></div>
           <div className="flex items-center gap-3 text-[10px]" style={{ color: "#4b5563" }}>
-            <span>⌘K Search</span><span>·</span><span>⌘B Basket{history.length > 0 && ` (${history.length})`}</span><span>·</span><span>⌘1-6 Zones</span><span>·</span><span>⌘P Compose</span><span>·</span><span>? Shortcuts</span>
+            <span className="flex items-center gap-1"><kbd className="kbd-badge">⌘K</kbd> Search</span><span>·</span>
+            <span className="flex items-center gap-1"><kbd className="kbd-badge">⌘B</kbd> Basket{history.length > 0 && ` (${history.length})`}</span><span>·</span>
+            <span className="flex items-center gap-1"><kbd className="kbd-badge">⌘1-6</kbd> Zones</span><span>·</span>
+            <span className="flex items-center gap-1"><kbd className="kbd-badge">⌘P</kbd> Compose</span><span>·</span>
+            <span className="flex items-center gap-1"><kbd className="kbd-badge">?</kbd> Shortcuts</span>
           </div>
           <div className="flex items-center gap-2 text-[10px]" style={{ color: "#4b5563" }}>
             <span>{MODS.length} Modifiers</span><span>·</span>
