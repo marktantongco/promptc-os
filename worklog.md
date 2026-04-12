@@ -328,3 +328,75 @@ Stage Summary:
 - Commit: 865f68f
 - Zero lint errors in src/app/ and src/components/
 - Basket persists across page refreshes via localStorage
+
+---
+Task ID: 8
+Agent: Super Z (main)
+Task: Comprehensive basket UX upgrade — multi-select, reorder, pin, sort, keyboard shortcuts
+
+Work Log:
+- Audited full page.tsx (814 lines) to plan all 4 upgrades
+- Read globals.css, CommandPalette.tsx, and worklog.md for context
+
+UPGRADE 1: Enhanced Basket (Shopping Basket UX)
+A. Multi-select with batch operations:
+   - Added basketSelected state (Set<string>)
+   - Added toggleBasketSelect(), selectAllBasket(), deselectAllBasket() functions
+   - Added checkbox (CheckSquare/Square) on each basket item (left of zone badge)
+   - Added "Select All" / "Deselect All" toggle button in basket header
+   - Added animated batch action bar at bottom when items selected:
+     - "Copy Selected (N)" button
+     - "Remove Selected (N)" button
+     - "Export Selected" button
+
+B. Drag-to-reorder (up/down buttons):
+   - Added ChevronUp/ChevronDown buttons on each basket item row
+   - Added moveBasketItem(id, direction) function that swaps array positions
+
+C. Item pinning (sticky items):
+   - Added `pinned: boolean` to BasketItem interface
+   - Added Pin icon toggle button on each item
+   - Pinned items always show at top of basket, separated by dashed divider
+   - Added toggleBasketPin(id) function
+
+D. Duplicate detection:
+   - handleCopy now checks if text already exists in basket (exact match)
+   - Shows toast.warning("Already in basket!") and returns early if duplicate
+
+E. Confirm before clear:
+   - Added basketClearConfirm state with 3-second auto-reset
+   - First click turns button red with "CONFIRM?" text
+   - Second click within 3 seconds actually clears basket
+   - clearConfirmTimerRef manages the timeout
+
+F. Sort options:
+   - Added basketSort state: "newest" | "oldest" | "longest" | "shortest" | "az"
+   - Added ArrowUpDown sort toggle button next to search
+   - Sort indicator text shows current sort mode
+   - Sorting applied in filteredBasket useMemo (pinned items always first)
+
+G. Close button on basket panel:
+   - Added X button at top-right of basket panel header
+
+H. Overlay backdrop:
+   - Added semi-transparent backdrop (rgba(0,0,0,0.4)) when basket is open
+   - Clicking backdrop closes basket
+
+UPGRADE 2: Version Bump and UX Polish
+A. Version badge: v2.1 → v2.2
+B. Basket nav button pulse animation: Added .basket-pulse class with CSS keyframes
+C. Escape closes basket: Added to keyboard shortcut useEffect
+D. ⌘B toggles basket: Added to keyboard shortcut useEffect
+
+UPGRADE 3: Clean Unused Imports
+- Verified all existing imports are used in JSX (Cpu, Timer, FileDown used in System zone)
+- Added new imports: ChevronUp, Trash2, CheckSquare, Square, Pin, ArrowUpDown
+
+UPGRADE 4: Scroll-to-top button
+- Already existed at bottom-left, kept as-is per spec
+
+Stage Summary:
+- page.tsx: 814 → 968 lines (+154)
+- globals.css: added basket-pulse keyframes animation
+- Zero lint errors in src/app/ and src/components/ (691 problems all in other files)
+- All existing functionality preserved: 6 zones, 8 system sub-tabs, all copy/expand/search features

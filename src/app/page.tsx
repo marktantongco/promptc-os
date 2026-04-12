@@ -3,11 +3,12 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Copy, Check, ChevronDown, ChevronRight, Sparkles, Loader2,
+  Copy, Check, ChevronDown, ChevronUp, ChevronRight, Sparkles, Loader2,
   Zap, Target, Wrench, X, Search, HelpCircle,
   FileText, TrendingUp, Timer, Layers,
-  Command, Cpu, BarChart3, ArrowRight,
+  Command, Cpu, BarChart3, ArrowRight, ArrowUpDown,
   FolderDown, FileDown, Lightbulb, ArrowUp,
+  Trash2, CheckSquare, Square, Pin,
 } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -32,6 +33,7 @@ interface BasketItem {
   zone: string;
   time: string;
   chars: number;
+  pinned: boolean;
 }
 
 // ─── Sub-tab definitions per zone ─────────────────────────────────────────
@@ -204,6 +206,10 @@ export default function Home() {
   const [basketExpandId, setBasketExpandId] = useState<string | null>(null);
   const [basketSearch, setBasketSearch] = useState("");
   const [basketZoneFilter, setBasketZoneFilter] = useState("all");
+  const [basketSelected, setBasketSelected] = useState<Set<string>>(new Set());
+  const [basketClearConfirm, setBasketClearConfirm] = useState(false);
+  const [basketSort, setBasketSort] = useState<"newest" | "oldest" | "longest" | "shortest" | "az">("newest");
+  const clearConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [metaPrompt, setMetaPrompt] = useState("");
   const [metaResults, setMetaResults] = useState<Record<1 | 2 | 3, ResultState>>({ 1: { content: null, loading: false, error: null, expanded: false }, 2: { content: null, loading: false, error: null, expanded: false }, 3: { content: null, loading: false, error: null, expanded: false } });
@@ -220,10 +226,12 @@ export default function Home() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); setShowPalette(true); }
+      if (e.key === "Escape" && showHistory) { setShowHistory(false); }
+      if ((e.metaKey || e.ctrlKey) && e.key === "b") { e.preventDefault(); setShowHistory((p) => !p); }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, []);
+  }, [showHistory]);
 
   // Scroll-to-top listener
   useEffect(() => {
@@ -251,6 +259,11 @@ export default function Home() {
   const toggleExpand = useCallback((id: string) => { setExpandedItems((p) => { const n = new Set(p); if (n.has(id)) { n.delete(id); } else { n.add(id); } return n; }); }, []);
   const handleCopy = useCallback(async (text: string, id: string) => {
     try {
+      // Duplicate detection
+      if (history.some((h) => h.text === text)) {
+        toast.warning("Already in basket!");
+        return;
+      }
       await navigator.clipboard.writeText(text);
       setCopiedId(id);
       const item: BasketItem = {
@@ -260,6 +273,7 @@ export default function Home() {
         zone: activeZone,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         chars: text.length,
+        pinned: false,
       };
       setHistory((p) => [item, ...p.slice(0, 99)]);
       toast.success("Added to basket!");
@@ -267,7 +281,7 @@ export default function Home() {
     } catch {
       toast.error("Failed to copy.");
     }
-  }, [activeZone]);
+  }, [activeZone, history]);
 
   // Copy all basket items
   const copyAllBasket = useCallback(async () => {
@@ -296,11 +310,82 @@ export default function Home() {
     toast.success("Exported!");
   }, [history]);
 
-  // Clear entire basket
-  const clearBasket = useCallback(() => {
+  // Clear entire basket (with confirm)
+  const handleClearBasket = useCallback(() => {
+    if (!basketClearConfirm) {
+      setBasketClearConfirm(true);
+      if (clearConfirmTimerRef.current) clearTimeout(clearConfirmTimerRef.current);
+      clearConfirmTimerRef.current = setTimeout(() => setBasketClearConfirm(false), 3000);
+      return;
+    }
+    if (clearConfirmTimerRef.current) clearTimeout(clearConfirmTimerRef.current);
+    setBasketClearConfirm(false);
     setHistory([]);
+    setBasketSelected(new Set());
     toast.info("Basket cleared.");
+  }, [basketClearConfirm]);
+
+  // Multi-select helpers
+  const toggleBasketSelect = useCallback((id: string) => {
+    setBasketSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
   }, []);
+  const selectAllBasket = useCallback(() => {
+    setBasketSelected(new Set(filteredBasket.map((h) => h.id)));
+  }, [filteredBasket]);
+  const deselectAllBasket = useCallback(() => {
+    setBasketSelected(new Set());
+  }, []);
+
+  // Move basket item up/down
+  const moveBasketItem = useCallback((id: string, direction: -1 | 1) => {
+    setHistory((prev) => {
+      const idx = prev.findIndex((h) => h.id === id);
+      if (idx === -1) return prev;
+      const newIdx = idx + direction;
+      if (newIdx < 0 || newIdx >= prev.length) return prev;
+      const arr = [...prev];
+      [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+      return arr;
+    });
+  }, []);
+
+  // Pin basket item
+  const toggleBasketPin = useCallback((id: string) => {
+    setHistory((prev) => prev.map((h) => h.id === id ? { ...h, pinned: !h.pinned } : h));
+  }, []);
+
+  // Batch operations
+  const copySelectedBasket = useCallback(async () => {
+    const selected = history.filter((h) => basketSelected.has(h.id));
+    if (selected.length === 0) { toast.error("No items selected."); return; }
+    const all = selected.map((h) => h.text).join("\n\n---\n\n");
+    try { await navigator.clipboard.writeText(all); toast.success(`Copied ${selected.length} items!`); } catch { toast.error("Failed."); }
+  }, [history, basketSelected]);
+
+  const removeSelectedBasket = useCallback(() => {
+    setHistory((prev) => prev.filter((h) => !basketSelected.has(h.id)));
+    setBasketSelected(new Set());
+    toast.info(`Removed ${basketSelected.size} items.`);
+  }, [basketSelected]);
+
+  const exportSelectedBasket = useCallback(() => {
+    const selected = history.filter((h) => basketSelected.has(h.id));
+    if (selected.length === 0) { toast.error("No items selected."); return; }
+    let md = "# promptc OS — Basket Export (Selected)\n\n";
+    selected.forEach((h, i) => {
+      md += `## ${i + 1}. [${h.zone}] — ${h.time} (${h.chars} chars)${h.pinned ? " 📌" : ""}\n\n${h.text}\n\n---\n\n`;
+    });
+    const blob = new Blob([md], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "promptc-basket-selected.md"; a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Exported!");
+  }, [history, basketSelected]);
+
   const handleMetaGenerate = useCallback(async (mt: 1 | 2 | 3) => {
     if (!metaPrompt.trim()) { toast.error("Enter a prompt first."); return; }
     setMetaResults((p) => ({ ...p, [mt]: { content: null, loading: true, error: null, expanded: true } }));
@@ -334,8 +419,22 @@ export default function Home() {
       const q = basketSearch.toLowerCase();
       list = list.filter((h) => h.text.toLowerCase().includes(q) || h.zone.toLowerCase().includes(q));
     }
-    return list;
-  }, [history, basketZoneFilter, basketSearch]);
+    // Sort
+    const sorted = [...list].sort((a, b) => {
+      // Pinned items always on top
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      switch (basketSort) {
+        case "newest": return 0; // already in newest-first order
+        case "oldest": return list.indexOf(a) - list.indexOf(b); // reversed
+        case "longest": return b.chars - a.chars;
+        case "shortest": return a.chars - b.chars;
+        case "az": return a.text.localeCompare(b.text);
+        default: return 0;
+      }
+    });
+    return sorted;
+  }, [history, basketZoneFilter, basketSearch, basketSort]);
 
   const basketTotalChars = useMemo(() => history.reduce((s, h) => s + h.chars, 0), [history]);
 
@@ -410,7 +509,7 @@ export default function Home() {
             <div className="flex items-center gap-2.5 flex-shrink-0">
               <span className="text-xl">⚡</span>
               <span className="font-bold text-sm tracking-tight" style={{ fontFamily: "'DM Mono', monospace", color: zoneColor }}>promptc OS</span>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>v2.1</span>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>v2.2</span>
             </div>
             <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
               {ZONES.map((z) => (
@@ -434,12 +533,17 @@ export default function Home() {
               </Tip>
               <button onClick={() => setShowHistory(!showHistory)} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all hover:bg-white/5" style={{ color: "#6B7280" }}>
                 <span className="text-sm">🧺</span><span className="hidden sm:inline">Basket</span>
-                {history.length > 0 && <span className="w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold" style={{ background: zoneColor + "22", color: zoneColor }}>{history.length}</span>}
+                {history.length > 0 && <span className="basket-pulse w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold" style={{ background: zoneColor + "22", color: zoneColor }}>{history.length}</span>}
               </button>
             </div>
           </div>
         </div>
       </nav>
+
+      {/* ─── Basket Backdrop ─── */}
+      <AnimatePresence>{showHistory && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="fixed inset-0 z-39" style={{ background: "rgba(0,0,0,0.4)" }} onClick={() => setShowHistory(false)} />
+      )}</AnimatePresence>
 
       {/* ─── Basket Panel ─── */}
       <AnimatePresence>{showHistory && (
@@ -449,21 +553,37 @@ export default function Home() {
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-bold" style={{ color: zoneColor }}>🧺 Basket</h3>
-                <button onClick={() => { if (history.length > 0) { clearBasket(); } }} className="text-[10px] px-2 py-1 rounded border" style={{ borderColor: "rgba(239,68,68,0.3)", color: "#ef4444" }}>CLEAR</button>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => { if (basketSelected.size < filteredBasket.length) { selectAllBasket(); } else { deselectAllBasket(); } }} className="text-[10px] px-2 py-1 rounded border transition-all" style={{ borderColor: "rgba(167,139,250,0.3)", color: "#a78bfa" }}>
+                    {basketSelected.size === filteredBasket.length && filteredBasket.length > 0 ? "Deselect All" : "Select All"}
+                  </button>
+                  <button onClick={() => setShowHistory(false)} className="p-1 rounded-lg hover:bg-white/10 transition-all" style={{ color: "#6B7280" }}><X className="w-3.5 h-3.5" /></button>
+                </div>
               </div>
               <p className="text-[10px]" style={{ color: "#4b5563" }}>{history.length} items · {basketTotalChars.toLocaleString()} chars total</p>
               <div className="flex gap-1.5">
                 <button onClick={copyAllBasket} className="flex-1 text-[10px] px-2 py-1.5 rounded-lg font-medium transition-all" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.25)" }}>COPY ALL</button>
                 <button onClick={exportBasket} className="flex-1 text-[10px] px-2 py-1.5 rounded-lg font-medium transition-all" style={{ background: "rgba(77,255,255,0.08)", color: "#4DFFFF", border: "1px solid rgba(77,255,255,0.2)" }}>EXPORT .md</button>
-                <button onClick={() => { if (history.length > 0) { clearBasket(); } }} className="flex-1 text-[10px] px-2 py-1.5 rounded-lg font-medium transition-all" style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.2)" }}>CLEAR</button>
+                <button onClick={handleClearBasket} className="flex-1 text-[10px] px-2 py-1.5 rounded-lg font-medium transition-all" style={{ background: basketClearConfirm ? "rgba(239,68,68,0.25)" : "rgba(239,68,68,0.08)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.2)" }}>
+                  {basketClearConfirm ? "CONFIRM?" : "CLEAR"}
+                </button>
               </div>
             </div>
 
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#4b5563" }} />
-              <input value={basketSearch} onChange={(e) => setBasketSearch(e.target.value)} placeholder="Search basket..." className="w-full pl-9 pr-4 py-2 rounded-lg text-xs outline-none" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} />
+            {/* Sort + Search */}
+            <div className="flex gap-2 items-center">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#4b5563" }} />
+                <input value={basketSearch} onChange={(e) => setBasketSearch(e.target.value)} placeholder="Search basket..." className="w-full pl-9 pr-4 py-2 rounded-lg text-xs outline-none" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} />
+              </div>
+              <Tip text="Sort order">
+                <button onClick={() => { const opts: ("newest" | "oldest" | "longest" | "shortest" | "az")[] = ["newest", "oldest", "longest", "shortest", "az"]; const ci = opts.indexOf(basketSort); setBasketSort(opts[(ci + 1) % opts.length]); }} className="p-2 rounded-lg transition-all hover:bg-white/5 flex-shrink-0" style={{ color: "#6B7280" }}>
+                  <ArrowUpDown className="w-3.5 h-3.5" />
+                </button>
+              </Tip>
             </div>
+            {/* Sort indicator */}
+            <div className="text-[9px] text-right" style={{ color: "#4b5563" }}>Sort: {basketSort === "newest" ? "Newest first" : basketSort === "oldest" ? "Oldest first" : basketSort === "longest" ? "Longest first" : basketSort === "shortest" ? "Shortest first" : "A→Z"} · ⌘B toggle</div>
 
             {/* Zone filter pills */}
             <div className="flex gap-1 overflow-x-auto no-scrollbar">
@@ -481,43 +601,77 @@ export default function Home() {
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                {filteredBasket.map((h) => {
+                {filteredBasket.map((h, hIdx) => {
                   const zColor = ZONES.find((z) => z.id === h.zone)?.color || "#4DFFFF";
                   const isExpanded = basketExpandId === h.id;
+                  const isSelected = basketSelected.has(h.id);
+                  // Show divider before first non-pinned item after pinned section
+                  const prevItem = hIdx > 0 ? filteredBasket[hIdx - 1] : null;
+                  const showDivider = prevItem && prevItem.pinned && !h.pinned;
                   return (
-                    <motion.div key={h.id} layout className="rounded-lg cursor-pointer transition-all" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)" }} onClick={() => setBasketExpandId(isExpanded ? null : h.id)}>
-                      {/* Row 1: zone badge + time + chars */}
-                      <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: `${zColor}15`, color: zColor }}>{h.zone}</span>
-                          <span className="text-[9px]" style={{ color: "#4b5563" }}>{h.time}</span>
+                    <div key={h.id}>
+                      {showDivider && <div className="border-t border-dashed my-1" style={{ borderColor: "rgba(255,255,255,0.1)" }} />}
+                      <motion.div layout className="rounded-lg cursor-pointer transition-all" style={{ background: "#0B0D10", border: isSelected ? `1px solid ${zColor}55` : "1px solid rgba(255,255,255,0.07)" }} onClick={() => setBasketExpandId(isExpanded ? null : h.id)}>
+                        {/* Row 1: checkbox + zone badge + time + chars */}
+                        <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
+                          <div className="flex items-center gap-2">
+                            <button onClick={(e) => { e.stopPropagation(); toggleBasketSelect(h.id); }} className="flex-shrink-0 p-0.5 rounded hover:bg-white/5 transition-all" style={{ color: isSelected ? zColor : "#4b5563" }}>
+                              {isSelected ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5" />}
+                            </button>
+                            {h.pinned && <span className="text-[10px] flex-shrink-0">📌</span>}
+                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: `${zColor}15`, color: zColor }}>{h.zone}</span>
+                            <span className="text-[9px]" style={{ color: "#4b5563" }}>{h.time}</span>
+                          </div>
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#6B7280" }}>{h.chars} chars</span>
                         </div>
-                        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#6B7280" }}>{h.chars} chars</span>
-                      </div>
-                      {/* Row 2: text */}
-                      <div className="px-3 pb-1.5">
-                        <AnimatePresence mode="wait">
-                          {isExpanded ? (
-                            <motion.p key="full" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-[11px] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{h.text}</motion.p>
-                          ) : (
-                            <motion.p key="trunc" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-[11px] leading-relaxed line-clamp-3" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{h.label}</motion.p>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                      {/* Row 3: actions */}
-                      <div className="flex items-center gap-2 px-3 pb-2.5">
-                        <button onClick={(e) => { e.stopPropagation(); handleCopy(h.text, h.id); }} className="flex items-center gap-1 text-[10px] px-2 py-1 rounded transition-all hover:bg-white/5" style={{ color: "#a78bfa" }}>
-                          <Copy className="w-3 h-3" /> Copy
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); removeBasketItem(h.id); }} className="flex items-center gap-1 text-[10px] px-2 py-1 rounded transition-all hover:bg-white/5" style={{ color: "#ef4444" }}>
-                          <X className="w-3 h-3" /> Remove
-                        </button>
-                      </div>
-                    </motion.div>
+                        {/* Row 2: text */}
+                        <div className="px-3 pb-1.5">
+                          <AnimatePresence mode="wait">
+                            {isExpanded ? (
+                              <motion.p key="full" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-[11px] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{h.text}</motion.p>
+                            ) : (
+                              <motion.p key="trunc" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-[11px] leading-relaxed line-clamp-3" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{h.label}</motion.p>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                        {/* Row 3: reorder + pin + actions */}
+                        <div className="flex items-center gap-1.5 px-3 pb-2.5">
+                          <div className="flex items-center gap-0.5 flex-shrink-0">
+                            <button onClick={(e) => { e.stopPropagation(); moveBasketItem(h.id, -1); }} className="p-0.5 rounded hover:bg-white/5 transition-all" style={{ color: "#4b5563" }}><ChevronUp className="w-3 h-3" /></button>
+                            <button onClick={(e) => { e.stopPropagation(); moveBasketItem(h.id, 1); }} className="p-0.5 rounded hover:bg-white/5 transition-all" style={{ color: "#4b5563" }}><ChevronDown className="w-3 h-3" /></button>
+                          </div>
+                          <button onClick={(e) => { e.stopPropagation(); toggleBasketPin(h.id); }} className="p-0.5 rounded hover:bg-white/5 transition-all flex-shrink-0" style={{ color: h.pinned ? "#FFB000" : "#4b5563" }}><Pin className="w-3 h-3" /></button>
+                          <div className="flex-1" />
+                          <button onClick={(e) => { e.stopPropagation(); handleCopy(h.text, h.id); }} className="flex items-center gap-1 text-[10px] px-2 py-1 rounded transition-all hover:bg-white/5" style={{ color: "#a78bfa" }}>
+                            <Copy className="w-3 h-3" /> Copy
+                          </button>
+                          <button onClick={(e) => { e.stopPropagation(); removeBasketItem(h.id); }} className="flex items-center gap-1 text-[10px] px-2 py-1 rounded transition-all hover:bg-white/5" style={{ color: "#ef4444" }}>
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    </div>
                   );
                 })}
               </div>
             )}
+
+            {/* Batch Action Bar */}
+            <AnimatePresence>{basketSelected.size > 0 && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.2 }} className="sticky bottom-0 flex gap-2 p-3 rounded-xl -mx-1" style={{ background: "rgba(167,139,250,0.1)", border: "1px solid rgba(167,139,250,0.25)", backdropFilter: "blur(8px)" }}>
+                <span className="text-[10px] font-medium flex items-center" style={{ color: "#a78bfa" }}>{basketSelected.size} selected</span>
+                <div className="flex-1" />
+                <button onClick={copySelectedBasket} className="text-[10px] px-2.5 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>
+                  <Copy className="w-3 h-3" /> Copy ({basketSelected.size})
+                </button>
+                <button onClick={removeSelectedBasket} className="text-[10px] px-2.5 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1" style={{ background: "rgba(239,68,68,0.12)", color: "#ef4444" }}>
+                  <Trash2 className="w-3 h-3" /> Remove ({basketSelected.size})
+                </button>
+                <button onClick={exportSelectedBasket} className="text-[10px] px-2.5 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1" style={{ background: "rgba(77,255,255,0.1)", color: "#4DFFFF" }}>
+                  <FileDown className="w-3 h-3" /> Export
+                </button>
+              </motion.div>
+            )}</AnimatePresence>
           </div>
         </motion.div>
       )}</AnimatePresence>
