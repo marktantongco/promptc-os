@@ -6,7 +6,7 @@ import {
   Zap, Target, Wrench, X, Search, HelpCircle,
   FileText, TrendingUp, Timer, Layers,
   Command, Cpu, BarChart3, ArrowRight, ArrowUpDown,
-  FolderDown, FileDown, Lightbulb, ArrowUp,
+  FolderDown, FileDown, FileJson, Lightbulb, ArrowUp,
   Trash2, CheckSquare, Square, Pin, Menu, Star,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -237,6 +237,7 @@ export default function Home() {
   const [basketSort, setBasketSort] = useState<"newest" | "oldest" | "longest" | "shortest" | "az">("newest");
   const [expandedSkillId, setExpandedSkillId] = useState<string | null>(null);
   const [basketFlash, setBasketFlash] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const clearConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [metaPrompt, setMetaPrompt] = useState("");
@@ -253,8 +254,11 @@ export default function Home() {
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const inInput = target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
       if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); setShowPalette(true); }
       if (e.key === "Escape" && showHistory) { setShowHistory(false); }
+      if (e.key === "Escape" && showShortcuts) { setShowShortcuts(false); }
       if ((e.metaKey || e.ctrlKey) && e.key === "b") { e.preventDefault(); setShowHistory((p) => !p); }
       // ⌘1-6 zone switching
       if ((e.metaKey || e.ctrlKey) && e.key >= "1" && e.key <= "6") {
@@ -262,10 +266,12 @@ export default function Home() {
         const idx = parseInt(e.key) - 1;
         if (ZONES[idx]) handleZoneChange(ZONES[idx].id);
       }
+      // ? shortcuts overlay (only when not in input)
+      if (e.key === "?" && !inInput && !e.metaKey && !e.ctrlKey) { e.preventDefault(); setShowShortcuts((p) => !p); }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [showHistory, handleZoneChange]);
+  }, [showHistory, showShortcuts, handleZoneChange]);
 
   // Scroll-to-top listener
   useEffect(() => {
@@ -345,6 +351,21 @@ export default function Home() {
     const a = document.createElement("a"); a.href = url; a.download = "promptc-basket.md"; a.click();
     URL.revokeObjectURL(url);
     toast.success("Exported!");
+  }, [history]);
+
+  // Export basket as JSON
+  const exportBasketJSON = useCallback(() => {
+    if (history.length === 0) { toast.error("Basket is empty."); return; }
+    const data = {
+      exportDate: new Date().toISOString(),
+      version: "3.3",
+      items: history.map(h => ({ text: h.text, label: h.label, zone: h.zone, time: h.time, chars: h.chars, pinned: h.pinned, favorited: h.favorited })),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "promptc-basket.json"; a.click();
+    URL.revokeObjectURL(url);
+    toast.success("JSON exported!");
   }, [history]);
 
   // Clear entire basket (with confirm)
@@ -500,6 +521,21 @@ export default function Home() {
 
   const copyComposerFull = useCallback(() => { if (!composerResult) { toast.error("Assemble a prompt first."); return; } handleCopy(composerResult, "composer-export"); }, [composerResult, handleCopy]);
 
+  // Copy all content from current zone/tab
+  const copyZoneContent = useCallback(async () => {
+    let content = "";
+    const zone = activeZone;
+    const tab = activeSubTab[zone];
+    if (zone === "activate" && tab === "Tasks") content = TASKS.map(t => t.content).join("\n\n---\n\n");
+    else if (zone === "activate" && tab === "Modifiers") content = MODS.map(m => m.mod).join("\n\n");
+    else if (zone === "activate" && tab === "Templates") content = TMPLS.map(t => `${t.label}\n${t.content}`).join("\n\n---\n\n");
+    else if (zone === "build" && tab === "Master Prompt") content = MASTER;
+    else if (zone === "playbook" && tab === "Workflows") content = WORKFLOWS_DATA.map(w => w.prompt).join("\n\n---\n\n");
+    else if (zone === "system" && tab === "Skills Library") content = filteredSkills.map(s => `[${s.icon} ${s.name}] ${s.description}`).join("\n\n");
+    else { toast.error("No bulk copy for this tab."); return; }
+    try { await navigator.clipboard.writeText(content); toast.success("Zone content copied!"); } catch { toast.error("Failed."); }
+  }, [activeZone, activeSubTab, filteredSkills]);
+
   const generateSkillMd = useCallback(() => {
     const name = skillForm[0] || "Untitled Skill";
     let md = `# ${name}\n\n## Context\n${skillForm[0] || ""}\n\n## Instructions\n${skillForm[1] || ""}\n\n## Constraints\n${skillForm[3] || ""}\n\n## Examples\n${skillForm[5] || ""}\n\n## Maintenance\nReview: ${skillForm[4] || "Monthly"}\nMetrics: ${skillForm[5] || "Usage tracking"}`;
@@ -554,7 +590,7 @@ export default function Home() {
             <div className="flex items-center gap-2.5 flex-shrink-0">
               <span className="text-xl">⚡</span>
               <span className="font-bold text-sm tracking-tight" style={{ fontFamily: "'DM Mono', monospace", color: zoneColor }}>promptc OS</span>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>v3.1</span>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>v3.3</span>
             </div>
             {/* Desktop zone tabs */}
             <div className="hidden sm:flex items-center gap-1 overflow-x-auto no-scrollbar">
@@ -573,6 +609,7 @@ export default function Home() {
             </div>
             <div className="hidden md:flex items-center gap-1 mr-2">
               <kbd className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.04)", color: "#4b5563" }}>⌘K <span style={{ color: "#6B7280" }}>Search</span></kbd>
+              <span className="hidden lg:inline text-[9px] font-mono" style={{ color: "#4b5563" }}>{TOTAL_SKILLS}S · {MODS.length}M · {WORKFLOWS_DATA.length}W</span>
             </div>
             <div className="flex items-center gap-1">
               <Tip text="Search (⌘K)">
@@ -642,6 +679,9 @@ export default function Home() {
               <div className="flex gap-1.5">
                 <button onClick={copyAllBasket} className="flex-1 text-[10px] px-2 py-1.5 rounded-lg font-medium transition-all" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.25)" }}>COPY ALL</button>
                 <button onClick={exportBasket} className="flex-1 text-[10px] px-2 py-1.5 rounded-lg font-medium transition-all" style={{ background: "rgba(77,255,255,0.08)", color: "#4DFFFF", border: "1px solid rgba(77,255,255,0.2)" }}>EXPORT .md</button>
+                <Tip text="Export as JSON">
+                  <button onClick={exportBasketJSON} className="flex-1 text-[10px] px-2 py-1.5 rounded-lg font-medium transition-all flex items-center justify-center gap-1" style={{ background: "rgba(234,179,8,0.08)", color: "#eab308", border: "1px solid rgba(234,179,8,0.2)" }}><FileJson className="w-3 h-3" />JSON</button>
+                </Tip>
                 <button onClick={handleClearBasket} className="flex-1 text-[10px] px-2 py-1.5 rounded-lg font-medium transition-all" style={{ background: basketClearConfirm ? "rgba(239,68,68,0.25)" : "rgba(239,68,68,0.08)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.2)" }}>
                   {basketClearConfirm ? "CONFIRM?" : "CLEAR"}
                 </button>
@@ -773,6 +813,11 @@ export default function Home() {
               </button>
             );
           })}
+          <Tip text="Copy all content from this zone tab">
+            <button onClick={copyZoneContent} className="ml-auto flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] font-medium rounded-lg transition-all" style={{ color: zoneColor, background: `${zoneColor}10`, border: `1px solid ${zoneColor}30` }}>
+              <Layers className="w-3 h-3" /><span className="hidden sm:inline">Copy Zone</span>
+            </button>
+          </Tip>
         </div>
       </div>
 
@@ -1061,6 +1106,47 @@ export default function Home() {
 
 
 
+      {/* ─── Keyboard Shortcuts Overlay ─── */}
+      <AnimatePresence>
+        {showShortcuts && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+            className="fixed inset-0 flex items-center justify-center z-[65]"
+            style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+            onClick={() => setShowShortcuts(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.2 }}
+              className="rounded-2xl p-6 w-full max-w-md mx-4"
+              style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.1)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-sm font-bold" style={{ color: "#FFFFFF" }}>Keyboard Shortcuts</h3>
+                <button onClick={() => setShowShortcuts(false)} className="p-1 rounded-lg hover:bg-white/10 transition-all" style={{ color: "#6B7280" }}><X className="w-4 h-4" /></button>
+              </div>
+              <div className="grid gap-3">
+                {[
+                  { keys: "⌘K", desc: "Search (Command Palette)" },
+                  { keys: "⌘B", desc: "Toggle Basket" },
+                  { keys: "⌘1-6", desc: "Switch Zone" },
+                  { keys: "?", desc: "Show Shortcuts" },
+                  { keys: "Escape", desc: "Close panels" },
+                ].map((s) => (
+                  <div key={s.keys} className="flex items-center justify-between gap-4">
+                    <span className="text-xs" style={{ color: "#A1A1AA" }}>{s.desc}</span>
+                    <kbd className="text-[10px] font-mono px-2 py-1 rounded-md flex-shrink-0" style={{ background: "rgba(255,255,255,0.06)", color: "#e5e7eb", border: "1px solid rgba(255,255,255,0.1)" }}>{s.keys}</kbd>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-5 pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+                <p className="text-[10px] text-center" style={{ color: "#4b5563" }}>Press <kbd className="text-[9px] font-mono px-1 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "#6B7280" }}>?</kbd> or <kbd className="text-[9px] font-mono px-1 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "#6B7280" }}>Escape</kbd> to close</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ─── Scroll to Top ─── */}
       <AnimatePresence>
         {showScrollTop && (
@@ -1081,9 +1167,9 @@ export default function Home() {
       {/* ─── Footer ─── */}
       <footer className="mt-auto" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col items-center gap-2">
-          <div className="flex items-center gap-2 text-xs" style={{ color: "#4b5563" }}><Sparkles className="w-3.5 h-3.5" /><span>promptc OS — AI Prompt Engineering Operating System</span><span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa" }}>v3.1</span></div>
+          <div className="flex items-center gap-2 text-xs" style={{ color: "#4b5563" }}><Sparkles className="w-3.5 h-3.5" /><span>promptc OS — AI Prompt Engineering Operating System</span><span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa" }}>v3.3</span></div>
           <div className="flex items-center gap-3 text-[10px]" style={{ color: "#4b5563" }}>
-            <span>⌘K Search</span><span>·</span><span>⌘B Basket{history.length > 0 && ` (${history.length})`}</span><span>·</span><span>⌘1-6 Zones</span>
+            <span>⌘K Search</span><span>·</span><span>⌘B Basket{history.length > 0 && ` (${history.length})`}</span><span>·</span><span>⌘1-6 Zones</span><span>·</span><span>? Shortcuts</span>
           </div>
           <div className="flex items-center gap-2 text-[10px]" style={{ color: "#4b5563" }}>
             <span>{MODS.length} Modifiers</span><span>·</span>
