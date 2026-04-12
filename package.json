@@ -1,6 +1,7 @@
 {
-  "name": "nextjs_tailwind_shadcn_ts",
-  "version": "0.2.0",
+  "name": "promptc-os",
+  "version": "3.2.0",
+  "description": "promptc OS — AI Prompt Engineering Operating System. 6-zone workspace with 47+ modifiers, 21 workflows, 66 skills, basket system, and monetize strategies.",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
