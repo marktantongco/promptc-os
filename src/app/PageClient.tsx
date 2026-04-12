@@ -251,6 +251,9 @@ export default function Home() {
   const zoneColor = ZONES.find((z) => z.id === activeZone)?.color || "#4DFFFF";
   const mainRef = useRef<HTMLDivElement>(null);
 
+  // ─── Core callbacks (declared early to avoid temporal dead zone) ──────────
+  const handleZoneChange = useCallback((z: string) => { setActiveZone(z); setSearchQuery(""); window.scrollTo({ top: 0, behavior: "smooth" }); }, []);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -383,6 +386,31 @@ export default function Home() {
     toast.info("Basket cleared.");
   }, [basketClearConfirm]);
 
+  // ─── filteredBasket (declared early — needed by selectAllBasket) ────────
+  const filteredBasket = useMemo(() => {
+    let list = history;
+    if (basketZoneFilter !== "all") list = list.filter((h) => h.zone === basketZoneFilter);
+    if (basketSearch.trim()) {
+      const q = basketSearch.toLowerCase();
+      list = list.filter((h) => h.text.toLowerCase().includes(q) || h.zone.toLowerCase().includes(q));
+    }
+    const sorted = [...list].sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      if (a.favorited && !b.favorited) return -1;
+      if (!a.favorited && b.favorited) return 1;
+      switch (basketSort) {
+        case "newest": return 0;
+        case "oldest": return list.indexOf(a) - list.indexOf(b);
+        case "longest": return b.chars - a.chars;
+        case "shortest": return a.chars - b.chars;
+        case "az": return a.text.localeCompare(b.text);
+        default: return 0;
+      }
+    });
+    return sorted;
+  }, [history, basketZoneFilter, basketSearch, basketSort]);
+
   // Multi-select helpers
   const toggleBasketSelect = useCallback((id: string) => {
     setBasketSelected((prev) => {
@@ -464,7 +492,7 @@ export default function Home() {
     if (f.length === 0) { toast.error("Fill in at least one layer."); return; }
     setComposerResult(f.map((l) => `${l.name.toUpperCase()}\n${composerFields[l.name]}`).join("\n\n"));
   }, [composerFields]);
-  const handleZoneChange = useCallback((z: string) => { setActiveZone(z); setSearchQuery(""); window.scrollTo({ top: 0, behavior: "smooth" }); }, []);
+  // handleZoneChange moved above to avoid TDZ (see top of component)
 
   const filteredMods = useMemo(() => { if (!searchQuery) return MODS; const q = searchQuery.toLowerCase(); return MODS.filter((m) => m.mod.toLowerCase().includes(q) || m.cat.toLowerCase().includes(q) || m.tip.toLowerCase().includes(q)); }, [searchQuery]);
   const filteredWorkflows = useMemo(() => { if (!searchQuery) return WORKFLOWS_DATA; const q = searchQuery.toLowerCase(); return WORKFLOWS_DATA.filter((w) => w.title.toLowerCase().includes(q) || w.purpose.toLowerCase().includes(q) || w.cat.toLowerCase().includes(q)); }, [searchQuery]);
@@ -475,32 +503,7 @@ export default function Home() {
     return list;
   }, [skillsCategoryFilter, skillsSearchQuery]);
 
-  const filteredBasket = useMemo(() => {
-    let list = history;
-    if (basketZoneFilter !== "all") list = list.filter((h) => h.zone === basketZoneFilter);
-    if (basketSearch.trim()) {
-      const q = basketSearch.toLowerCase();
-      list = list.filter((h) => h.text.toLowerCase().includes(q) || h.zone.toLowerCase().includes(q));
-    }
-    // Sort
-    const sorted = [...list].sort((a, b) => {
-      // Pinned items always on top
-      if (a.pinned && !b.pinned) return -1;
-      if (!a.pinned && b.pinned) return 1;
-      // Favorited items before non-favorited within pinned/non-pinned groups
-      if (a.favorited && !b.favorited) return -1;
-      if (!a.favorited && b.favorited) return 1;
-      switch (basketSort) {
-        case "newest": return 0; // already in newest-first order
-        case "oldest": return list.indexOf(a) - list.indexOf(b); // reversed
-        case "longest": return b.chars - a.chars;
-        case "shortest": return a.chars - b.chars;
-        case "az": return a.text.localeCompare(b.text);
-        default: return 0;
-      }
-    });
-    return sorted;
-  }, [history, basketZoneFilter, basketSearch, basketSort]);
+  // filteredBasket moved above to avoid TDZ (see selectAllBasket)
 
   const basketTotalChars = useMemo(() => history.reduce((s, h) => s + h.chars, 0), [history]);
 
