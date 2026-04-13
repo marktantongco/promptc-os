@@ -1,4 +1,4 @@
-# ⚡ promptc OS v3.6
+# ⚡ promptc OS v3.7
 
 **AI Prompt Engineering Operating System** — A comprehensive 6-zone workspace for building, validating, and monetizing AI prompts. 47 modifiers, 21 workflows, 66 skills, clipboard history, modifier assembly, flexible animal selection, and a complete design system — all copy-ready.
 
@@ -13,6 +13,14 @@
 promptc OS is a production-grade prompt engineering environment that treats prompt creation as a systematic engineering discipline. It provides structured tools across 6 interconnected zones — from initial activation through building, validation, playbook orchestration, monetization, and system management.
 
 Every prompt, modifier, template, and workflow in the system is **copy-ready** — paste directly into ChatGPT, Claude, Gemini, or any AI chat. The universal Collection Basket (⌘B) lets you gather your favorite prompts across all zones, the Clipboard History tracks every copy action, and the Command Palette (⌘K) provides instant search across the entire library.
+
+### What's New in v3.7
+
+- **🧺 Modifier +Add to Basket** — Every modifier now has a dedicated basket button (🧺) alongside the assembly +Add. One-click to add any modifier directly to your collection basket.
+- **🔗 Prompt Chaining Format** — Assembled modifier chains now use sequential connectors (`→ [anticipates next modifier]`) with `━━━ MODIFIER CHAIN ━━━` delimiters for clear visual structure.
+- **🔧 Meta Builder Fix** — Fixed API role mapping (system prompt now correctly uses `role: system` instead of `role: assistant`). Removed invalid `thinking` parameter. Meta Builder now works reliably.
+- **📋 Clipboard History Shortcut** — New `⌘⇧C` keyboard shortcut to toggle the Clipboard History panel instantly.
+- **🎯 Clean UI** — Removed all HTML native `title` tooltips from interactive buttons across all zones for a cleaner, more consistent experience.
 
 ### What's New in v3.6
 
@@ -37,7 +45,7 @@ The starting zone. Browse, search, and collect the building blocks of great prom
 | Sub-tab | Contents | Count |
 |---------|----------|-------|
 | **Tasks** | Ready-to-use task prompts (YouTube, Coding, Business, Research, UI/UX, Image AI, Copy, Email) | 8 |
-| **Modifiers** | Prompt modifiers across 9 categories (Role, Output, Reasoning, Speed, Strategy, Hack, Data, Agent, Productivity) — with +Add to Assembly and +Add to Basket | 47 |
+| **Modifiers** | Prompt modifiers across 9 categories (Role, Output, Reasoning, Speed, Strategy, Hack, Data, Agent, Productivity) — with +Add to Assembly and +Add to Basket (🧺) | 47 |
 | **Templates** | Pre-built prompt templates (Web App, Mobile, Brand, Landing Page, Dashboard, API Design, AI Agent, MCP Server, Skill Docs, Automation Pipeline, Notion System, Meta templates, Brand systems) | 20 |
 | **Brands** | Complete brand design systems (powerUP, SaaS/B2B, E-commerce, Fintech, Insurance, Creative Agency) | 6 |
 | **Animals** | 7 animal thinking modes with flexible multi-select, include/exclude, and combined generation | 7 |
@@ -165,6 +173,7 @@ Available on items from: **Modifiers, Lint Rules, Word Swaps, Vocabulary, Typogr
 |----------|--------|
 | `⌘K` / `Ctrl+K` | Open Command Palette |
 | `⌘B` / `Ctrl+B` | Toggle Basket panel |
+| `⌘⇧C` / `Ctrl+Shift+C` | Toggle Clipboard History |
 | `⌘P` / `Ctrl+P` | Quick Compose |
 | `⌘1` through `⌘6` | Switch to Zone 1-6 |
 | `?` | Keyboard shortcuts overlay |
@@ -294,6 +303,7 @@ promptc-os/
 
 | Version | Changes |
 |---------|---------|
+| **v3.7** | Modifier +Add to Basket (🧺), Prompt Chaining Format (connector arrows + delimiters), Meta Builder API Fix (system role + remove thinking param), Clipboard History ⌘⇧C Shortcut, Clean UI (removed native tooltips) |
 | **v3.6** | Modifier Assembly, Flexible Animal Multi-Select, Prompt Enhancer, Clipboard History, Universal +Add to Basket (7 list types), Visual Micro-Interactions (17+ CSS animations), Navigation Arrow Indicators, Scroll Progress Bar, Lazy-loaded components, Enhanced Tooltips |
 | **v3.5** | Micro-interactions, visual cues, tooltips, speed optimization, loading skeleton, focus animations |
 | **v3.2** | SaaS/Stacks basket buttons, favorites system, tooltips, dynamic self-evolve, filtered count indicator, auto-save persistence, iOS mobile bottom nav, Quick Compose, cross-zone forwarding, expanded workflow preview |
