@@ -192,19 +192,27 @@
   100% { box-shadow: 0 0 0 0 rgba(167,139,250,0); }
 }
 
-/* ─── Micro-interaction: Button Press ────────────────────────────── */
+/* ─── Micro-interaction: Button Press (80ms, scale 0.97) ────────── */
 @keyframes btnPress {
   0% { transform: scale(1); }
-  50% { transform: scale(0.96); }
+  50% { transform: scale(0.97); }
   100% { transform: scale(1); }
 }
 .btn-press:active {
-  animation: btnPress 0.15s ease-out;
+  animation: btnPress 0.08s ease-out;
+}
+/* WCAG: Minimum touch target 44×44px */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* ─── Micro-interaction: Hover Lift ──────────────────────────────── */
+/* ─── Micro-interaction: Hover Lift (150ms transition) ──────────── */
 .hover-lift {
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease;
 }
 .hover-lift:hover {
   transform: translateY(-2px);
@@ -549,7 +557,21 @@
 .shimmer-border { background-size: 200% 200%; animation: shimmerBorder 3s ease infinite; }
 
 /* Focus Visible Ring */
-*:focus-visible { outline: 2px solid rgba(167,139,250,0.5); outline-offset: 2px; border-radius: 4px; }
+/* ─── Focus-visible ring (WCAG AA keyboard navigation) ─────────── */
+*:focus-visible {
+  outline: 2px solid rgba(167,139,250,0.7);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+/* Card containers: allow focus ring on overflow-hidden */
+[style*="overflow: hidden"]:focus-visible,
+.overflow-hidden:focus-visible {
+  outline: 2px solid rgba(167,139,250,0.5);
+  outline-offset: -2px;
+}
 
 /* Selection Color */
 ::selection { background: rgba(167,139,250,0.3); color: #FFFFFF; }
