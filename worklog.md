@@ -1,52 +1,30 @@
 ---
 Task ID: 1
 Agent: Main Agent
-Task: Comprehensive UI/UX upgrade for promptc OS v3.5 → v3.6
+Task: Comprehensive v3.8 upgrade - PWA, mobile fixes, Meta Builder, Wordswap redesign
 
 Work Log:
-- Diagnosed preview loading issue: `loading: () => null` in page.tsx caused blank screen during client hydration
-- Replaced null loading state with full skeleton loader (nav bar, content grid, footer)
-- Added 17 new CSS micro-interaction classes to globals.css
-- Applied `input-glow` focus animations to all 11 input/textarea elements
-- Applied `card-scale` + `card-glow` hover effects to 8 card types
-- Added `TipEnhanced` tooltips to 17 interactive elements across zones
-- Added scroll progress indicator with gradient bar
-- Enhanced navigation arrows with pulse animation when hidden content exists
-- Lazy loaded ReactMarkdown and CommandPalette via dynamic imports
-- Added focus-visible ring styles, selection color, and accessibility improvements
-- Verified: 0 source lint errors, HTTP 200, clean compilation (3.8s first load, 50ms cached)
+- Analyzed 3 uploaded mobile screenshots identifying: right phantom column, bottom button cutoff, Wordswap alignment issues, Meta Builder errors
+- Read full PageClient.tsx (1865 lines), globals.css (623 lines), layout.tsx, package.json
+- Created PWA manifest.json with standalone display, theme colors, icon references
+- Created service worker (sw.js) with cache-first strategy and versioned cache names
+- Generated PWA app icon (512px + 192px) using AI image generation
+- Updated layout.tsx with Viewport export (device-width, user-scalable:false), PWA metadata, apple-touch-icon, service worker registration
+- Fixed mobile right space: overflow-x:hidden on root div and body, w-full, reduced px padding (4→3)
+- Fixed bottom buttons: mobile tab bar stays fixed with safe-area padding, FAB repositioned to bottom-24 on mobile
+- Quick Compose panel: full-width on mobile (left-2 right-2) with max-height 70vh
+- Scroll-to-top button: repositioned to bottom-24 on mobile
+- Redesigned Wordswap section: single-column layout with word content on top, Copy/Basket buttons in row below, chevron aligned right
+- Rewrote Meta Prompt Builder: replaced fetch("/api/generate") with local restructuring function (3 methodologies)
+  - Quick Critique: scores clarity/relevance, identifies improvements, generates 2 refined variants
+  - Structured Analysis: breaks down prompt structure, suggests approaches, generates 2 variants
+  - Expert Engineering: comprehensive analysis, restructured prompt + strategy + precision variants + self-test
+- Updated all version references to v3.8.0
+- Added CSS: overflow-x:hidden, -webkit-tap-highlight-color, safe-area-inset-bottom padding
+- Committed and pushed to GitHub, triggered Vercel deployment
 
 Stage Summary:
-- Preview loading: Fixed — skeleton loader shows during hydration instead of blank screen
-- Micro-interactions: 17 new CSS animations (copyFlash, ripple, magnetic hover, card-scale, etc.)
-- Tooltips: Enhanced with TipEnhanced (animated, with keyboard shortcut hints) on 17 elements
-- Navigation arrows: Pulse animation added when scrollable content exists
-- Speed optimization: ReactMarkdown + CommandPalette lazy loaded
-- Visual cues: Scroll progress bar, zone slide-in, copy success flash, status blink dots
-- Files modified: page.tsx, globals.css, PageClient.tsx
-- Build: Clean, no errors
----
-Task ID: 1
-Agent: Main Agent
-Task: Comprehensive v3.7 upgrade of promptc OS
-
-Work Log:
-- Read and analyzed entire codebase (PageClient.tsx 1855 lines, API routes, CSS, package.json)
-- Identified all changes needed from user requirements
-- Removed 11 HTML title= tooltip attributes from buttons across all zones
-- Added 🧺 basket button to every modifier item for direct basket add
-- Enhanced modifier assembly copy format with prompt chaining connectors
-- Fixed Meta Builder API (role: assistant → system, removed thinking param)
-- Fixed Quality Score API (same fixes)
-- Added ⌘⇧C keyboard shortcut for Clipboard History
-- Bumped version v3.6 → v3.7 in PageClient.tsx and package.json
-- Updated comprehensive README with v3.7 changelog
-- Committed and pushed to GitHub
-- Deployed to Vercel (build successful in 14.7s)
-
-Stage Summary:
-- All code changes applied to 5 files (PageClient.tsx, generate/route.ts, analyze/route.ts, package.json, README.md)
-- Git pushed to https://github.com/marktantongco/promptc-os.git (main)
-- Vercel deployment: https://my-project-pearl-kappa-72.vercel.app
-- No new lint errors introduced (700 pre-existing issues unchanged)
-
+- All changes deployed to GitHub (main branch)
+- Vercel deployment triggered: dpl_9WJk6skZdAUXJCktttujPZVQ5tjJ
+- Key files modified: PageClient.tsx, layout.tsx, globals.css, package.json
+- New files: public/manifest.json, public/sw.js, public/icons/icon-192.png, public/icons/icon-512.png
