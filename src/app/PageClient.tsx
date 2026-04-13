@@ -71,9 +71,9 @@ const ANIMAL_EMOJIS: Record<string, string> = {
 };
 
 const META_PROMPTS = [
-  { id: 1 as const, title: "Quick Critique", description: "Fast clarity & relevance rating with 5 improvements and two refined variants.", icon: Zap, accent: "#3b82f6" },
-  { id: 2 as const, title: "Structured Analysis", description: "Deep dive with 3 improvements, 3 approaches each, and two refined prompts.", icon: Target, accent: "#8b5cf6" },
-  { id: 3 as const, title: "Expert Engineering", description: "Full expert: precision & strategy variants, self-test, rationale tags.", icon: Wrench, accent: "#06b6d4" },
+  { id: 1 as const, title: "Quick Critique", description: "Instant clarity & relevance scoring with 5 improvements and two refined variants. No AI needed.", icon: Zap, accent: "#3b82f6" },
+  { id: 2 as const, title: "Structured Analysis", description: "Deep prompt breakdown with improvement approaches and two structured refinements.", icon: Target, accent: "#8b5cf6" },
+  { id: 3 as const, title: "Expert Engineering", description: "Full expert restructure: comprehensive, strategic & precision variants plus self-test.", icon: Wrench, accent: "#06b6d4" },
 ];
 
 const MONETIZE_TOP_PROMPTS = [
@@ -701,10 +701,97 @@ export default function Home() {
     toast.success("Exported!");
   }, [history, basketSelected]);
 
-  const handleMetaGenerate = useCallback(async (mt: 1 | 2 | 3) => {
+  const handleMetaGenerate = useCallback((mt: 1 | 2 | 3) => {
     if (!metaPrompt.trim()) { toast.error("Enter a prompt first."); return; }
     setMetaResults((p) => ({ ...p, [mt]: { content: null, loading: true, error: null, expanded: true } }));
-    try { const r = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: metaPrompt.trim(), metaType: mt }) }); const d = await r.json(); if (!r.ok) throw new Error(d.error || "Failed."); setMetaResults((p) => ({ ...p, [mt]: { content: d.result, loading: false, error: null, expanded: true } })); toast.success("Done!"); } catch (err: unknown) { const m = err instanceof Error ? err.message : "Error"; setMetaResults((p) => ({ ...p, [mt]: { content: null, loading: false, error: m, expanded: true } })); toast.error(m); }
+
+    const input = metaPrompt.trim();
+
+    // Local restructuring — no AI API needed
+    setTimeout(() => {
+      try {
+        let result = "";
+        if (mt === 1) {
+          // Quick Critique: Fast clarity & relevance rating with improvements and variants
+          const words = input.split(/\s+/);
+          const sentences = input.split(/[.!?]+/).filter(s => s.trim());
+          const hasContext = /context|background|scenario|situation/i.test(input);
+          const hasConstraints = /constraint|limit|restrict|must|should not|don't|avoid/i.test(input);
+          const hasOutput = /output|format|return|provide|generate|produce|list|write/i.test(input);
+          const hasRole = /act as|you are|role|persona|expert|specialist/i.test(input);
+
+          const clarity = Math.min(10, 3 + (hasContext ? 2 : 0) + (hasConstraints ? 2 : 0) + (hasOutput ? 2 : 0) + (hasRole ? 1 : 0) + (words.length > 30 ? 2 : words.length > 15 ? 1 : 0));
+          const relevance = Math.min(10, 5 + (hasRole ? 2 : 0) + (sentences.length > 2 ? 2 : sentences.length) + (words.length > 20 ? 1 : 0));
+
+          const improvements: string[] = [];
+          if (!hasRole) improvements.push("Add a role/persona: 'Act as a [specific expert]' at the start");
+          if (!hasContext) improvements.push("Include context/background to ground the AI's understanding");
+          if (!hasConstraints) improvements.push("Define constraints: what the AI should avoid or limit");
+          if (!hasOutput) improvements.push("Specify output format: bullet points, JSON, numbered list, etc.");
+          if (words.length < 20) improvements.push("Expand with more specific details and examples");
+          if (sentences.length < 3) improvements.push("Break into structured sections for clarity");
+          improvements.push("Add a quality check: 'Review for accuracy before responding'");
+
+          const variant1 = `${hasRole ? input.match(/act as [^.]+|you are [^.]+/i)?.[0] || "Act as an expert assistant" : "Act as an expert assistant"}.\n\nTask: ${input}${!hasOutput ? "\n\nFormat: Provide a structured response with clear sections." : ""}\n\nQuality: Review your response for accuracy and completeness before delivering.`;
+          const variant2 = `You are a specialist tasked with the following:\n\n## Objective\n${input}\n\n## Requirements\n- Be specific and actionable\n- Provide concrete examples where applicable\n- Structure the response clearly\n\n## Output\nDeliver a comprehensive response that addresses all aspects of the objective.`;
+
+          result = `## Quick Critique Results\n\n### Scores\n- **Clarity**: ${clarity}/10\n- **Relevance**: ${relevance}/10\n- **Overall**: ${Math.round((clarity + relevance) / 2)}/10\n\n### Improvements (${improvements.length})\n${improvements.map((imp, i) => `${i + 1}. ${imp}`).join("\n")}\n\n### Refined Variant A (Direct Enhancement)\n\`\`\`\n${variant1}\n\`\`\`\n\n### Refined Variant B (Structured Approach)\n\`\`\`\n${variant2}\n\`\`\``;
+        } else if (mt === 2) {
+          // Structured Analysis: Deep dive with improvements, approaches, and refined prompts
+          const sections = input.split(/\n\n+/);
+          const hasStructure = sections.length > 1 || /##|###|\d+[.)]/.test(input);
+          const hasExamples = /example|e\.g\.|such as|for instance|like:/i.test(input);
+          const hasMeasurable = /measure|metric|count|number|percent|specific|exactly/i.test(input);
+
+          const analysisPoints: string[] = [];
+          analysisPoints.push(`**Length**: ${input.length} characters, ${input.split(/\s+/).length} words, ${input.split(/[.!?]+/).filter(s => s.trim()).length} sentences`);
+          analysisPoints.push(`**Structure**: ${hasStructure ? "Has defined sections" : "Needs structural formatting"} — ${sections.length} paragraph(s) detected`);
+          analysisPoints.push(`**Examples**: ${hasExamples ? "Present — good for clarity" : "Missing — add concrete examples"}`);
+          analysisPoints.push(`**Measurability**: ${hasMeasurable ? "Specific metrics found" : "Add measurable criteria for better results"}`);
+          analysisPoints.push(`**Readability**: ${input.split(/\s+/).length > 50 ? "Comprehensive — consider breaking into sections" : "Concise — could benefit from more detail"}`);
+
+          const improvements: string[] = [];
+          if (!hasStructure) improvements.push("Add headers/sections using ## or numbered lists");
+          if (!hasExamples) improvements.push("Include 'For example...' or 'Such as...' to ground expectations");
+          if (!hasMeasurable) improvements.push("Define success criteria: 'Include at least 3...', 'Respond within 500 words'");
+          improvements.push("Add a 'Constraints' section to define boundaries");
+          improvements.push("Include desired tone/style: 'professional', 'casual', 'technical'");
+
+          const approaches = improvements.map((imp, i) => `${i + 1}. ${imp}`).join("\n");
+
+          const variant1 = `## Structured Prompt\n\n### Role & Context\nYou are an expert assistant.\n\n### Task\n${input}\n\n### Approach\n${improvements.slice(0, 3).map((a, i) => `${i + 1}. ${a}`).join("\n")}\n\n### Output Format\nProvide a well-structured response with clear headings, bullet points, and examples.`;
+          const variant2 = `## Expert Analysis Prompt\n\n**Objective**: ${input}\n\n**Instructions**:\n1. Read and understand the objective completely\n2. Break down the request into key components\n3. Address each component systematically\n4. Provide concrete examples for each point\n5. Summarize with actionable next steps\n\n**Constraints**:\n- Be specific, not vague\n- Use data or examples where possible\n- Keep responses focused and actionable\n\n**Expected Output**: A comprehensive, well-formatted response.`;
+
+          result = `## Structured Analysis\n\n### Prompt Breakdown\n${analysisPoints.map(a => `- ${a}`).join("\n")}\n\n### Improvements & Approaches\n${approaches}\n\n### Refined Variant A (Section-Based)\n\`\`\`\n${variant1}\n\`\`\`\n\n### Refined Variant B (Instruction-Based)\n\`\`\`\n${variant2}\n\`\`\``;
+        } else if (mt === 3) {
+          // Expert Engineering: Full expert restructuring with variants and self-test
+          const tokens = input.split(/\s+/);
+          const hasAllParts = [/(?:act as|you are|role)/i, /(?:task|objective|goal|do)/i, /(?:format|output|return|provide)/i, /(?:constraint|limit|avoid|must not)/i].every(r => r.test(input));
+
+          const expertAnalysis = [
+            `**Token Analysis**: ${tokens.length} words — ${tokens.length < 15 ? "Too brief, needs expansion" : tokens.length < 30 ? "Moderate length" : tokens.length < 80 ? "Good length for a prompt" : "Consider condensing or splitting"}`,
+            `**Completeness Check**: ${hasAllParts ? "PASS — Contains role, task, output, and constraints" : "NEEDS WORK — Missing one or more essential components"}`,
+            `**Precision Level**: ${/(?:exactly|specifically|precisely|must|always|never)/i.test(input) ? "High — Contains precise directives" : "Medium — Add more specific instructions"}`,
+            `**Self-Test Potential**: ${/(?:verify|check|review|validate|confirm|test)/i.test(input) ? "Has self-test elements" : "Consider adding verification steps"}`,
+          ];
+
+          const restructured = `# Expert-Engineered Prompt\n\n## Role\n${/(?:act as|you are|role)/i.test(input) ? input.match(/(?:act as|you are)[^.]+/i)?.[0] || "Expert Assistant" : "Act as an expert specialist in the relevant domain"}.\n\n## Context\n${input}\n\n## Constraints\n- Be precise and specific in all responses\n- Provide concrete examples where applicable\n- Structure output clearly with headers and bullet points\n- Avoid generic or filler content\n\n## Output Specification\nDeliver a comprehensive response that:\n1. Directly addresses the core request\n2. Provides actionable, specific information\n3. Includes examples or evidence where relevant\n4. Concludes with clear next steps\n\n## Self-Test\nBefore delivering, verify:\n- [ ] Does the response directly answer the request?\n- [ ] Are all parts of the prompt addressed?\n- [ ] Is the tone appropriate and consistent?\n- [ ] Are examples concrete and helpful?`;
+
+          const strategyVariant = `## Strategy-Focused Variant\n\n**Prompt**:\nYou are a strategic thinker and domain expert.\n\n**Mission**: ${input}\n\n**Strategic Framework**:\n1. **Analyze**: Break down the request into core components\n2. **Research**: Identify key information and patterns\n3. **Synthesize**: Combine findings into actionable insights\n4. **Deliver**: Present results with clear structure and evidence\n\n**Success Criteria**:\n- Comprehensive coverage of the topic\n- Actionable recommendations\n- Clear, professional formatting\n- No unnecessary filler or redundancy`;
+
+          const precisionVariant = `## Precision Variant\n\n**Role**: Expert Specialist\n\n**Objective**: ${input}\n\n**Rules**:\n1. Every sentence must add value — no filler\n2. Use specific numbers, names, or data points\n3. Structure: Problem → Analysis → Solution → Next Steps\n4. Max 500 words unless more is specifically needed\n5. End with exactly 3 actionable takeaways\n\n**Output**: Focused, precise, immediately actionable.`;
+
+          result = `## Expert Engineering Report\n\n### Analysis\n${expertAnalysis.map(a => `- ${a}`).join("\n")}\n\n### Full Restructured Prompt\n\`\`\`\n${restructured}\n\`\`\`\n\n### Strategy Variant\n\`\`\`\n${strategyVariant}\n\`\`\`\n\n### Precision Variant\n\`\`\`\n${precisionVariant}\n\`\`\`\n\n### Rationale\n- Each variant targets a different use case: comprehensive, strategic, and concise\n- All variants include role definition, clear instructions, and output specifications\n- Self-test checklist ensures quality control before delivery`;
+        }
+
+        setMetaResults((p) => ({ ...p, [mt]: { content: result, loading: false, error: null, expanded: true } }));
+        toast.success("Prompt restructured successfully!");
+      } catch (err: unknown) {
+        const m = err instanceof Error ? err.message : "Error";
+        setMetaResults((p) => ({ ...p, [mt]: { content: null, loading: false, error: m, expanded: true } }));
+        toast.error(m);
+      }
+    }, 300); // Small delay for UX feedback
   }, [metaPrompt]);
   const handleQualityScore = useCallback(async () => {
     if (!qaInput.trim()) { toast.error("Enter a prompt."); return; }
@@ -843,20 +930,20 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#0B0D10", color: "#FFFFFF" }}>
+    <div className="min-h-screen min-h-[100dvh] flex flex-col w-full overflow-x-hidden" style={{ background: "#0B0D10", color: "#FFFFFF" }}>
       <CommandPalette open={showPalette} onClose={() => setShowPalette(false)} onSelect={handleSelectFromPalette} recentItems={history} />
       <OnboardingTour onDone={() => setShowOnboarding(false)} />
 
       {/* ─── Nav ─── */}
-      <nav className="sticky top-0 z-50" style={{ background: "rgba(11,13,16,0.92)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+      <nav className="sticky top-0 z-50" style={{ background: "rgba(11,13,16,0.92)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.07)", paddingTop: "env(safe-area-inset-top, 0px)" }}>
         {/* Zone Active Top Glow Bar */}
         <div className="zone-active-glow" style={{ background: `linear-gradient(90deg, transparent, ${zoneColor}44, transparent)` }} />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center gap-2.5 flex-shrink-0">
               <motion.span className="text-xl" whileHover={{ rotate: 15, scale: 1.1 }} transition={{ duration: 0.2 }}>⚡</motion.span>
               <span className="font-bold text-sm tracking-tight color-transition" style={{ fontFamily: "'DM Mono', monospace", color: zoneColor }}>promptc OS</span>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded badge-pop" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>v3.7</span>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded badge-pop" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>v3.8</span>
             </div>
             {/* Desktop zone tabs — with arrow indicators */}
             <div className="hidden sm:block flex-1 mx-4">
@@ -1234,7 +1321,7 @@ export default function Home() {
       </AnimatePresence>
 
       {/* ─── Sub-Tabs ─── */}
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 pt-4">
+      <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 pt-4">
         <ScrollableWithArrows className="flex items-center gap-2 pb-1">
           {(ZONE_TABS[activeZone] || []).map((tab) => {
             const cnt = ZONE_TAB_COUNTS[activeZone]?.[tab];
@@ -1256,7 +1343,7 @@ export default function Home() {
       </div>
 
       {/* ─── Main Content ─── */}
-      <main ref={mainRef} className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 pb-16">
+      <main ref={mainRef} className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 pb-24 sm:pb-16">
         <AnimatePresence mode="wait">
           <motion.div key={`${activeZone}-${activeSubTab[activeZone]}`} {...fadeSlide} className="pt-6">
 
@@ -1397,13 +1484,13 @@ export default function Home() {
                 <div className="space-y-4">{ENHANCEMENTS.map((enh, i) => { const id = `enh-${i}`; return (<div key={id} className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="p-4 cursor-pointer" onClick={() => toggleExpand(id)}><div className="flex items-center justify-between"><div className="flex items-center gap-3"><button onClick={(e) => { e.stopPropagation(); setSelectedEnhancements(prev => { const n = new Set(prev); if (n.has(i)) n.delete(i); else n.add(i); return n; }); }} className="flex-shrink-0 w-5 h-5 rounded flex items-center justify-center transition-all mr-1" style={{ background: selectedEnhancements.has(i) ? zoneColor : "rgba(255,255,255,0.06)", border: selectedEnhancements.has(i) ? `1px solid ${zoneColor}` : "1px solid rgba(255,255,255,0.1)" }}>{selectedEnhancements.has(i) && <Check className="w-3 h-3" style={{ color: "#0B0D10" }} />}</button><span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded" style={{ background: `${zoneColor}15`, color: zoneColor }}>0{i + 1}</span><h3 className="text-sm font-bold">{enh.label}</h3></div><div className="flex items-center gap-2"><span className="text-[10px] px-2 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.05)", color: "#6B7280" }}>{enh.when}</span>{expandedItems.has(id) ? <ChevronDown className="w-3.5 h-3.5" style={{ color: "#4b5563" }} /> : <ChevronRight className="w-3.5 h-3.5" style={{ color: "#4b5563" }} />}</div></div></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><div className="px-4 pb-4 space-y-3"><div className="rounded-lg p-3" style={{ background: "#0B0D10" }}><div className="flex items-center justify-between mb-1"><div className="text-[10px] font-mono" style={{ color: zoneColor }}>WHAT IT DOES</div><button onClick={() => handleCopy(enh.content, `content-${id}`)} className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px]" style={{ background: `${zoneColor}15`, color: zoneColor }}>{copiedId === `content-${id}` ? <><Check className="w-2.5 h-2.5" /> Copied</> : <><Copy className="w-2.5 h-2.5" /> Copy</>}</button></div><pre className="text-[11px] leading-relaxed whitespace-pre-wrap" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{enh.content}</pre></div><div className="rounded-lg p-3" style={{ background: "#0B0D10" }}><div className="flex items-center justify-between mb-1"><div className="text-[10px] font-mono" style={{ color: zoneColor }}>HOW TO USE</div><button onClick={() => handleCopy(enh.howto, `guide-${id}`)} className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px]" style={{ background: `${zoneColor}15`, color: zoneColor }}>{copiedId === `guide-${id}` ? <><Check className="w-2.5 h-2.5" /> Copied</> : <><Copy className="w-2.5 h-2.5" /> Copy Guide</>}</button></div><pre className="text-[11px] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{enh.howto}</pre></div></div></motion.div>)}</AnimatePresence></div>); })}</div>
               </div>)}
 
-              {activeSubTab.build === "Meta Builder" && (<div><div className="mb-6"><h2 className="text-lg font-bold mb-2">Meta Prompt Builder</h2><p className="text-xs mb-4" style={{ color: "#A1A1AA" }}>Transform your prompts with three expert AI methodologies.</p><div className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><textarea value={metaPrompt} onChange={(e) => setMetaPrompt(e.target.value)} placeholder="Paste or type your prompt here..." rows={5} className="w-full bg-transparent text-sm p-4 outline-none resize-none input-glow" style={{ color: "#e2e8f0", fontFamily: "monospace" }} /></div></div><div className="grid grid-cols-1 md:grid-cols-3 gap-4">{META_PROMPTS.map((meta) => { const Icon = meta.icon; const state = metaResults[meta.id]; return (<div key={meta.id} className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: `1px solid ${meta.accent}33` }}><div className="p-4"><div className="flex items-center gap-2 mb-3"><div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: `${meta.accent}15` }}><Icon className="w-4 h-4" style={{ color: meta.accent }} /></div><div><span className="text-[10px] font-mono" style={{ color: "#6B7280" }}>#{meta.id}</span><h3 className="text-xs font-bold">{meta.title}</h3></div></div><p className="text-[11px] mb-3" style={{ color: "#6B7280" }}>{meta.description}</p><button onClick={() => handleMetaGenerate(meta.id)} disabled={state.loading || !metaPrompt.trim()} className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-40" style={{ background: `${meta.accent}15`, color: meta.accent, border: `1px solid ${meta.accent}33` }}>{state.loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Analyzing...</> : <><Sparkles className="w-3.5 h-3.5" /> Generate</>}</button></div><AnimatePresence>{(state.content || state.error || state.loading) && (<motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden"><div style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}><div className="px-4 py-2 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}><span className="text-[10px] font-mono" style={{ color: "#6B7280" }}>{state.error ? "ERROR" : "RESULT"}</span>{state.content && <button onClick={() => handleCopy(state.content, `meta-${meta.id}`)} className="p-1 rounded hover:bg-white/10">{copiedId === `meta-${meta.id}` ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#4b5563" }} />}</button>}</div><div className="p-4 max-h-80 overflow-y-auto">{state.loading && <Skeleton lines={5} className="py-1" />}{state.error && <p className="text-xs" style={{ color: "#ef4444" }}>{state.error}</p>}{state.content && !state.loading && <div className="markdown-result text-xs"><ReactMarkdown>{state.content}</ReactMarkdown></div>}</div></div></motion.div>)}</AnimatePresence></div>); })}</div></div>)}
+              {activeSubTab.build === "Meta Builder" && (<div><div className="mb-6"><h2 className="text-lg font-bold mb-2">Meta Prompt Builder</h2><p className="text-xs mb-4" style={{ color: "#A1A1AA" }}>Restructure and enhance your prompts with three expert methodologies. Instant, no AI required.</p><div className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><textarea value={metaPrompt} onChange={(e) => setMetaPrompt(e.target.value)} placeholder="Paste or type your prompt here..." rows={5} className="w-full bg-transparent text-sm p-4 outline-none resize-none input-glow" style={{ color: "#e2e8f0", fontFamily: "monospace" }} /></div></div><div className="grid grid-cols-1 md:grid-cols-3 gap-4">{META_PROMPTS.map((meta) => { const Icon = meta.icon; const state = metaResults[meta.id]; return (<div key={meta.id} className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: `1px solid ${meta.accent}33` }}><div className="p-4"><div className="flex items-center gap-2 mb-3"><div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: `${meta.accent}15` }}><Icon className="w-4 h-4" style={{ color: meta.accent }} /></div><div><span className="text-[10px] font-mono" style={{ color: "#6B7280" }}>#{meta.id}</span><h3 className="text-xs font-bold">{meta.title}</h3></div></div><p className="text-[11px] mb-3" style={{ color: "#6B7280" }}>{meta.description}</p><button onClick={() => handleMetaGenerate(meta.id)} disabled={state.loading || !metaPrompt.trim()} className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-40" style={{ background: `${meta.accent}15`, color: meta.accent, border: `1px solid ${meta.accent}33` }}>{state.loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Restructuring...</> : <><Sparkles className="w-3.5 h-3.5" /> Restructure</>}</button></div><AnimatePresence>{(state.content || state.error || state.loading) && (<motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden"><div style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}><div className="px-4 py-2 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}><span className="text-[10px] font-mono" style={{ color: "#6B7280" }}>{state.error ? "ERROR" : "RESULT"}</span>{state.content && <button onClick={() => handleCopy(state.content, `meta-${meta.id}`)} className="p-1 rounded hover:bg-white/10">{copiedId === `meta-${meta.id}` ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#4b5563" }} />}</button>}</div><div className="p-4 max-h-80 overflow-y-auto">{state.loading && <Skeleton lines={5} className="py-1" />}{state.error && <p className="text-xs" style={{ color: "#ef4444" }}>{state.error}</p>}{state.content && !state.loading && <div className="markdown-result text-xs"><ReactMarkdown>{state.content}</ReactMarkdown></div>}</div></div></motion.div>)}</AnimatePresence></div>); })}</div></div>)}
             </>)}
 
             {/* ═══ VALIDATE ═══ */}
             {activeZone === "validate" && (<>
               {activeSubTab.validate === "Lint Rules" && (<div className="space-y-6">{["universal", "ui/ux", "code", "content", "agent"].map((seg) => { const rules = LINT_RULES.filter((r) => r.seg === seg); return (<div key={seg}><div className="text-[10px] font-mono tracking-widest mb-3" style={{ color: zoneColor }}>{seg.toUpperCase()} ({rules.length})</div><div className="space-y-2">{rules.map((rule) => (<div key={rule.id} className="rounded-lg p-3 flex items-start gap-3" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><span className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${rule.auto ? "bg-green-500" : "bg-amber-500"}`} /><div className="flex-1 min-w-0"><p className="text-xs" style={{ color: "#e4e4e7" }}>{rule.check}</p><p className="text-[10px] mt-1" style={{ color: "#6B7280" }}>→ {rule.fix}</p></div><button onClick={() => handleCopy(`[LINT] ${rule.check}\n→ ${rule.fix}`, `lint-add-${rule.id}`)} className="p-1 rounded hover:bg-white/10 flex-shrink-0" style={{ color: zoneColor }}><Plus className="w-3 h-3" /></button><button onClick={() => handleCopy(rule.fix, `lint-${rule.id}`)} className="p-1 rounded hover:bg-white/10 flex-shrink-0">{copiedId === `lint-${rule.id}` ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#4b5563" }} />}</button></div>))}</div></div>); })}</div>)}
-              {activeSubTab.validate === "Word Swaps" && (<div className="space-y-6">{SWAP_LEVELS.map((level) => { const swaps = SWAPS.filter((s) => s.level === level); if (swaps.length === 0) return null; return (<div key={level}><div className="text-[10px] font-mono tracking-widest mb-3" style={{ color: zoneColor }}>{level.toUpperCase()} ({swaps.length})</div><div className="space-y-2">{swaps.map((swap, i) => { const id = `swap-${level}-${i}`; return (<div key={id} className="rounded-lg p-3 cursor-pointer transition-all hover:border-white/15" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }} onClick={() => toggleExpand(id)}><div className="flex items-center gap-2 flex-wrap"><span className="text-xs line-through" style={{ color: "#ef4444" }}>{swap.bad}</span><span className="text-[10px]" style={{ color: "#4b5563" }}>→</span><span className="text-xs font-medium" style={{ color: "#22c55e" }}>{swap.good}</span><button onClick={(e) => { e.stopPropagation(); handleCopy(swap.good, id); }} className="ml-auto p-1 rounded hover:bg-white/10 flex-shrink-0">{copiedId === id ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#4b5563" }} />}</button><button onClick={(e) => { e.stopPropagation(); handleCopy(`[SWAP] ${swap.bad} → ${swap.good}\n💡 ${swap.tip}`, id); }} className="ml-1 p-1 rounded hover:bg-white/10 flex-shrink-0" style={{ color: zoneColor }}><Plus className="w-3 h-3" /></button>{expandedItems.has(id) ? <ChevronDown className="w-3 h-3" style={{ color: "#4b5563" }} /> : <ChevronRight className="w-3 h-3" style={{ color: "#4b5563" }} />}</div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><p className="text-[10px] mt-2 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", color: "#A1A1AA" }}>💡 {swap.tip}</p></motion.div>)}</AnimatePresence></div>); })}</div></div>); })}</div>)}
+              {activeSubTab.validate === "Word Swaps" && (<div className="space-y-6">{SWAP_LEVELS.map((level) => { const swaps = SWAPS.filter((s) => s.level === level); if (swaps.length === 0) return null; return (<div key={level}><div className="text-[10px] font-mono tracking-widest mb-3" style={{ color: zoneColor }}>{level.toUpperCase()} ({swaps.length})</div><div className="space-y-2">{swaps.map((swap, i) => { const id = `swap-${level}-${i}`; return (<div key={id} className="rounded-lg p-3 transition-all hover:border-white/15" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="flex items-center gap-2 mb-0"><span className="text-xs line-through flex-shrink" style={{ color: "#ef4444" }}>{swap.bad}</span><span className="text-[10px] flex-shrink-0" style={{ color: "#4b5563" }}>→</span><span className="text-xs font-medium flex-1 min-w-0" style={{ color: "#22c55e" }}>{swap.good}</span></div><div className="flex items-center gap-1.5 mt-2"><button onClick={() => handleCopy(swap.good, id)} className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all" style={{ background: "rgba(255,255,255,0.05)", color: "#A1A1AA" }}>{copiedId === id ? <><Check className="w-3 h-3 text-green-400" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}</button><button onClick={() => handleCopy(`[SWAP] ${swap.bad} → ${swap.good}\n💡 ${swap.tip}`, id)} className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all" style={{ background: `${zoneColor}12`, color: zoneColor }}><Plus className="w-3 h-3" /> Basket</button><button onClick={() => toggleExpand(id)} className="ml-auto p-1 rounded hover:bg-white/10 flex-shrink-0">{expandedItems.has(id) ? <ChevronDown className="w-3 h-3" style={{ color: "#4b5563" }} /> : <ChevronRight className="w-3 h-3" style={{ color: "#4b5563" }} />}</button></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><p className="text-[10px] mt-2 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", color: "#A1A1AA" }}>💡 {swap.tip}</p></motion.div>)}</AnimatePresence></div>); })}</div></div>); })}</div>)}
               {activeSubTab.validate === "Vocabulary" && (<div className="space-y-6">{VOCAB_CATS.map((cat) => { const terms = VOCAB.filter((v) => v.cat === cat); return (<div key={cat}><div className="text-[10px] font-mono tracking-widest mb-3" style={{ color: zoneColor }}>{cat.toUpperCase()} ({terms.length})</div><div className="space-y-2">{terms.map((term, i) => { const id = `vocab-${cat}-${i}`; return (<div key={id} className="rounded-lg p-3 cursor-pointer" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }} onClick={() => toggleExpand(id)}><div className="flex items-center justify-between"><h4 className="text-xs font-bold font-mono">{term.t}</h4><div className="flex items-center gap-1"><button onClick={(e) => { e.stopPropagation(); handleCopy(`[VOCAB] ${term.t}: ${term.d}\n💡 ${term.tip}`, id); }} className="p-1 rounded hover:bg-white/10 transition-colors mr-1" style={{ color: zoneColor }}><Plus className="w-3 h-3" /></button><button onClick={(e) => { e.stopPropagation(); handleCopy(`${term.t}: ${term.d}\n💡 ${term.tip}`, id); }} className="p-1 rounded hover:bg-white/10 transition-colors">{copiedId === id ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#4b5563" }} />}</button>{expandedItems.has(id) ? <ChevronDown className="w-3 h-3" style={{ color: "#4b5563" }} /> : <ChevronRight className="w-3 h-3" style={{ color: "#4b5563" }} />}</div></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><div className="mt-2 pt-2 space-y-1" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}><p className="text-[11px]" style={{ color: "#A1A1AA" }}>{term.d}</p><p className="text-[10px]" style={{ color: "#6B7280" }}>💡 {term.tip}</p></div></motion.div>)}</AnimatePresence></div>); })}</div></div>); })}</div>)}
               {activeSubTab.validate === "Quality Score" && (<div className="max-w-2xl mx-auto"><h2 className="text-lg font-bold mb-2">AI Quality Scoring</h2><p className="text-xs mb-4" style={{ color: "#A1A1AA" }}>Enter a prompt to get AI-powered quality analysis across 4 dimensions.</p><div className="rounded-xl overflow-hidden mb-4" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><textarea value={qaInput} onChange={(e) => setQaInput(e.target.value)} placeholder="Paste your prompt here to analyze..." rows={5} className="w-full bg-transparent text-sm p-4 outline-none resize-none input-glow" style={{ color: "#e2e8f0", fontFamily: "monospace" }} /></div><TipEnhanced text="AI-powered 4-dimension prompt analysis" shortcut="Enter"><button onClick={handleQualityScore} disabled={qaLoading || !qaInput.trim()} className="px-6 py-2.5 rounded-lg text-sm font-medium transition-all disabled:opacity-40 ripple-container" style={{ background: `${zoneColor}18`, color: zoneColor, border: `1px solid ${zoneColor}44` }}>{qaLoading ? <><Loader2 className="w-4 h-4 animate-spin inline mr-2" /> Analyzing...</> : "Analyze Prompt"}</button></TipEnhanced><AnimatePresence>{qaResult && (<motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mt-6 rounded-xl p-6" style={{ background: "#14161A", border: `1px solid ${zoneColor}22` }}><div className="flex flex-col sm:flex-row items-center gap-6 mb-4"><RadarChart scores={qaResult.scores} /><div className="grid grid-cols-2 gap-3 flex-1">{(["clarity", "specificity", "structure", "actionability"] as const).map((dim) => { const score = qaResult.scores[dim]; const color = score >= 8 ? "#22c55e" : score >= 5 ? "#eab308" : "#ef4444"; return (<div key={dim} className="text-center"><div className="text-2xl font-bold" style={{ color }}>{score}</div><div className="w-full h-1.5 rounded-full mb-1 mt-1" style={{ background: "rgba(255,255,255,0.07)" }}><motion.div className="h-full rounded-full" style={{ width: `${score * 10}%`, background: color }} initial={{ width: 0 }} animate={{ width: `${score * 10}%` }} transition={{ duration: 0.6 }} /></div><div className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "#6B7280" }}>{dim}</div></div>); })}</div></div><div className="text-xs leading-relaxed" style={{ color: "#A1A1AA" }}><span className="font-bold" style={{ color: zoneColor }}>Feedback:</span> {qaResult.feedback}</div><div className="mt-3 text-[10px] font-mono" style={{ color: "#4b5563" }}>Overall: {((qaResult.scores.clarity + qaResult.scores.specificity + qaResult.scores.structure + qaResult.scores.actionability) / 4).toFixed(1)} / 10</div></motion.div>)}</AnimatePresence></div>)}
             </>)}
@@ -1735,7 +1822,7 @@ export default function Home() {
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.2 }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-6 left-6 z-30 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+            className="fixed bottom-24 sm:bottom-6 left-4 sm:left-6 z-30 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
             style={{ background: "rgba(20,22,26,0.9)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(8px)" }}
           >
             <ArrowUp className="w-4 h-4" style={{ color: "#a78bfa" }} />
@@ -1748,7 +1835,7 @@ export default function Home() {
         {showQuickCompose ? (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[55]" style={{ background: "rgba(0,0,0,0.3)" }} onClick={() => setShowQuickCompose(false)} />
-            <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="fixed bottom-20 sm:bottom-6 right-4 z-[56] w-80 sm:w-96 rounded-xl overflow-hidden" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
+            <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="fixed bottom-24 sm:bottom-6 right-2 left-2 sm:left-auto sm:right-4 z-[56] w-auto sm:w-96 rounded-xl overflow-hidden max-h-[70vh] overflow-y-auto" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
               <div className="p-4 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2"><Sparkles className="w-4 h-4" style={{ color: zoneColor }} /><h3 className="text-sm font-bold" style={{ color: zoneColor }}>Quick Compose</h3></div>
@@ -1782,7 +1869,7 @@ export default function Home() {
             </motion.div>
           </>
         ) : (
-          <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.2 }} onClick={() => setShowQuickCompose(true)} className="fixed bottom-20 sm:bottom-6 right-4 z-30 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110" style={{ background: "rgba(20,22,26,0.9)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(8px)" }}>
+          <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.2 }} onClick={() => setShowQuickCompose(true)} className="fixed bottom-24 sm:bottom-6 right-3 sm:right-4 z-30 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110" style={{ background: "rgba(20,22,26,0.9)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(8px)" }}>
             <Sparkles className="w-5 h-5" style={{ color: zoneColor }} />
           </motion.button>
         )}
@@ -1841,7 +1928,7 @@ export default function Home() {
       {/* ─── Footer ─── */}
       <footer className="mt-auto pb-20 sm:pb-0" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col items-center gap-2">
-          <div className="flex items-center gap-2 text-xs" style={{ color: "#4b5563" }}><Sparkles className="w-3.5 h-3.5" /><span>promptc OS — AI Prompt Engineering Operating System</span><span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa" }}>v3.7</span></div>
+          <div className="flex items-center gap-2 text-xs" style={{ color: "#4b5563" }}><Sparkles className="w-3.5 h-3.5" /><span>promptc OS — AI Prompt Engineering Operating System</span><span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa" }}>v3.8</span></div>
           <div className="flex items-center gap-3 text-[10px]" style={{ color: "#4b5563" }}>
             <span className="flex items-center gap-1"><kbd className="kbd-badge">⌘K</kbd> Search</span><span>·</span>
             <span className="flex items-center gap-1"><kbd className="kbd-badge">⌘B</kbd> Basket{history.length > 0 && ` (${history.length})`}</span><span>·</span>

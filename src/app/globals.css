@@ -116,8 +116,17 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
   body {
     @apply bg-background text-foreground;
+  }
+  /* PWA safe area support */
+  body {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
 
