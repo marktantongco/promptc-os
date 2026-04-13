@@ -25,3 +25,28 @@ Stage Summary:
 - Visual cues: Scroll progress bar, zone slide-in, copy success flash, status blink dots
 - Files modified: page.tsx, globals.css, PageClient.tsx
 - Build: Clean, no errors
+---
+Task ID: 1
+Agent: Main Agent
+Task: Comprehensive v3.7 upgrade of promptc OS
+
+Work Log:
+- Read and analyzed entire codebase (PageClient.tsx 1855 lines, API routes, CSS, package.json)
+- Identified all changes needed from user requirements
+- Removed 11 HTML title= tooltip attributes from buttons across all zones
+- Added 🧺 basket button to every modifier item for direct basket add
+- Enhanced modifier assembly copy format with prompt chaining connectors
+- Fixed Meta Builder API (role: assistant → system, removed thinking param)
+- Fixed Quality Score API (same fixes)
+- Added ⌘⇧C keyboard shortcut for Clipboard History
+- Bumped version v3.6 → v3.7 in PageClient.tsx and package.json
+- Updated comprehensive README with v3.7 changelog
+- Committed and pushed to GitHub
+- Deployed to Vercel (build successful in 14.7s)
+
+Stage Summary:
+- All code changes applied to 5 files (PageClient.tsx, generate/route.ts, analyze/route.ts, package.json, README.md)
+- Git pushed to https://github.com/marktantongco/promptc-os.git (main)
+- Vercel deployment: https://my-project-pearl-kappa-72.vercel.app
+- No new lint errors introduced (700 pre-existing issues unchanged)
+
