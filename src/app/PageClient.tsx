@@ -2,13 +2,13 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Copy, Check, ChevronDown, ChevronUp, ChevronRight, ChevronLeft, Sparkles, Loader2,
-  Zap, Target, Wrench, X, Search, HelpCircle,
+  Copy, Check, ChevronDown, ChevronUp, ChevronRight, Sparkles, Loader2,
+  X, Search, HelpCircle,
   FileText, TrendingUp, Timer, Layers,
-  Command, Cpu, BarChart3, ArrowRight, ArrowLeft, ArrowUpDown,
+  Command, Cpu, BarChart3, ArrowRight, ArrowUpDown,
   FolderDown, FileDown, FileJson, Lightbulb, ArrowUp,
-  Trash2, CheckSquare, Square, Pin, Menu, Star, MoreVertical,
-  Plus, Send, Keyboard, Clipboard,
+  Trash2, CheckSquare, Square, Pin, Star, MoreVertical,
+  Plus, Keyboard, Clipboard,
 } from "lucide-react";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
@@ -26,422 +26,113 @@ import {
   CATEGORY_COUNTS, TOTAL_SKILLS, TOTAL_CATEGORIES, TOTAL_FILES,
 } from "./data/skills-catalog";
 
-// ─── Types ─────────────────────────────────────────────────────────────────
-interface ResultState { content: string | null; loading: boolean; error: string | null; expanded: boolean; }
-interface BasketItem {
-  id: string;
-  text: string;
-  label: string;
-  zone: string;
-  time: string;
-  chars: number;
-  pinned: boolean;
-  favorited?: boolean;
-  pipelineStage?: string;
-  copyCount?: number;
-}
+// ─── Extracted modules ───────────────────────────────────────────────────
+import type { ResultState, BasketItem } from "@/lib/types";
+import {
+  PIPELINE_STAGES, ZONE_TABS, ZONE_TAB_COUNTS,
+  ANIMAL_COLORS, ANIMAL_EMOJIS, META_PROMPTS,
+  MONETIZE_TOP_PROMPTS, MONETIZE_SAAS, MONETIZE_STACKS, MONETIZE_AI_TOOLS,
+  WORKFLOWS_DATA, SYSTEM_PRINCIPLES, SKILL_BUILDER_STEPS,
+  DIFF_COLORS, fadeSlide, stagger, staggerItem,
+  DEFAULT_SUBTABS, DEFAULT_COMPOSER,
+} from "@/lib/types";
+import { ScrollableWithArrows, Skeleton, TipEnhanced, AnimatedCounter, Tip } from "@/components/ui-shared";
+import { usePersistedReducer, appReducer, type AppState } from "@/hooks/useAppReducer";
+import { persistedStateSchema } from "@/lib/stateSchema";
 
-const PIPELINE_STAGES = ["activate", "build", "validate", "playbook", "monetize"] as const;
-
-// ─── Sub-tab definitions per zone ─────────────────────────────────────────
-const ZONE_TABS: Record<string, string[]> = {
-  activate: ["Tasks", "Modifiers", "Templates", "Brands", "Animals", "Composer"],
-  build: ["Master Prompt", "Enhancements", "Meta Builder"],
-  validate: ["Lint Rules", "Word Swaps", "Vocabulary", "Quality Score"],
-  playbook: ["Workflows", "Animal Chains", "Design Combos", "Typography"],
-  monetize: ["Top Prompts", "SaaS Templates", "Stacks", "AI Tools", "Compounding", "Pricing Guide"],
-  system: ["Skills Library", "Compounding", "Principles", "Skill Builder", "Workflow Patterns", "Self-Evolve", "Infographics", "Package Docs"],
+// ─── Persisted reducer initial state ─────────────────────────────────────
+const INITIAL_STATE: AppState = {
+  zone: "activate",
+  subtab: DEFAULT_SUBTABS,
+  search: "",
+  "skills-search": "",
+  "quickstart-dismissed": false,
+  "basket-search": "",
+  "basket-zone-filter": "all",
+  "basket-sort": "newest",
+  "animal-input": "",
+  "chain-input": "",
+  "meta-prompt": "",
+  "qa-input": "",
+  "composer-fields": DEFAULT_COMPOSER,
+  "compose-text": "",
+  "mod-assembly": [],
+  "mod-user-input": "",
+  "selected-animals": [],
+  "enhance-input": "",
+  "clipboard-history": [],
 };
-
-const ZONE_TAB_COUNTS: Record<string, Record<string, number>> = {
-  activate: { Tasks: 8, Modifiers: MODS.length, Templates: TMPLS.length, Brands: BRANDS.length, Animals: ANIMALS.length, Composer: 8 },
-  build: { "Master Prompt": 1, Enhancements: ENHANCEMENTS.length, "Meta Builder": 3 },
-  validate: { "Lint Rules": LINT_RULES.length, "Word Swaps": SWAPS.length, Vocabulary: VOCAB.length, "Quality Score": 1 },
-  playbook: { Workflows: 21, "Animal Chains": CHAINS.length, "Design Combos": COMBOS.length, Typography: TYPO.length },
-  monetize: { "Top Prompts": 6, "SaaS Templates": 6, Stacks: 4, "AI Tools": 5, Compounding: 1, "Pricing Guide": 1 },
-  system: { "Skills Library": TOTAL_SKILLS, Compounding: 1, Principles: 6, "Skill Builder": 1, "Workflow Patterns": 2, "Self-Evolve": 1, Infographics: 1, "Package Docs": 1 },
-};
-
-const ANIMAL_COLORS: Record<string, string> = {
-  Eagle: "#FFB000", Beaver: "#FF6B00", Ant: "#FF4FD8", Owl: "#4DFFFF",
-  Rabbit: "#22c55e", Dolphin: "#38bdf8", Elephant: "#f97316",
-};
-const ANIMAL_EMOJIS: Record<string, string> = {
-  Rabbit: "🐇", Owl: "🦉", Ant: "🐜", Eagle: "🦅",
-  Dolphin: "🐬", Beaver: "🦫", Elephant: "🐘",
-};
-
-const META_PROMPTS = [
-  { id: 1 as const, title: "Quick Critique", description: "Instant clarity & relevance scoring with 5 improvements and two refined variants. No AI needed.", icon: Zap, accent: "#3b82f6" },
-  { id: 2 as const, title: "Structured Analysis", description: "Deep prompt breakdown with improvement approaches and two structured refinements.", icon: Target, accent: "#8b5cf6" },
-  { id: 3 as const, title: "Expert Engineering", description: "Full expert restructure: comprehensive, strategic & precision variants plus self-test.", icon: Wrench, accent: "#06b6d4" },
-];
-
-const MONETIZE_TOP_PROMPTS = [
-  { label: "SaaS AI MVP in 1 Weekend", desc: "Build complete SaaS with Next.js + Supabase + Groq + Stripe + Vercel in 48 hours.", cat: "Build", rev: "$$$" },
-  { label: "Prompt Pack → First Sale in 48hrs", desc: "10 copy-ready prompts for Gumroad. Niche, title, use case, pro tip each.", cat: "Sell", rev: "$" },
-  { label: "Newsletter → $1k/mo in 90 Days", desc: "Beehiiv + referral program + sponsorships. Full content system.", cat: "Grow", rev: "$$" },
-  { label: "Consulting → Productized Offer", desc: "Fixed-scope, fixed-price. Notion portal + Loom async delivery.", cat: "Pivot", rev: "$$" },
-  { label: "Agency → SaaS Transition", desc: "6-month plan from services to product. Document → build → launch.", cat: "Scale", rev: "$$$" },
-  { label: "MCP Tool → Paid Product", desc: "Build MCP server for Claude Desktop, monetize with npm/Stripe.", cat: "Build", rev: "$$$" },
-];
-const MONETIZE_SAAS = [
-  { label: "AI Content Pipeline", desc: "n8n: Airtable → WordPress → social. Auto-publish daily.", stack: "n8n + Airtable + WordPress", diff: "medium", time: "2-3 days" },
-  { label: "Lead Capture & Qualification", desc: "Typeform → AI score → CRM → Slack notify. Tier-based routing.", stack: "n8n + Typeform + OpenAI + HubSpot", diff: "hard", time: "5-7 days" },
-  { label: "Site & Competitor Monitor", desc: "Uptime check + competitor price scraping + AI summary + alerts.", stack: "n8n + PagerDuty + Google Sheets", diff: "easy", time: "1 day" },
-  { label: "Invoice Automation", desc: "Auto-generate PDF invoices, email, track payment webhooks.", stack: "Make + Airtable + PDF.co + Gmail", diff: "medium", time: "2-3 days" },
-  { label: "MCP Agent Pipeline", desc: "Claude + MCP tools → autonomous research + write + publish.", stack: "MCP SDK + Node.js + WordPress", diff: "hard", time: "7-10 days" },
-  { label: "CRM Sync System", desc: "Sync leads across HubSpot, Gmail, Slack, Sheets via Zapier.", stack: "Zapier + HubSpot + Gmail + Sheets", diff: "easy", time: "1-2 days" },
-];
-const MONETIZE_STACKS = [
-  { label: "⚡ Quick Win", time: "Week 1", income: "$100–500", desc: "Sell a prompt pack or template on Gumroad. Zero setup cost." },
-  { label: "🎯 Active Income", time: "Week 2–4", income: "$500–5k/project", desc: "Offer AI automation or prompt engineering as a service." },
-  { label: "💰 Passive Income", time: "Month 1–3", income: "$500–10k/mo MRR", desc: "Build a micro-SaaS or paid newsletter. Compounds infinitely." },
-  { label: "🔁 Hybrid Stack", time: "Month 2–6", income: "$2k–20k/mo", desc: "Combine active consulting + passive products. Leverage." },
-];
-const MONETIZE_AI_TOOLS = [
-  { label: "OpenClaw", cat: "Agentic Runtime", tier: "Free / OSS", desc: "Open-source AI agent framework — compose tools, memory, and LLM calls.", starter: "Build an OpenClaw agent that: 1) Reads from a knowledge base 2) Processes user queries 3) Returns structured responses. Include tool definitions, memory config, and error handling." },
-  { label: "ZeroClaw", cat: "Zero-Cost Agent", tier: "Free", desc: "Zero-cost agent runtime — runs entirely on Cloudflare + Groq free tiers.", starter: "Set up a ZeroClaw agent on Cloudflare Workers with: Groq API for inference, KV storage for memory, and Durable Objects for state. Target: zero monthly cost for <10k requests." },
-  { label: "Agno", cat: "Agent Framework", tier: "Free / OSS", desc: "Python-native agent framework — multi-model, tool-calling, memory built-in.", starter: "Create an Agno agent with: multi-model support (GPT-4o + Claude), 5 custom tools, structured memory, and a Flask API wrapper. Include Docker setup." },
-  { label: "CrewAI", cat: "Multi-Agent", tier: "Free / OSS", desc: "Multi-agent orchestration — define crews of specialized AI agents.", starter: "Design a CrewAI system with 3 agents: Researcher (web search + summarize), Writer (draft content from research), Editor (fact-check + polish). Define tasks, tools, and output format." },
-  { label: "Claude Code", cat: "AI Coding Agent", tier: "Free tier", desc: "Anthropic's Claude Code — agentic coding assistant in your terminal.", starter: "Set up Claude Code for a Next.js project with: project context file (.claude), custom commands for testing/linting, and a CI workflow that uses Claude Code for automated PR reviews." },
-];
-const WORKFLOW_PROMPTS: Record<string, string> = {
-  "Design System Creation": "Create a comprehensive design system for [product]. Include: color palette (primary, secondary, neutral, semantic), typography scale (4 levels), spacing system (4px grid), component library (buttons, inputs, cards, modals), icon set guidelines, and documentation structure. Output as structured markdown with code tokens for values.",
-  "Landing Page Design": "Design a high-conversion landing page for [product/service]. Include: hero section with value proposition, 3 social proof elements, feature-benefit grid, pricing comparison, FAQ accordion, and CTA hierarchy. Follow AIDA: Attention → Interest → Desire → Action. Specify exact copy, layout grid, and visual hierarchy.",
-  "Full-Stack App": "Build a complete [app type] with: Next.js 15 frontend, REST API with validation, PostgreSQL database schema (3-5 core tables), authentication (OAuth + JWT), CRUD operations for all models, responsive UI with Tailwind CSS, error handling, loading states, and deployment config for Vercel.",
-  "API Design": "Design a RESTful API for [service]. Include: 15-20 endpoints with proper HTTP methods, request/response schemas (OpenAPI format), authentication middleware, rate limiting strategy, pagination pattern, error response format, versioning approach, and example curl commands for key endpoints.",
-  "Database Schema": "Design a scalable PostgreSQL database schema for [application]. Include: 5-8 tables with proper normalization (3NF), indexes for common queries, foreign key relationships, constraints (unique, check, not null), migration strategy, and seed data examples. Explain each design decision.",
-  "Product Roadmap": "Create a 6-month product roadmap for [product]. Include: Q1-Q2 quarterly objectives with 3 key results each, feature prioritization matrix (impact vs effort), milestone dates, dependency map, risk assessment for each quarter, resource allocation plan, and success metrics per objective.",
-  "Market Research": "Conduct market research for [industry/product]. Include: TAM/SAM/SOM analysis, 5 key competitor profiles with SWOT, target user personas (3 segments), pricing benchmarking, market trends (3 key trends), barriers to entry assessment, and go-to-market recommendation with timeline.",
-  "Prompt Engineering": "Systematically create 5 production prompts for [use case]. For each prompt: define role, context, objective, constraints, output format, and examples. Apply modifier chain: [specific output format] + [step-by-step reasoning] + [constraint awareness]. Test each prompt for consistency.",
-  "AI Agent Design": "Design an autonomous AI agent for [task]. Include: agent architecture (ReAct/Plan-and-Execute), tool definitions (5-8 tools with schemas), memory system (short-term + long-term), error recovery strategy, human-in-the-loop checkpoints, evaluation metrics, and deployment plan with fallback mechanisms.",
-  "Content Strategy": "Create a 90-day content strategy for [brand/product]. Include: content pillars (3-4), publishing calendar (3 posts/week), channel distribution plan, SEO keyword targets (20 keywords), content formats mix (60% educational, 25% promotional, 15% engaging), and KPI tracking framework.",
-  "Email Sequence": "Design a 7-email automated sequence for [funnel stage]. Include: trigger conditions, subject line + preview text for each, email body copy (200-300 words each), CTA placement, A/B test variables, send timing, and success metrics (open rate, CTR, conversion rate targets).",
-  "Security Audit": "Perform a security audit for [application type]. Include: OWASP Top 10 checklist, authentication vulnerability assessment, input validation review, data exposure risks, API security headers, dependency vulnerability scan approach, incident response plan, and security hardening recommendations.",
-  "CI/CD Pipeline": "Design a CI/CD pipeline for [tech stack]. Include: GitHub Actions workflow YAML, test stages (unit, integration, E2E), build optimization, deployment strategy (blue-green or canary), rollback procedure, environment variable management, monitoring alerts, and cost optimization.",
-  "Dashboard Design": "Design an analytics dashboard for [domain]. Include: KPI summary row (4 metrics), time-range selector, 2 chart types (line + bar), data table with sorting/filtering, drill-down capability, real-time update strategy, and empty state design. Dark theme.",
-  "React Native Build": "Build a React Native app for [concept]. Include: navigation structure (tab + stack), 5 core screens with components, state management (Zustand), API integration layer, offline-first data strategy, push notification setup, and app store metadata.",
-  "Mobile App Design": "Design a native mobile app for [purpose]. Include: information architecture (3 main sections), screen flow diagram, component library (buttons, inputs, cards, navigation), gesture interactions, platform-specific guidelines (iOS HIG + Material 3), and accessibility considerations.",
-  "ML Pipeline": "Design an end-to-end ML pipeline for [problem type]. Include: data collection strategy, preprocessing steps, feature engineering, model selection rationale, training/validation split, evaluation metrics, deployment architecture (API or batch), monitoring drift detection, and retraining triggers.",
-  "Social Media Strategy": "Create a 30-day social media strategy for [brand]. Include: platform selection (top 3), content calendar with post types, hashtag strategy, engagement tactics, influencer collaboration approach, paid boost budget allocation, and weekly analytics review framework.",
-  "User Onboarding": "Design a user onboarding flow for [product]. Include: 4-step progressive disclosure, welcome screen copy, tooltip system, achievement/gamification elements, skip/resume capability, time-to-value optimization (<5 minutes), and drop-off metrics at each step.",
-  "Pricing Strategy": "Design a pricing strategy for [SaaS product]. Include: 3-tier structure (Free/Pro/Enterprise), value metric selection, feature gating matrix, competitive pricing analysis, psychological pricing tactics, annual vs monthly discount structure, and migration path documentation.",
-  "Competitive Analysis": "Conduct competitive analysis for [market]. Include: 8-10 competitor matrix, feature comparison grid, pricing comparison, market positioning map, SWOT for top 3 competitors, differentiation opportunities, and strategic recommendations with priority.",
-  "Monitoring Setup": "Design application monitoring for [app type]. Include: APM setup (Datadog/New Relic), key metrics dashboard (latency P50/P95/P99, error rate, throughput), alerting rules (5 critical alerts), log aggregation strategy, custom business metrics, and incident response runbook.",
-};
-
-const WORKFLOWS_DATA = [
-  { cat: "🎨 Design", title: "Design System Creation", purpose: "Build complete design system", best: "New products, rebrands", prompt: WORKFLOW_PROMPTS["Design System Creation"] },
-  { cat: "🎨 Design", title: "Landing Page Design", purpose: "High-conversion landing page", best: "Marketing, startups", prompt: WORKFLOW_PROMPTS["Landing Page Design"] },
-  { cat: "🎨 Design", title: "Dashboard Design", purpose: "Data visualization dashboard", best: "Analytics, SaaS", prompt: WORKFLOW_PROMPTS["Dashboard Design"] },
-  { cat: "💻 Dev", title: "Full-Stack App", purpose: "Complete web application", best: "Product builds", prompt: WORKFLOW_PROMPTS["Full-Stack App"] },
-  { cat: "💻 Dev", title: "API Design", purpose: "RESTful or GraphQL API", best: "Backend development", prompt: WORKFLOW_PROMPTS["API Design"] },
-  { cat: "💻 Dev", title: "Database Schema", purpose: "Scalable database structure", best: "Data modeling", prompt: WORKFLOW_PROMPTS["Database Schema"] },
-  { cat: "📈 Business", title: "Product Roadmap", purpose: "Strategic product roadmap", best: "Product management", prompt: WORKFLOW_PROMPTS["Product Roadmap"] },
-  { cat: "📈 Business", title: "Market Research", purpose: "Comprehensive market analysis", best: "Business strategy", prompt: WORKFLOW_PROMPTS["Market Research"] },
-  { cat: "📈 Business", title: "User Onboarding", purpose: "Effective user onboarding flow", best: "Product growth", prompt: WORKFLOW_PROMPTS["User Onboarding"] },
-  { cat: "📈 Business", title: "Pricing Strategy", purpose: "Optimal pricing model design", best: "SaaS, subscriptions", prompt: WORKFLOW_PROMPTS["Pricing Strategy"] },
-  { cat: "📈 Business", title: "Competitive Analysis", purpose: "Deep competitor intelligence", best: "Market positioning", prompt: WORKFLOW_PROMPTS["Competitive Analysis"] },
-  { cat: "📱 Mobile", title: "Mobile App Design", purpose: "Native-feeling mobile app", best: "iOS/Android apps", prompt: WORKFLOW_PROMPTS["Mobile App Design"] },
-  { cat: "📱 Mobile", title: "React Native Build", purpose: "Cross-platform mobile app", best: "Multi-platform", prompt: WORKFLOW_PROMPTS["React Native Build"] },
-  { cat: "🤖 AI/ML", title: "Prompt Engineering", purpose: "Systematic prompt creation", best: "AI workflows", prompt: WORKFLOW_PROMPTS["Prompt Engineering"] },
-  { cat: "🤖 AI/ML", title: "AI Agent Design", purpose: "Autonomous AI agent system", best: "Automation, AI tools", prompt: WORKFLOW_PROMPTS["AI Agent Design"] },
-  { cat: "🤖 AI/ML", title: "ML Pipeline", purpose: "End-to-end ML workflow", best: "Data science", prompt: WORKFLOW_PROMPTS["ML Pipeline"] },
-  { cat: "📊 Content", title: "Content Strategy", purpose: "Complete content plan", best: "Marketing, creators", prompt: WORKFLOW_PROMPTS["Content Strategy"] },
-  { cat: "📊 Content", title: "Email Sequence", purpose: "Automated email campaign", best: "E-commerce, SaaS", prompt: WORKFLOW_PROMPTS["Email Sequence"] },
-  { cat: "📊 Content", title: "Social Media Strategy", purpose: "Platform-specific content plan", best: "Brands, creators", prompt: WORKFLOW_PROMPTS["Social Media Strategy"] },
-  { cat: "🔒 Security", title: "Security Audit", purpose: "Application security review", best: "Production apps", prompt: WORKFLOW_PROMPTS["Security Audit"] },
-  { cat: "🚀 DevOps", title: "CI/CD Pipeline", purpose: "Automated deployment system", best: "Production infrastructure", prompt: WORKFLOW_PROMPTS["CI/CD Pipeline"] },
-  { cat: "🚀 DevOps", title: "Monitoring Setup", purpose: "Application observability", best: "Production apps", prompt: WORKFLOW_PROMPTS["Monitoring Setup"] },
-];
-
-const SYSTEM_PRINCIPLES = [
-  { title: "NO ONE-OFF WORK", icon: "🔄", desc: "Every task should produce a reusable asset: skill, template, automation, or document. If you do it once, codify it. If you do it twice, automate it. Never do the same thing three times manually.", color: "#a78bfa" },
-  { title: "THE RULE", icon: "⚡", desc: "Before any implementation, PLAN → VALIDATE → EXECUTE. Never skip validation. A validated plan prevents 80% of rework. The rule applies to prompts, code, design, and business decisions.", color: "#FFB000" },
-  { title: "PLAN → VALIDATE → EXECUTE", icon: "📐", desc: "Plan: break down the problem, identify constraints, consider alternatives. Validate: test assumptions, get feedback, iterate. Execute: build only after validation confirms the approach.", color: "#22c55e" },
-  { title: "COMPOUNDING SYSTEM", icon: "📈", desc: "Build once → runs forever. Every skill makes the system smarter. Every cron removes thinking. Every template eliminates a starting-zero problem. The system compounds like interest.", color: "#4DFFFF" },
-  { title: "SKILL FORMAT", icon: "📋", desc: "Every skill follows the 4-section SKILL.md format: Context (what & why), Instructions (how), Constraints (boundaries), Examples (proof). This ensures consistency and reusability.", color: "#FF6B00" },
-  { title: "SECURITY RULES", icon: "🔒", desc: "No hardcoded secrets. Validate all external inputs. Rate limit by default. Audit log all state changes. Never expose raw system prompts. Human-in-the-loop for destructive actions.", color: "#ef4444" },
-];
-
-const SKILL_BUILDER_STEPS = [
-  { step: 1, title: "Concept", desc: "Define the skill name, purpose, and trigger condition.", placeholder: "What does this skill do? When should it activate?" },
-  { step: 2, title: "Prototype", desc: "Write the first draft of instructions — raw, unfiltered.", placeholder: "Write step-by-step instructions for the agent to follow." },
-  { step: 3, title: "Evaluate", desc: "Test with 3 scenarios. Score clarity, completeness, actionability.", placeholder: "What edge cases exist? What's missing?" },
-  { step: 4, title: "Codify", desc: "Format as SKILL.md with Context, Instructions, Constraints, Examples.", placeholder: "Convert to the 4-section SKILL.md format." },
-  { step: 5, title: "Cron", desc: "Set up automated review schedule. Skills decay without maintenance.", placeholder: "When should this skill be reviewed? What triggers updates?" },
-  { step: 6, title: "Monitor", desc: "Track usage metrics. Flag if skill hasn't been used in 30 days.", placeholder: "How will you measure skill effectiveness?" },
-];
-
-const DIFF_COLORS: Record<string, { bg: string; text: string; label: string }> = {
-  easy: { bg: "rgba(34,197,94,0.12)", text: "#22c55e", label: "Easy" },
-  medium: { bg: "rgba(234,179,8,0.12)", text: "#eab308", label: "Medium" },
-  hard: { bg: "rgba(239,68,68,0.12)", text: "#ef4444", label: "Hard" },
-};
-
-// ─── Animation variants ───────────────────────────────────────────────────
-const fadeSlide = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -8 }, transition: { duration: 0.25, ease: "easeOut" } };
-const stagger = { animate: { transition: { staggerChildren: 0.03 } } };
-const staggerItem = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } };
-
-// ─── Scrollable Container with Arrow Indicators ─────────────────────
-function ScrollableWithArrows({ children, className }: { children: React.ReactNode; className?: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const checkScroll = useCallback(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 4);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
-  }, []);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    checkScroll();
-    el.addEventListener("scroll", checkScroll, { passive: true });
-    const observer = new ResizeObserver(checkScroll);
-    observer.observe(el);
-    return () => { el.removeEventListener("scroll", checkScroll); observer.disconnect(); };
-  }, [checkScroll, children]);
-
-  const scroll = useCallback((dir: "left" | "right") => {
-    const el = containerRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir === "left" ? -180 : 180, behavior: "smooth" });
-  }, []);
-
-  return (
-    <div className="relative scroll-fade-container">
-      <button
-        onClick={() => scroll("left")}
-        className={`nav-scroll-btn nav-scroll-left ${canScrollLeft ? "visible" : ""}`}
-        aria-label="Scroll left"
-      >
-        <ChevronLeft className="w-3.5 h-3.5" />
-      </button>
-      <div ref={containerRef} className={`overflow-x-auto no-scrollbar ${className || ""}`}>
-        {children}
-      </div>
-      <button
-        onClick={() => scroll("right")}
-        className={`nav-scroll-btn nav-scroll-right ${canScrollRight ? "visible" : ""}`}
-        aria-label="Scroll right"
-      >
-        <ChevronRight className="w-3.5 h-3.5" />
-      </button>
-    </div>
-  );
-}
-
-// ─── Skeleton Loader ────────────────────────────────────────────────
-function Skeleton({ lines = 3, className }: { lines?: number; className?: string }) {
-  return (
-    <div className={`space-y-2 ${className || ""}`}>
-      {Array.from({ length: lines }).map((_, i) => (
-        <div key={i} className="skeleton-shimmer" style={{ height: i === lines - 1 ? 20 : 14, width: `${60 + Math.random() * 40}%` }} />
-      ))}
-    </div>
-  );
-}
-
-// ─── Enhanced Tooltip with shortcut hint ────────────────────────────
-function TipEnhanced({ children, text, shortcut }: { children: React.ReactNode; text: string; shortcut?: string }) {
-  const [show, setShow] = useState(false);
-  return (
-    <div className="tip-enhanced" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
-      {children}
-      <AnimatePresence>
-        {show && (
-          <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} transition={{ duration: 0.15 }}
-            className="tip-content">
-            {text}{shortcut && <span className="tip-shortcut">{shortcut}</span>}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ─── Animated Counter ────────────────────────────────────────────────────
-function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    let start = 0;
-    const duration = 1200;
-    const step = value / (duration / 16);
-    const timer = setInterval(() => { start += step; if (start >= value) { setCount(value); clearInterval(timer); } else setCount(Math.floor(start)); }, 16);
-    return () => clearInterval(timer);
-  }, [value]);
-  return <span ref={ref}>{count}{suffix}</span>;
-}
-
-// ─── Tooltip (kept for backward compat) ────────────────────────────────
-function Tip({ children, text }: { children: React.ReactNode; text: string }) {
-  const [show, setShow] = useState(false);
-  return (
-    <div className="relative" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
-      {children}
-      <AnimatePresence>
-        {show && (
-          <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} transition={{ duration: 0.15 }}
-            className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 rounded-lg text-[11px] leading-relaxed whitespace-nowrap max-w-xs text-center pointer-events-none"
-            style={{ background: "#1e1e24", border: "1px solid rgba(255,255,255,0.1)", color: "#A1A1AA", boxShadow: "0 8px 24px -4px rgba(0,0,0,0.5)" }}>
-            {text}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ─── Error handling: retry → notify → log → halt ────────────────────────────
-type PromptcError = { code: string; message: string; retryable: boolean };
-function classifyError(err: unknown): PromptcError {
-  const msg = err instanceof Error ? err.message : String(err);
-  if (msg.includes("quota") || msg.includes("storage")) return { code: "LS_QUOTA", message: "Storage full. Some data may not persist.", retryable: false };
-  if (msg.includes("security") || msg.includes("blocked")) return { code: "LS_BLOCKED", message: "Storage access blocked.", retryable: false };
-  if (msg.includes("clipboard")) return { code: "CLIP_FAIL", message: "Clipboard access denied.", retryable: true };
-  return { code: "UNKNOWN", message: msg, retryable: false };
-}
-async function withRetry<T>(fn: () => T | Promise<T>, opts: { retries?: number; label: string }): Promise<T> {
-  const { retries = 2, label } = opts;
-  let lastErr: unknown;
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try { return await fn(); }
-    catch (err) {
-      lastErr = err;
-      const classified = classifyError(err);
-      if (attempt < retries && classified.retryable) {
-        console.warn(`[promptc] ${label} attempt ${attempt + 1} failed (${classified.code}), retrying...`);
-        await new Promise(r => setTimeout(r, 300 * (attempt + 1)));
-      } else {
-        console.error(`[promptc] ${label} failed after ${attempt + 1} attempt(s):`, classified.code, classified.message);
-        break;
-      }
-    }
-  }
-  const classified = classifyError(lastErr);
-  if (!classified.retryable || retries === 0) {
-    toast.error(`${label}: ${classified.message}`);
-  }
-  throw lastErr;
-}
-
-// ─── localStorage helpers (with logging) ────────────────────────────────────
-const LS_PREFIX = "promptc-state-";
-function lsGet<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-  try { const v = localStorage.getItem(LS_PREFIX + key); return v !== null ? JSON.parse(v) : fallback; }
-  catch (err) { console.warn("[promptc] lsGet failed for", key, classifyError(err).code); return fallback; }
-}
-function lsSet(key: string, value: unknown) {
-  try { localStorage.setItem(LS_PREFIX + key, JSON.stringify(value)); }
-  catch (err) { console.warn("[promptc] lsSet failed for", key, classifyError(err).code); }
-}
-function lsSetDebounced(key: string, value: unknown, delay = 500) {
-  if (typeof window === "undefined") return;
-  setTimeout(() => lsSet(key, value), delay);
-}
-
-const DEFAULT_SUBTABS: Record<string, string> = { activate: "Tasks", build: "Master Prompt", validate: "Lint Rules", playbook: "Workflows", monetize: "Top Prompts", system: "Skills Library" };
-const DEFAULT_COMPOSER: Record<string, string> = { Role: "", Context: "", Objective: "", Constraints: "", Aesthetic: "", Planning: "", Output: "", Refinement: "" };
 
 // ═══════════════════════════════════════════════════════════════════════════
 export default function Home() {
-  // ─── Feature 1: Auto-save state (localStorage-backed) ────────────────────
-  const [activeZone, setActiveZone] = useState(() => lsGet("zone", "activate"));
-  const [activeSubTab, setActiveSubTab] = useState<Record<string, string>>(() => lsGet("subtab", DEFAULT_SUBTABS));
+  // ─── Persisted state via usePersistedReducer ────────────────────────────
+  const [persistedState, dispatch] = usePersistedReducer(
+    appReducer,
+    INITIAL_STATE,
+    persistedStateSchema,
+    { storageKey: "promptc-state", debounceMs: 500 }
+  );
+
+  // Convenience aliases for persisted state reads
+  const activeZone = persistedState.zone;
+  const activeSubTab = persistedState.subtab;
+  const searchQuery = persistedState.search;
+  const skillsSearchQuery = persistedState["skills-search"];
+  const quickStartDismissed = persistedState["quickstart-dismissed"];
+  const basketSearch = persistedState["basket-search"];
+  const basketZoneFilter = persistedState["basket-zone-filter"];
+  const basketSort = persistedState["basket-sort"];
+  const animalUserInput = persistedState["animal-input"];
+  const chainUserInput = persistedState["chain-input"];
+  const metaPrompt = persistedState["meta-prompt"];
+  const qaInput = persistedState["qa-input"];
+  const composerFields = persistedState["composer-fields"];
+  const composeText = persistedState["compose-text"];
+  const modAssembly = persistedState["mod-assembly"];
+  const modUserInput = persistedState["mod-user-input"];
+  const selectedAnimals = useMemo(() => new Set(persistedState["selected-animals"]), [persistedState["selected-animals"]]);
+  const enhanceInput = persistedState["enhance-input"];
+  const clipboardHistory = persistedState["clipboard-history"];
+
+  // ─── Non-persisted UI state (useState) ─────────────────────────────────
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState(() => lsGet("search", ""));
   const [history, setHistory] = useState<BasketItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [skillsSearchQuery, setSkillsSearchQuery] = useState(() => lsGet("skills-search", ""));
   const [skillsCategoryFilter, setSkillsCategoryFilter] = useState<string>("all");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [quickStartDismissed, setQuickStartDismissed] = useState(() => lsGet("quickstart-dismissed", false));
   const [skillStep, setSkillStep] = useState(0);
   const [skillForm, setSkillForm] = useState<Record<number, string>>({});
   const [basketExpandId, setBasketExpandId] = useState<string | null>(null);
-  const [basketSearch, setBasketSearch] = useState(() => lsGet("basket-search", ""));
-  const [basketZoneFilter, setBasketZoneFilter] = useState(() => lsGet("basket-zone-filter", "all"));
   const [basketSelected, setBasketSelected] = useState<Set<string>>(new Set());
   const [basketClearConfirm, setBasketClearConfirm] = useState(false);
-  // Animal system states
-  const [animalUserInput, setAnimalUserInput] = useState(() => lsGet("animal-input", ""));
   const [animalGenResult, setAnimalGenResult] = useState<string | null>(null);
-  const [chainUserInput, setChainUserInput] = useState(() => lsGet("chain-input", ""));
   const [chainGenResult, setChainGenResult] = useState<string | null>(null);
   const [expandedChainIdx, setExpandedChainIdx] = useState<number | null>(null);
-  const [basketSort, setBasketSort] = useState<"newest" | "oldest" | "longest" | "shortest" | "az">(() => lsGet("basket-sort", "newest"));
   const [expandedSkillId, setExpandedSkillId] = useState<string | null>(null);
   const [basketFlash, setBasketFlash] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const clearConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Modifier Assembly
-  const [modAssembly, setModAssembly] = useState<string[]>(() => lsGet<string[]>("mod-assembly", []));
-  const [modUserInput, setModUserInput] = useState(() => lsGet("mod-user-input", ""));
-  // Animals multi-select
-  const [selectedAnimals, setSelectedAnimals] = useState<Set<string>>(() => new Set(lsGet<string[]>("selected-animals", [])));
-  // Enhancements panel
-  const [enhanceInput, setEnhanceInput] = useState(() => lsGet("enhance-input", ""));
   const [selectedEnhancements, setSelectedEnhancements] = useState<Set<number>>(new Set());
   const [enhanceResult, setEnhanceResult] = useState<string | null>(null);
-  // Clipboard History
-  const [clipboardHistory, setClipboardHistory] = useState<Array<{ text: string; time: string; zone: string }>>(() => lsGet("clipboard-history", []));
   const [showClipboardHistory, setShowClipboardHistory] = useState(false);
-
-  const [metaPrompt, setMetaPrompt] = useState(() => lsGet("meta-prompt", ""));
   const [metaResults, setMetaResults] = useState<Record<1 | 2 | 3, ResultState>>({ 1: { content: null, loading: false, error: null, expanded: false }, 2: { content: null, loading: false, error: null, expanded: false }, 3: { content: null, loading: false, error: null, expanded: false } });
-  const [qaInput, setQaInput] = useState(() => lsGet("qa-input", ""));
   const [qaResult, setQaResult] = useState<{ scores: { clarity: number; specificity: number; structure: number; actionability: number }; feedback: string } | null>(null);
   const [qaLoading, setQaLoading] = useState(false);
-  const [composerFields, setComposerFields] = useState<Record<string, string>>(() => lsGet("composer-fields", DEFAULT_COMPOSER));
   const [composerResult, setComposerResult] = useState<string | null>(null);
-
-  // ─── Upgrade 2: Forwarded item state ────────────────────────────────────
   const [forwardedItemText, setForwardedItemText] = useState<string | null>(null);
   const [forwardedFromZone, setForwardedFromZone] = useState<string | null>(null);
-
-  // ─── Upgrade 4: Quick Compose state ─────────────────────────────────────
   const [showQuickCompose, setShowQuickCompose] = useState(false);
-  const [composeText, setComposeText] = useState(() => lsGet("compose-text", ""));
   const [qcDropdown, setQcDropdown] = useState<null | 'mods' | 'tmpls' | 'animals'>(null);
   const [qcSearch, setQcSearch] = useState("");
-
-  // ─── Upgrade 5: Basket tab + session state ──────────────────────────────
   const [basketTab, setBasketTab] = useState<'items' | 'stats' | 'insights'>('items');
   const [sessionDuration, setSessionDuration] = useState(0);
   const sessionStartRef = useRef(Date.now());
-
-  // ─── Feature 1: Auto-save useEffects ────────────────────────────────────
-  useEffect(() => { lsSet("zone", activeZone); }, [activeZone]);
-  useEffect(() => { lsSet("subtab", activeSubTab); }, [activeSubTab]);
-  useEffect(() => { lsSetDebounced("search", searchQuery); }, [searchQuery]);
-  useEffect(() => { lsSetDebounced("skills-search", skillsSearchQuery); }, [skillsSearchQuery]);
-  useEffect(() => { lsSet("quickstart-dismissed", quickStartDismissed); }, [quickStartDismissed]);
-  useEffect(() => { lsSetDebounced("basket-search", basketSearch); }, [basketSearch]);
-  useEffect(() => { lsSet("basket-zone-filter", basketZoneFilter); }, [basketZoneFilter]);
-  useEffect(() => { lsSet("basket-sort", basketSort); }, [basketSort]);
-  useEffect(() => { lsSetDebounced("animal-input", animalUserInput); }, [animalUserInput]);
-  useEffect(() => { lsSetDebounced("chain-input", chainUserInput); }, [chainUserInput]);
-  useEffect(() => { lsSetDebounced("meta-prompt", metaPrompt); }, [metaPrompt]);
-  useEffect(() => { lsSetDebounced("qa-input", qaInput); }, [qaInput]);
-  useEffect(() => { lsSetDebounced("composer-fields", composerFields); }, [composerFields]);
-  useEffect(() => { lsSetDebounced("compose-text", composeText); }, [composeText]);
-  useEffect(() => { lsSetDebounced("mod-assembly", modAssembly); }, [modAssembly]);
-  useEffect(() => { lsSetDebounced("mod-user-input", modUserInput); }, [modUserInput]);
-  useEffect(() => { lsSet("selected-animals", Array.from(selectedAnimals)); }, [selectedAnimals]);
-  useEffect(() => { lsSetDebounced("enhance-input", enhanceInput); }, [enhanceInput]);
-  useEffect(() => { lsSet("clipboard-history", clipboardHistory); }, [clipboardHistory]);
+  const [showMobileMore, setShowMobileMore] = useState(false);
+  const [expandedWorkflowIdx, setExpandedWorkflowIdx] = useState<number | null>(null);
 
   // ─── Session timer ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -449,26 +140,20 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  // ─── Feature 2: Mobile More menu ────────────────────────────────────────
-  const [showMobileMore, setShowMobileMore] = useState(false);
-
-  // ─── Feature 3: Expanded workflow index ─────────────────────────────────
-  const [expandedWorkflowIdx, setExpandedWorkflowIdx] = useState<number | null>(null);
-
   const zoneColor = ZONES.find((z) => z.id === activeZone)?.color || "#4DFFFF";
   const mainRef = useRef<HTMLDivElement>(null);
 
   // ─── Core callbacks (declared early to avoid temporal dead zone) ──────────
   const handleZoneChange = useCallback((z: string) => {
-    setActiveZone(z); setSearchQuery(""); window.scrollTo({ top: 0, behavior: "smooth" });
+    dispatch({ type: "SET_ZONE", payload: z }); dispatch({ type: "SET_SEARCH", payload: "" }); window.scrollTo({ top: 0, behavior: "smooth" });
     // Auto-fill forwarded text into relevant inputs
     if (forwardedItemText) {
-      if (z === "build") { setMetaPrompt(forwardedItemText); setActiveSubTab(p => ({...p, build: "Meta Builder"})); }
-      if (z === "validate") { setQaInput(forwardedItemText); setActiveSubTab(p => ({...p, validate: "Quality Score"})); }
-      if (z === "activate") { setAnimalUserInput(forwardedItemText); setActiveSubTab(p => ({...p, activate: "Animals"})); }
+      if (z === "build") { dispatch({ type: "SET_META_PROMPT", payload: forwardedItemText }); dispatch({ type: "SET_SUBTAB", payload: {...activeSubTab, build: "Meta Builder"} }); }
+      if (z === "validate") { dispatch({ type: "SET_QA_INPUT", payload: forwardedItemText }); dispatch({ type: "SET_SUBTAB", payload: {...activeSubTab, validate: "Quality Score"} }); }
+      if (z === "activate") { dispatch({ type: "SET_ANIMAL_INPUT", payload: forwardedItemText }); dispatch({ type: "SET_SUBTAB", payload: {...activeSubTab, activate: "Animals"} }); }
       setForwardedItemText(null); setForwardedFromZone(null);
     }
-  }, [forwardedItemText]);
+  }, [forwardedItemText, activeSubTab]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -544,7 +229,7 @@ export default function Home() {
       if (existing) {
         await navigator.clipboard.writeText(text);
         setCopiedId(id);
-        setClipboardHistory(prev => [{ text, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), zone: activeZone }, ...prev.slice(0, 49)]);
+        dispatch({ type: "SET_CLIPBOARD_HISTORY", payload: [{ text, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), zone: activeZone }, ...clipboardHistory.slice(0, 49)] });
         const newCount = (existing.copyCount || 0) + 1;
         setHistory((prev) => prev.map((h) => h.id === existing.id ? { ...h, copyCount: newCount } : h));
         toast.info(`Copied! (used ${newCount}×)`);
@@ -553,7 +238,7 @@ export default function Home() {
       }
       await navigator.clipboard.writeText(text);
       setCopiedId(id);
-      setClipboardHistory(prev => [{ text, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), zone: activeZone }, ...prev.slice(0, 49)]);
+      dispatch({ type: "SET_CLIPBOARD_HISTORY", payload: [{ text, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), zone: activeZone }, ...clipboardHistory.slice(0, 49)] });
       // Validation gate — never add corrupt items to basket
       if (!text || typeof text !== 'string' || text.trim().length === 0) {
         toast.error("Cannot add empty item to basket.");
@@ -579,7 +264,7 @@ export default function Home() {
     } catch {
       toast.error("Failed to copy.");
     }
-  }, [activeZone, history]);
+  }, [activeZone, history, clipboardHistory]);
 
   // Direct clipboard copy (no basket add)
   const handleDirectCopy = useCallback(async (text: string) => {
@@ -591,17 +276,17 @@ export default function Home() {
     setForwardedItemText(text);
     setForwardedFromZone(ZONES.find((z) => z.id === activeZone)?.label || activeZone);
     handleZoneChange(targetZone);
-    setActiveSubTab((prev) => ({ ...prev, [targetZone]: targetTab }));
+    dispatch({ type: "SET_SUBTAB", payload: {...activeSubTab, [targetZone]: targetTab} });
     // Auto-fill relevant inputs
-    if (targetZone === "build" && targetTab === "Meta Builder") setMetaPrompt(text);
-    else if (targetZone === "validate" && targetTab === "Quality Score") setQaInput(text);
-  }, [activeZone, handleZoneChange]);
+    if (targetZone === "build" && targetTab === "Meta Builder") dispatch({ type: "SET_META_PROMPT", payload: text });
+    else if (targetZone === "validate" && targetTab === "Quality Score") dispatch({ type: "SET_QA_INPUT", payload: text });
+  }, [activeZone, handleZoneChange, activeSubTab]);
 
   const clearForwarded = useCallback(() => { setForwardedItemText(null); setForwardedFromZone(null); }, []);
   const pasteForwarded = useCallback(() => {
     if (!forwardedItemText) return;
-    if (activeZone === "build") setMetaPrompt(forwardedItemText);
-    else if (activeZone === "validate") setQaInput(forwardedItemText);
+    if (activeZone === "build") dispatch({ type: "SET_META_PROMPT", payload: forwardedItemText });
+    else if (activeZone === "validate") dispatch({ type: "SET_QA_INPUT", payload: forwardedItemText });
     clearForwarded();
   }, [forwardedItemText, activeZone, clearForwarded]);
 
@@ -907,7 +592,7 @@ export default function Home() {
   const qcTmplList = useMemo(() => { if (!qcSearch) return TMPLS; return TMPLS.filter((t) => safeIncludes(t.label, qcSearch)); }, [qcSearch]);
   const qcAnimalList = useMemo(() => { if (!qcSearch) return ANIMALS; return ANIMALS.filter((a) => safeIncludes(a.name, qcSearch)); }, [qcSearch]);
 
-  const handleSelectFromPalette = useCallback((zone: string, tab: string) => { handleZoneChange(zone); setActiveSubTab((p) => ({ ...p, [zone]: tab })); }, [handleZoneChange]);
+  const handleSelectFromPalette = useCallback((zone: string, tab: string) => { handleZoneChange(zone); dispatch({ type: "SET_SUBTAB", payload: {...activeSubTab, [zone]: tab} }); }, [handleZoneChange, activeSubTab]);
 
   // Export functions
   const exportMarkdown = useCallback((scope: "all" | "zone") => {
@@ -1098,10 +783,10 @@ export default function Home() {
             <div className="flex gap-2 items-center">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#9CA3AF" }} />
-                <input value={basketSearch} onChange={(e) => setBasketSearch(e.target.value)} placeholder="Search basket..." className="w-full pl-9 pr-4 py-2 rounded-lg text-xs outline-none input-glow" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} />
+                <input value={basketSearch} onChange={(e) => dispatch({ type: "SET_BASKET_SEARCH", payload: e.target.value })} placeholder="Search basket..." className="w-full pl-9 pr-4 py-2 rounded-lg text-xs outline-none input-glow" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} />
               </div>
               <Tip text="Sort order">
-                <button onClick={() => { const opts: ("newest" | "oldest" | "longest" | "shortest" | "az")[] = ["newest", "oldest", "longest", "shortest", "az"]; const ci = opts.indexOf(basketSort); setBasketSort(opts[(ci + 1) % opts.length]); }} className="p-2 rounded-lg transition-all hover:bg-white/5 flex-shrink-0" style={{ color: "#9CA3AF" }}>
+                <button onClick={() => { const opts: ("newest" | "oldest" | "longest" | "shortest" | "az")[] = ["newest", "oldest", "longest", "shortest", "az"]; const ci = opts.indexOf(basketSort); dispatch({ type: "SET_BASKET_SORT", payload: opts[(ci + 1) % opts.length] }); }} className="p-2 rounded-lg transition-all hover:bg-white/5 flex-shrink-0" style={{ color: "#9CA3AF" }}>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </button>
               </Tip>
@@ -1112,7 +797,7 @@ export default function Home() {
             {/* Zone filter pills */}
             <ScrollableWithArrows className="flex gap-1 mb-0">
               {["all", ...ZONES.map((z) => z.id)].map((z) => (
-                <button key={z} onClick={() => setBasketZoneFilter(z)} className="px-2 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all" style={{ color: basketZoneFilter === z ? (z === "all" ? "#a78bfa" : ZONES.find((zz) => zz.id === z)?.color || "#4DFFFF") : "#9CA3AF", background: basketZoneFilter === z ? (z === "all" ? "rgba(167,139,250,0.12)" : `${ZONES.find((zz) => zz.id === z)?.color || "#4DFFFF"}15`) : "transparent", border: `1px solid ${basketZoneFilter === z ? (z === "all" ? "rgba(167,139,250,0.3)" : `${ZONES.find((zz) => zz.id === z)?.color || "#4DFFFF"}33`) : "rgba(255,255,255,0.07)"}` }}>{z === "all" ? "All" : z}</button>
+                <button key={z} onClick={() => dispatch({ type: "SET_BASKET_ZONE_FILTER", payload: z })} className="px-2 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all" style={{ color: basketZoneFilter === z ? (z === "all" ? "#a78bfa" : ZONES.find((zz) => zz.id === z)?.color || "#4DFFFF") : "#9CA3AF", background: basketZoneFilter === z ? (z === "all" ? "rgba(167,139,250,0.12)" : `${ZONES.find((zz) => zz.id === z)?.color || "#4DFFFF"}15`) : "transparent", border: `1px solid ${basketZoneFilter === z ? (z === "all" ? "rgba(167,139,250,0.3)" : `${ZONES.find((zz) => zz.id === z)?.color || "#4DFFFF"}33`) : "rgba(255,255,255,0.07)"}` }}>{z === "all" ? "All" : z}</button>
               ))}
             </ScrollableWithArrows>
 
@@ -1284,7 +969,7 @@ export default function Home() {
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {recommendations.map((rec) => (
-                      <button key={rec.zone} onClick={() => { handleZoneChange(rec.zone); setActiveSubTab((p) => ({ ...p, [rec.zone]: rec.tab })); setShowHistory(false); }} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all hover:opacity-80" style={{ background: `${rec.color}15`, color: rec.color, border: `1px solid ${rec.color}33` }}>
+                      <button key={rec.zone} onClick={() => { handleZoneChange(rec.zone); dispatch({ type: "SET_SUBTAB", payload: ({ ...activeSubTab, [rec.zone]: rec.tab }) }); setShowHistory(false); }} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all hover:opacity-80" style={{ background: `${rec.color}15`, color: rec.color, border: `1px solid ${rec.color}33` }}>
                         <span>{rec.icon}</span><span>{rec.label}</span>
                       </button>
                     ))}
@@ -1323,7 +1008,7 @@ export default function Home() {
                 <h3 className="text-sm font-bold" style={{ color: "#3b82f6" }}>📋 Clipboard History</h3>
                 <div className="flex items-center gap-2">
                   <button onClick={() => { if (clipboardHistory.length > 0) { const all = clipboardHistory.map(h => h.text).join("\n\n---\n\n"); navigator.clipboard.writeText(all); toast.success("All copied!"); } }} className="text-[10px] px-2 py-1 rounded-lg" style={{ background: "rgba(59,130,246,0.12)", color: "#3b82f6" }}>Copy All</button>
-                  <button onClick={() => { setClipboardHistory([]); toast.info("History cleared."); }} className="text-[10px] px-2 py-1 rounded-lg" style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444" }}>Clear</button>
+                  <button onClick={() => { dispatch({ type: "SET_CLIPBOARD_HISTORY", payload: [] }); toast.info("History cleared."); }} className="text-[10px] px-2 py-1 rounded-lg" style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444" }}>Clear</button>
                   <button onClick={() => setShowClipboardHistory(false)} aria-label="Close clipboard history" className="p-1 rounded-lg hover:bg-white/10 min-w-[40px] min-h-[40px] flex items-center justify-center"><X className="w-3.5 h-3.5" style={{ color: "#9CA3AF" }} /></button>
                 </div>
               </div>
@@ -1380,7 +1065,7 @@ export default function Home() {
             const isActive = activeSubTab[activeZone] === tab;
             return (
               <TipEnhanced key={tab} text={`${cnt ?? ""} items in ${tab}`}>
-                <button onClick={() => setActiveSubTab({ ...activeSubTab, [activeZone]: tab })} className={`btn-press tab-indicator ${isActive ? "active" : ""} px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap flex items-center gap-1.5`} style={{ color: isActive ? zoneColor : "#9CA3AF", background: isActive ? `${zoneColor}18` : "transparent", border: `1px solid ${isActive ? `${zoneColor}44` : "rgba(255,255,255,0.07)"}` }}>
+                <button onClick={() => dispatch({ type: "SET_SUBTAB", payload: { ...activeSubTab, [activeZone]: tab } })} className={`btn-press tab-indicator ${isActive ? "active" : ""} px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap flex items-center gap-1.5`} style={{ color: isActive ? zoneColor : "#9CA3AF", background: isActive ? `${zoneColor}18` : "transparent", border: `1px solid ${isActive ? `${zoneColor}44` : "rgba(255,255,255,0.07)"}` }}>
                   {tab}{cnt !== undefined && <span className="text-[9px] opacity-60">({cnt})</span>}
                 </button>
               </TipEnhanced>
@@ -1404,7 +1089,7 @@ export default function Home() {
               {activeSubTab.activate === "Tasks" && !quickStartDismissed && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 rounded-xl p-4 flex items-center justify-between" style={{ background: "rgba(77,255,255,0.06)", border: "1px solid rgba(77,255,255,0.15)" }}>
                   <div className="flex items-center gap-3"><Lightbulb className="w-5 h-5" style={{ color: "#4DFFFF" }} /><div><h3 className="text-sm font-bold">Quick Start</h3><p className="text-xs" style={{ color: "#A1A1AA" }}>Copy a task prompt below and paste it into your AI chat. Instant results.</p></div></div>
-                  <button onClick={() => setQuickStartDismissed(true)} className="p-1 rounded hover:bg-white/10"><X className="w-4 h-4" style={{ color: "#9CA3AF" }} /></button>
+                  <button onClick={() => dispatch({ type: "SET_QUICKSTART_DISMISSED", payload: true })} className="p-1 rounded hover:bg-white/10"><X className="w-4 h-4" style={{ color: "#9CA3AF" }} /></button>
                 </motion.div>
               )}
               {activeSubTab.activate === "Tasks" && (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" {...stagger}>{TASKS.map((task) => (<motion.div key={task.label} {...staggerItem} className="hover-lift card-glow card-scale rounded-xl p-5" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold">{task.label}</h3><button onClick={() => handleCopy(task.content, `task-${task.label}`)} className="btn-press p-1.5 rounded-lg hover:bg-white/10 transition-colors">{copiedId === `task-${task.label}` ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" style={{ color: "#9CA3AF" }} />}</button></div><pre className="text-[11px] leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{task.content.slice(0, 200)}...</pre></motion.div>))}</div>)}
@@ -1416,7 +1101,7 @@ export default function Home() {
                     <h3 className="text-xs font-bold" style={{ color: zoneColor }}>🔧 Modifier Assembly</h3>
                     <div className="flex items-center gap-2">
                       {modAssembly.length > 0 && (
-                        <button onClick={() => { setModAssembly([]); }} className="text-[10px] px-2 py-1 rounded-lg" style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444" }}>Clear All</button>
+                        <button onClick={() => { dispatch({ type: "SET_MOD_ASSEMBLY", payload: [] }); }} className="text-[10px] px-2 py-1 rounded-lg" style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444" }}>Clear All</button>
                       )}
                       <button onClick={() => {
                         if (modAssembly.length === 0) return;
@@ -1433,22 +1118,22 @@ export default function Home() {
                       </button>
                     </div>
                   </div>
-                  <textarea value={modUserInput} onChange={(e) => setModUserInput(e.target.value)} placeholder="Enter your base prompt here, then add modifiers below..." rows={2} className="w-full rounded-lg p-2.5 text-xs outline-none resize-y input-glow mb-3" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF", fontFamily: "monospace" }} />
+                  <textarea value={modUserInput} onChange={(e) => dispatch({ type: "SET_MOD_USER_INPUT", payload: e.target.value })} placeholder="Enter your base prompt here, then add modifiers below..." rows={2} className="w-full rounded-lg p-2.5 text-xs outline-none resize-y input-glow mb-3" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF", fontFamily: "monospace" }} />
                   {modAssembly.length > 0 && (
                     <div className="space-y-1 mb-2 max-h-32 overflow-y-auto">
                       {modAssembly.map((m, i) => (
                         <div key={i} className="flex items-center gap-2 text-[11px] px-2 py-1 rounded-lg" style={{ background: `${zoneColor}10` }}>
                           <span className="font-mono text-[9px]" style={{ color: zoneColor }}>{i + 1}</span>
                           <span className="flex-1 truncate" style={{ color: "#A1A1AA" }}>{m}</span>
-                          <button onClick={() => setModAssembly(prev => prev.filter((_, idx) => idx !== i))} className="flex-shrink-0 hover:text-red-400 transition-colors" style={{ color: "#9CA3AF" }}><X className="w-3 h-3" /></button>
+                          <button onClick={() => dispatch({ type: "SET_MOD_ASSEMBLY", payload: modAssembly.filter((_, idx) => idx !== i) })} className="flex-shrink-0 hover:text-red-400 transition-colors" style={{ color: "#9CA3AF" }}><X className="w-3 h-3" /></button>
                         </div>
                       ))}
                     </div>
                   )}
                   <p className="text-[9px]" style={{ color: "#9CA3AF" }}>{modAssembly.length} modifier{modAssembly.length !== 1 ? "s" : ""} added · Tap +Add on any modifier below</p>
                 </div>
-                <div className="mb-4 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#9CA3AF" }} /><input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search modifiers..." className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none input-glow" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} /></div>
-                {MOD_CATS.map((cat) => { const catMods = filteredMods.filter((m) => m.cat === cat); if (catMods.length === 0) return null; return (<div key={cat} className="mb-6"><div className="text-[10px] font-mono tracking-widest mb-3" style={{ color: zoneColor }}>{cat.toUpperCase()} ({catMods.length})</div><div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{catMods.map((m, i) => { const id = `mod-${cat}-${i}`; return (<div key={id} className="rounded-lg p-3 transition-all hover:border-white/15 cursor-pointer" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }} onClick={() => toggleExpand(id)}><div className="flex items-start justify-between gap-2"><p className="text-xs leading-relaxed flex-1" style={{ color: "#e4e4e7" }}>{m.mod}</p><div className="flex items-center gap-1 flex-shrink-0"><button onClick={(e) => { e.stopPropagation(); setModAssembly(prev => prev.includes(m.mod) ? prev : [...prev, m.mod]); toast.success("Added to assembly!"); }} className="p-1 rounded hover:bg-white/10 transition-colors" style={{ color: modAssembly.includes(m.mod) ? zoneColor : "#9CA3AF" }}><Plus className="w-3 h-3" /></button><button onClick={(e) => { e.stopPropagation(); handleCopy(`[MOD] ${m.mod}\n💡 ${m.tip}`, `${id}-basket`); }} className="p-1 rounded hover:bg-white/10 transition-colors" style={{ color: "#FFB000" }}>🧺</button><button onClick={(e) => { e.stopPropagation(); handleCopy(m.mod, id); }} className="p-1 rounded hover:bg-white/10 transition-colors">{copiedId === id ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#9CA3AF" }} />}</button>{expandedItems.has(id) ? <ChevronDown className="w-3 h-3" style={{ color: "#9CA3AF" }} /> : <ChevronRight className="w-3 h-3" style={{ color: "#9CA3AF" }} />}</div></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><div className="mt-2 pt-2 text-[11px] leading-relaxed" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", color: "#A1A1AA" }}>💡 {m.tip}</div></motion.div>)}</AnimatePresence></div>); })}</div></div>); })}
+                <div className="mb-4 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#9CA3AF" }} /><input value={searchQuery} onChange={(e) => dispatch({ type: "SET_SEARCH", payload: e.target.value })} placeholder="Search modifiers..." className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none input-glow" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} /></div>
+                {MOD_CATS.map((cat) => { const catMods = filteredMods.filter((m) => m.cat === cat); if (catMods.length === 0) return null; return (<div key={cat} className="mb-6"><div className="text-[10px] font-mono tracking-widest mb-3" style={{ color: zoneColor }}>{cat.toUpperCase()} ({catMods.length})</div><div className="grid grid-cols-1 sm:grid-cols-2 gap-2">{catMods.map((m, i) => { const id = `mod-${cat}-${i}`; return (<div key={id} className="rounded-lg p-3 transition-all hover:border-white/15 cursor-pointer" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }} onClick={() => toggleExpand(id)}><div className="flex items-start justify-between gap-2"><p className="text-xs leading-relaxed flex-1" style={{ color: "#e4e4e7" }}>{m.mod}</p><div className="flex items-center gap-1 flex-shrink-0"><button onClick={(e) => { e.stopPropagation(); dispatch({ type: "SET_MOD_ASSEMBLY", payload: modAssembly.includes(m.mod) ? modAssembly : [...modAssembly, m.mod] }); toast.success("Added to assembly!"); }} className="p-1 rounded hover:bg-white/10 transition-colors" style={{ color: modAssembly.includes(m.mod) ? zoneColor : "#9CA3AF" }}><Plus className="w-3 h-3" /></button><button onClick={(e) => { e.stopPropagation(); handleCopy(`[MOD] ${m.mod}\n💡 ${m.tip}`, `${id}-basket`); }} className="p-1 rounded hover:bg-white/10 transition-colors" style={{ color: "#FFB000" }}>🧺</button><button onClick={(e) => { e.stopPropagation(); handleCopy(m.mod, id); }} className="p-1 rounded hover:bg-white/10 transition-colors">{copiedId === id ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#9CA3AF" }} />}</button>{expandedItems.has(id) ? <ChevronDown className="w-3 h-3" style={{ color: "#9CA3AF" }} /> : <ChevronRight className="w-3 h-3" style={{ color: "#9CA3AF" }} />}</div></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><div className="mt-2 pt-2 text-[11px] leading-relaxed" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", color: "#A1A1AA" }}>💡 {m.tip}</div></motion.div>)}</AnimatePresence></div>); })}</div></div>); })}
               </div>)}
 
               {activeSubTab.activate === "Templates" && (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" {...stagger}>{TMPLS.map((tmpl) => { const id = `tmpl-${tmpl.label}`; return (<motion.div key={id} {...staggerItem} className="rounded-xl overflow-hidden card-scale transition-all hover:-translate-y-0.5" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="p-4"><div className="flex items-center justify-between mb-2"><h3 className="text-sm font-bold">{tmpl.label}</h3><button onClick={() => handleCopy(tmpl.content, id)} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">{copiedId === id ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" style={{ color: "#9CA3AF" }} />}</button></div><p className="text-xs mb-3" style={{ color: "#9CA3AF" }}>{tmpl.desc}</p><button onClick={() => toggleExpand(id)} className="text-[10px] font-mono" style={{ color: zoneColor }}>{expandedItems.has(id) ? "COLLAPSE ▲" : "EXPAND ▼"}</button></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden"><pre className="p-4 text-[11px] leading-relaxed max-h-96 overflow-y-auto whitespace-pre-wrap" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", color: "#A1A1AA", fontFamily: "monospace" }}>{tmpl.content}</pre></motion.div>)}</AnimatePresence></motion.div>); })}</div>)}
@@ -1461,8 +1146,8 @@ export default function Home() {
                   <h3 className="text-xs font-bold mb-2" style={{ color: zoneColor }}>🧬 Animal Prompt Generator</h3>
                   <p className="text-[10px] mb-3" style={{ color: "#9CA3AF" }}>Enter your task below, then tap an animal to generate a combined prompt.</p>
                   <div className="flex gap-2 items-center">
-                    <input value={animalUserInput} onChange={(e) => setAnimalUserInput(e.target.value)} placeholder="e.g. Build a landing page for a SaaS tool..." className="flex-1 px-3 py-2 rounded-lg text-xs outline-none input-glow" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} />
-                    {animalUserInput.trim() && <button onClick={() => setAnimalUserInput("")} className="px-2 rounded-lg text-[10px]" style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444" }}>Clear</button>}
+                    <input value={animalUserInput} onChange={(e) => dispatch({ type: "SET_ANIMAL_INPUT", payload: e.target.value })} placeholder="e.g. Build a landing page for a SaaS tool..." className="flex-1 px-3 py-2 rounded-lg text-xs outline-none input-glow" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} />
+                    {animalUserInput.trim() && <button onClick={() => dispatch({ type: "SET_ANIMAL_INPUT", payload: "" })} className="px-2 rounded-lg text-[10px]" style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444" }}>Clear</button>}
                     {selectedAnimals.size > 0 && (
                       <span className="text-[10px] px-2 py-1 rounded-lg" style={{ background: `${zoneColor}15`, color: zoneColor }}>{selectedAnimals.size} animal{selectedAnimals.size !== 1 ? "s" : ""} selected</span>
                     )}
@@ -1484,10 +1169,10 @@ export default function Home() {
                   <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}><span className="text-[10px] font-mono" style={{ color: zoneColor }}>GENERATED PROMPT</span><button onClick={() => handleCopy(animalGenResult, "animal-gen")} className="flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-lg font-medium transition-all" style={{ background: `${zoneColor}15`, color: zoneColor, border: `1px solid ${zoneColor}33` }}>{copiedId === "animal-gen" ? <><Check className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}</button></div>
                   <pre className="p-4 text-xs leading-relaxed max-h-60 overflow-y-auto whitespace-pre-wrap" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{animalGenResult}</pre>
                 </motion.div>)}</AnimatePresence>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" {...stagger}>{ANIMALS.map((animal) => { const id = `animal-${animal.name}`; const color = ANIMAL_COLORS[animal.name] || "#4DFFFF"; const genPrompt = animalUserInput.trim() ? `${animal.prompt}\n\n---\nYOUR TASK:\n${animalUserInput.trim()}` : null; return (<motion.div key={id} {...staggerItem} className="rounded-xl p-5 card-scale transition-all hover:-translate-y-0.5 cursor-pointer" style={{ background: "#14161A", border: selectedAnimals.has(animal.name) ? `2px solid ${color}` : genPrompt ? `1px solid ${color}44` : `1px solid ${color}22` }} onClick={() => toggleExpand(id)}><div className="flex items-center gap-3 mb-3"><button onClick={(e) => { e.stopPropagation(); setSelectedAnimals(prev => { const n = new Set(prev); if (n.has(animal.name)) n.delete(animal.name); else n.add(animal.name); return n; }); }} className="flex-shrink-0 w-5 h-5 rounded flex items-center justify-center transition-all" style={{ background: selectedAnimals.has(animal.name) ? color : "rgba(255,255,255,0.06)", border: selectedAnimals.has(animal.name) ? `1px solid ${color}` : "1px solid rgba(255,255,255,0.1)" }}>{selectedAnimals.has(animal.name) && <Check className="w-3 h-3" style={{ color: "#0B0D10" }} />}</button><span className="text-2xl">{animal.emoji}</span><div className="flex-1 min-w-0"><h3 className="text-sm font-bold" style={{ color }}>{animal.name}</h3><p className="text-[10px] font-mono" style={{ color: "#A1A1AA" }}>{animal.mode}</p></div><div className="flex items-center gap-1 flex-shrink-0"><button onClick={(e) => { e.stopPropagation(); handleCopy(animal.prompt, id); }} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">{copiedId === id ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#9CA3AF" }} />}</button>{genPrompt && <button onClick={(e) => { e.stopPropagation(); setAnimalGenResult(genPrompt); }} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors" style={{ color }}><Sparkles className="w-3 h-3" /></button>}</div></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><pre className="text-[11px] leading-relaxed whitespace-pre-wrap pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", color: "#A1A1AA", fontFamily: "monospace" }}>{animal.prompt}</pre></motion.div>)}</AnimatePresence></motion.div>); })}</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" {...stagger}>{ANIMALS.map((animal) => { const id = `animal-${animal.name}`; const color = ANIMAL_COLORS[animal.name] || "#4DFFFF"; const genPrompt = animalUserInput.trim() ? `${animal.prompt}\n\n---\nYOUR TASK:\n${animalUserInput.trim()}` : null; return (<motion.div key={id} {...staggerItem} className="rounded-xl p-5 card-scale transition-all hover:-translate-y-0.5 cursor-pointer" style={{ background: "#14161A", border: selectedAnimals.has(animal.name) ? `2px solid ${color}` : genPrompt ? `1px solid ${color}44` : `1px solid ${color}22` }} onClick={() => toggleExpand(id)}><div className="flex items-center gap-3 mb-3"><button onClick={(e) => { e.stopPropagation(); dispatch({ type: "SET_SELECTED_ANIMALS", payload: Array.from((() => { const n = new Set(selectedAnimals); if (n.has(animal.name)) n.delete(animal.name); else n.add(animal.name); return n; })()) }); }} className="flex-shrink-0 w-5 h-5 rounded flex items-center justify-center transition-all" style={{ background: selectedAnimals.has(animal.name) ? color : "rgba(255,255,255,0.06)", border: selectedAnimals.has(animal.name) ? `1px solid ${color}` : "1px solid rgba(255,255,255,0.1)" }}>{selectedAnimals.has(animal.name) && <Check className="w-3 h-3" style={{ color: "#0B0D10" }} />}</button><span className="text-2xl">{animal.emoji}</span><div className="flex-1 min-w-0"><h3 className="text-sm font-bold" style={{ color }}>{animal.name}</h3><p className="text-[10px] font-mono" style={{ color: "#A1A1AA" }}>{animal.mode}</p></div><div className="flex items-center gap-1 flex-shrink-0"><button onClick={(e) => { e.stopPropagation(); handleCopy(animal.prompt, id); }} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">{copiedId === id ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#9CA3AF" }} />}</button>{genPrompt && <button onClick={(e) => { e.stopPropagation(); setAnimalGenResult(genPrompt); }} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors" style={{ color }}><Sparkles className="w-3 h-3" /></button>}</div></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><pre className="text-[11px] leading-relaxed whitespace-pre-wrap pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", color: "#A1A1AA", fontFamily: "monospace" }}>{animal.prompt}</pre></motion.div>)}</AnimatePresence></motion.div>); })}</div>
               </div>)}
 
-              {activeSubTab.activate === "Composer" && (<div className="max-w-3xl mx-auto"><div className="mb-4 text-xs" style={{ color: "#A1A1AA" }}>Fill in the layers below. Leave blank what you don&apos;t need.</div><div className="space-y-4 mb-6">{LAYERS.map((layer) => (<div key={layer.name} className="rounded-xl p-4" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-mono font-bold" style={{ color: zoneColor }}>{layer.n}</span><span className="text-xs font-bold">{layer.name}</span></div><p className="text-[10px] mb-2" style={{ color: "#9CA3AF" }}>{layer.pur}</p><textarea value={composerFields[layer.name]} onChange={(e) => setComposerFields({ ...composerFields, [layer.name]: e.target.value })} placeholder={layer.miss} rows={2} className="w-full rounded-lg p-2.5 text-xs outline-none resize-y input-glow" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF", fontFamily: "monospace" }} /></div>))}</div><div className="flex items-center gap-3"><TipEnhanced text="Combine all filled layers into one prompt" shortcut="Click"><button onClick={handleComposerAssemble} className="px-6 py-2.5 rounded-lg text-sm font-medium transition-all ripple-container" style={{ background: `${zoneColor}18`, color: zoneColor, border: `1px solid ${zoneColor}44` }}>Assemble Prompt</button></TipEnhanced><button onClick={() => { setComposerFields({ Role: "", Context: "", Objective: "", Constraints: "", Aesthetic: "", Planning: "", Output: "", Refinement: "" }); setComposerResult(null); }} className="px-4 py-2.5 rounded-lg text-xs" style={{ color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.07)" }}>Reset</button>{composerResult && <button onClick={() => handleCopy(composerResult, "composer")} className="ml-auto p-2 rounded-lg hover:bg-white/10 transition-colors">{copiedId === "composer" ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" style={{ color: "#9CA3AF" }} />}</button>}</div><AnimatePresence>{composerResult && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden mt-4"><pre className="rounded-xl p-5 text-xs leading-relaxed max-h-96 overflow-y-auto whitespace-pre-wrap" style={{ background: "#14161A", border: `1px solid ${zoneColor}22`, color: "#A1A1AA", fontFamily: "monospace" }}>{composerResult}</pre></motion.div>)}</AnimatePresence></div>)}
+              {activeSubTab.activate === "Composer" && (<div className="max-w-3xl mx-auto"><div className="mb-4 text-xs" style={{ color: "#A1A1AA" }}>Fill in the layers below. Leave blank what you don&apos;t need.</div><div className="space-y-4 mb-6">{LAYERS.map((layer) => (<div key={layer.name} className="rounded-xl p-4" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-mono font-bold" style={{ color: zoneColor }}>{layer.n}</span><span className="text-xs font-bold">{layer.name}</span></div><p className="text-[10px] mb-2" style={{ color: "#9CA3AF" }}>{layer.pur}</p><textarea value={composerFields[layer.name]} onChange={(e) => dispatch({ type: "SET_COMPOSER_FIELDS", payload: { ...composerFields, [layer.name]: e.target.value } })} placeholder={layer.miss} rows={2} className="w-full rounded-lg p-2.5 text-xs outline-none resize-y input-glow" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF", fontFamily: "monospace" }} /></div>))}</div><div className="flex items-center gap-3"><TipEnhanced text="Combine all filled layers into one prompt" shortcut="Click"><button onClick={handleComposerAssemble} className="px-6 py-2.5 rounded-lg text-sm font-medium transition-all ripple-container" style={{ background: `${zoneColor}18`, color: zoneColor, border: `1px solid ${zoneColor}44` }}>Assemble Prompt</button></TipEnhanced><button onClick={() => { dispatch({ type: "SET_COMPOSER_FIELDS", payload: DEFAULT_COMPOSER }); setComposerResult(null); }} className="px-4 py-2.5 rounded-lg text-xs" style={{ color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.07)" }}>Reset</button>{composerResult && <button onClick={() => handleCopy(composerResult, "composer")} className="ml-auto p-2 rounded-lg hover:bg-white/10 transition-colors">{copiedId === "composer" ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" style={{ color: "#9CA3AF" }} />}</button>}</div><AnimatePresence>{composerResult && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden mt-4"><pre className="rounded-xl p-5 text-xs leading-relaxed max-h-96 overflow-y-auto whitespace-pre-wrap" style={{ background: "#14161A", border: `1px solid ${zoneColor}22`, color: "#A1A1AA", fontFamily: "monospace" }}>{composerResult}</pre></motion.div>)}</AnimatePresence></div>)}
             </>)}
 
             {/* ═══ BUILD ═══ */}
@@ -1505,7 +1190,7 @@ export default function Home() {
                       )}
                     </div>
                   </div>
-                  <textarea value={enhanceInput} onChange={(e) => setEnhanceInput(e.target.value)} placeholder="Paste your prompt here, then select enhancement tools below to apply..." rows={3} className="w-full rounded-lg p-2.5 text-xs outline-none resize-y input-glow mb-3" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF", fontFamily: "monospace" }} />
+                  <textarea value={enhanceInput} onChange={(e) => dispatch({ type: "SET_ENHANCE_INPUT", payload: e.target.value })} placeholder="Paste your prompt here, then select enhancement tools below to apply..." rows={3} className="w-full rounded-lg p-2.5 text-xs outline-none resize-y input-glow mb-3" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF", fontFamily: "monospace" }} />
                   <div className="flex items-center gap-2 mb-2">
                     <button onClick={() => {
                       if (!enhanceInput.trim() || selectedEnhancements.size === 0) { toast.error("Enter a prompt and select at least one tool."); return; }
@@ -1536,7 +1221,7 @@ export default function Home() {
                 <div className="space-y-4">{ENHANCEMENTS.map((enh, i) => { const id = `enh-${i}`; return (<div key={id} className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="p-4 cursor-pointer" onClick={() => toggleExpand(id)}><div className="flex items-center justify-between"><div className="flex items-center gap-3"><button onClick={(e) => { e.stopPropagation(); setSelectedEnhancements(prev => { const n = new Set(prev); if (n.has(i)) n.delete(i); else n.add(i); return n; }); }} className="flex-shrink-0 w-5 h-5 rounded flex items-center justify-center transition-all mr-1" style={{ background: selectedEnhancements.has(i) ? zoneColor : "rgba(255,255,255,0.06)", border: selectedEnhancements.has(i) ? `1px solid ${zoneColor}` : "1px solid rgba(255,255,255,0.1)" }}>{selectedEnhancements.has(i) && <Check className="w-3 h-3" style={{ color: "#0B0D10" }} />}</button><span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded" style={{ background: `${zoneColor}15`, color: zoneColor }}>0{i + 1}</span><h3 className="text-sm font-bold">{enh.label}</h3></div><div className="flex items-center gap-2"><span className="text-[10px] px-2 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.05)", color: "#9CA3AF" }}>{enh.when}</span>{expandedItems.has(id) ? <ChevronDown className="w-3.5 h-3.5" style={{ color: "#9CA3AF" }} /> : <ChevronRight className="w-3.5 h-3.5" style={{ color: "#9CA3AF" }} />}</div></div></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><div className="px-4 pb-4 space-y-3"><div className="rounded-lg p-3" style={{ background: "#0B0D10" }}><div className="flex items-center justify-between mb-1"><div className="text-[10px] font-mono" style={{ color: zoneColor }}>WHAT IT DOES</div><button onClick={() => handleCopy(enh.content, `content-${id}`)} className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px]" style={{ background: `${zoneColor}15`, color: zoneColor }}>{copiedId === `content-${id}` ? <><Check className="w-2.5 h-2.5" /> Copied</> : <><Copy className="w-2.5 h-2.5" /> Copy</>}</button></div><pre className="text-[11px] leading-relaxed whitespace-pre-wrap" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{enh.content}</pre></div><div className="rounded-lg p-3" style={{ background: "#0B0D10" }}><div className="flex items-center justify-between mb-1"><div className="text-[10px] font-mono" style={{ color: zoneColor }}>HOW TO USE</div><button onClick={() => handleCopy(enh.howto, `guide-${id}`)} className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px]" style={{ background: `${zoneColor}15`, color: zoneColor }}>{copiedId === `guide-${id}` ? <><Check className="w-2.5 h-2.5" /> Copied</> : <><Copy className="w-2.5 h-2.5" /> Copy Guide</>}</button></div><pre className="text-[11px] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto" style={{ color: "#A1A1AA", fontFamily: "monospace" }}>{enh.howto}</pre></div></div></motion.div>)}</AnimatePresence></div>); })}</div>
               </div>)}
 
-              {activeSubTab.build === "Meta Builder" && (<div><div className="mb-6"><h2 className="text-lg font-bold mb-2">Meta Prompt Builder</h2><p className="text-xs mb-4" style={{ color: "#A1A1AA" }}>Restructure and enhance your prompts with three expert methodologies. Instant, no AI required.</p><div className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><textarea value={metaPrompt} onChange={(e) => setMetaPrompt(e.target.value)} placeholder="Paste or type your prompt here..." rows={5} className="w-full bg-transparent text-sm p-4 outline-none resize-none input-glow" style={{ color: "#e2e8f0", fontFamily: "monospace" }} /></div></div><div className="grid grid-cols-1 md:grid-cols-3 gap-4">{META_PROMPTS.map((meta) => { const Icon = meta.icon; const state = metaResults[meta.id]; return (<div key={meta.id} className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: `1px solid ${meta.accent}33` }}><div className="p-4"><div className="flex items-center gap-2 mb-3"><div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: `${meta.accent}15` }}><Icon className="w-4 h-4" style={{ color: meta.accent }} /></div><div><span className="text-[10px] font-mono" style={{ color: "#9CA3AF" }}>#{meta.id}</span><h3 className="text-xs font-bold">{meta.title}</h3></div></div><p className="text-[11px] mb-3" style={{ color: "#9CA3AF" }}>{meta.description}</p><button onClick={() => handleMetaGenerate(meta.id)} disabled={state.loading || !metaPrompt.trim()} className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-40" style={{ background: `${meta.accent}15`, color: meta.accent, border: `1px solid ${meta.accent}33` }}>{state.loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Restructuring...</> : <><Sparkles className="w-3.5 h-3.5" /> Restructure</>}</button></div><AnimatePresence>{(state.content || state.error || state.loading) && (<motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden"><div style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}><div className="px-4 py-2 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}><span className="text-[10px] font-mono" style={{ color: "#9CA3AF" }}>{state.error ? "ERROR" : "RESULT"}</span>{state.content && <button onClick={() => handleCopy(state.content, `meta-${meta.id}`)} className="p-1 rounded hover:bg-white/10">{copiedId === `meta-${meta.id}` ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#9CA3AF" }} />}</button>}</div><div className="p-4 max-h-80 overflow-y-auto">{state.loading && <Skeleton lines={5} className="py-1" />}{state.error && <p className="text-xs" style={{ color: "#ef4444" }}>{state.error}</p>}{state.content && !state.loading && <div className="markdown-result text-xs"><ReactMarkdown>{state.content}</ReactMarkdown></div>}</div></div></motion.div>)}</AnimatePresence></div>); })}</div></div>)}
+              {activeSubTab.build === "Meta Builder" && (<div><div className="mb-6"><h2 className="text-lg font-bold mb-2">Meta Prompt Builder</h2><p className="text-xs mb-4" style={{ color: "#A1A1AA" }}>Restructure and enhance your prompts with three expert methodologies. Instant, no AI required.</p><div className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><textarea value={metaPrompt} onChange={(e) => dispatch({ type: "SET_META_PROMPT", payload: e.target.value })} placeholder="Paste or type your prompt here..." rows={5} className="w-full bg-transparent text-sm p-4 outline-none resize-none input-glow" style={{ color: "#e2e8f0", fontFamily: "monospace" }} /></div></div><div className="grid grid-cols-1 md:grid-cols-3 gap-4">{META_PROMPTS.map((meta) => { const Icon = meta.icon; const state = metaResults[meta.id]; return (<div key={meta.id} className="rounded-xl overflow-hidden" style={{ background: "#14161A", border: `1px solid ${meta.accent}33` }}><div className="p-4"><div className="flex items-center gap-2 mb-3"><div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: `${meta.accent}15` }}><Icon className="w-4 h-4" style={{ color: meta.accent }} /></div><div><span className="text-[10px] font-mono" style={{ color: "#9CA3AF" }}>#{meta.id}</span><h3 className="text-xs font-bold">{meta.title}</h3></div></div><p className="text-[11px] mb-3" style={{ color: "#9CA3AF" }}>{meta.description}</p><button onClick={() => handleMetaGenerate(meta.id)} disabled={state.loading || !metaPrompt.trim()} className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-40" style={{ background: `${meta.accent}15`, color: meta.accent, border: `1px solid ${meta.accent}33` }}>{state.loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Restructuring...</> : <><Sparkles className="w-3.5 h-3.5" /> Restructure</>}</button></div><AnimatePresence>{(state.content || state.error || state.loading) && (<motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden"><div style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}><div className="px-4 py-2 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}><span className="text-[10px] font-mono" style={{ color: "#9CA3AF" }}>{state.error ? "ERROR" : "RESULT"}</span>{state.content && <button onClick={() => handleCopy(state.content, `meta-${meta.id}`)} className="p-1 rounded hover:bg-white/10">{copiedId === `meta-${meta.id}` ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#9CA3AF" }} />}</button>}</div><div className="p-4 max-h-80 overflow-y-auto">{state.loading && <Skeleton lines={5} className="py-1" />}{state.error && <p className="text-xs" style={{ color: "#ef4444" }}>{state.error}</p>}{state.content && !state.loading && <div className="markdown-result text-xs"><ReactMarkdown>{state.content}</ReactMarkdown></div>}</div></div></motion.div>)}</AnimatePresence></div>); })}</div></div>)}
             </>)}
 
             {/* ═══ VALIDATE ═══ */}
@@ -1544,12 +1229,12 @@ export default function Home() {
               {activeSubTab.validate === "Lint Rules" && (<div className="space-y-6">{["universal", "ui/ux", "code", "content", "agent"].map((seg) => { const rules = LINT_RULES.filter((r) => r.seg === seg); return (<div key={seg}><div className="text-[10px] font-mono tracking-widest mb-3" style={{ color: zoneColor }}>{seg.toUpperCase()} ({rules.length})</div><div className="space-y-2">{rules.map((rule) => (<div key={rule.id} className="rounded-lg p-3 flex items-start gap-3" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><span className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${rule.auto ? "bg-green-500" : "bg-amber-500"}`} /><div className="flex-1 min-w-0"><p className="text-xs" style={{ color: "#e4e4e7" }}>{rule.check}</p><p className="text-[10px] mt-1" style={{ color: "#9CA3AF" }}>→ {rule.fix}</p></div><button onClick={() => handleCopy(`[LINT] ${rule.check}\n→ ${rule.fix}`, `lint-add-${rule.id}`)} className="p-1 rounded hover:bg-white/10 flex-shrink-0" style={{ color: zoneColor }}><Plus className="w-3 h-3" /></button><button onClick={() => handleCopy(rule.fix, `lint-${rule.id}`)} className="p-1 rounded hover:bg-white/10 flex-shrink-0">{copiedId === `lint-${rule.id}` ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#9CA3AF" }} />}</button></div>))}</div></div>); })}</div>)}
               {activeSubTab.validate === "Word Swaps" && (<div className="space-y-6">{SWAP_LEVELS.map((level) => { const swaps = SWAPS.filter((s) => s.level === level); if (swaps.length === 0) return null; return (<div key={level}><div className="text-[10px] font-mono tracking-widest mb-3" style={{ color: zoneColor }}>{level.toUpperCase()} ({swaps.length})</div><div className="space-y-2">{swaps.map((swap, i) => { const id = `swap-${level}-${i}`; return (<div key={id} className="rounded-lg p-3 transition-all hover:border-white/15" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><div className="flex items-center gap-2 mb-0"><span className="text-xs line-through flex-shrink" style={{ color: "#ef4444" }}>{swap.bad}</span><span className="text-[10px] flex-shrink-0" style={{ color: "#9CA3AF" }}>→</span><span className="text-xs font-medium flex-1 min-w-0" style={{ color: "#22c55e" }}>{swap.good}</span></div><div className="flex items-center gap-1.5 mt-2"><button onClick={() => handleCopy(swap.good, id)} className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all" style={{ background: "rgba(255,255,255,0.05)", color: "#A1A1AA" }}>{copiedId === id ? <><Check className="w-3 h-3 text-green-400" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}</button><button onClick={() => handleCopy(`[SWAP] ${swap.bad} → ${swap.good}\n💡 ${swap.tip}`, id)} className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all" style={{ background: `${zoneColor}12`, color: zoneColor }}><Plus className="w-3 h-3" /> Basket</button><button onClick={() => toggleExpand(id)} className="ml-auto p-1 rounded hover:bg-white/10 flex-shrink-0">{expandedItems.has(id) ? <ChevronDown className="w-3 h-3" style={{ color: "#9CA3AF" }} /> : <ChevronRight className="w-3 h-3" style={{ color: "#9CA3AF" }} />}</button></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><p className="text-[10px] mt-2 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", color: "#A1A1AA" }}>💡 {swap.tip}</p></motion.div>)}</AnimatePresence></div>); })}</div></div>); })}</div>)}
               {activeSubTab.validate === "Vocabulary" && (<div className="space-y-6">{VOCAB_CATS.map((cat) => { const terms = VOCAB.filter((v) => v.cat === cat); return (<div key={cat}><div className="text-[10px] font-mono tracking-widest mb-3" style={{ color: zoneColor }}>{cat.toUpperCase()} ({terms.length})</div><div className="space-y-2">{terms.map((term, i) => { const id = `vocab-${cat}-${i}`; return (<div key={id} className="rounded-lg p-3 cursor-pointer" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }} onClick={() => toggleExpand(id)}><div className="flex items-center justify-between"><h4 className="text-xs font-bold font-mono">{term.t}</h4><div className="flex items-center gap-1"><button onClick={(e) => { e.stopPropagation(); handleCopy(`[VOCAB] ${term.t}: ${term.d}\n💡 ${term.tip}`, id); }} className="p-1 rounded hover:bg-white/10 transition-colors mr-1" style={{ color: zoneColor }}><Plus className="w-3 h-3" /></button><button onClick={(e) => { e.stopPropagation(); handleCopy(`${term.t}: ${term.d}\n💡 ${term.tip}`, id); }} className="p-1 rounded hover:bg-white/10 transition-colors">{copiedId === id ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" style={{ color: "#9CA3AF" }} />}</button>{expandedItems.has(id) ? <ChevronDown className="w-3 h-3" style={{ color: "#9CA3AF" }} /> : <ChevronRight className="w-3 h-3" style={{ color: "#9CA3AF" }} />}</div></div><AnimatePresence>{expandedItems.has(id) && (<motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden"><div className="mt-2 pt-2 space-y-1" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}><p className="text-[11px]" style={{ color: "#A1A1AA" }}>{term.d}</p><p className="text-[10px]" style={{ color: "#9CA3AF" }}>💡 {term.tip}</p></div></motion.div>)}</AnimatePresence></div>); })}</div></div>); })}</div>)}
-              {activeSubTab.validate === "Quality Score" && (<div className="max-w-2xl mx-auto"><h2 className="text-lg font-bold mb-2">AI Quality Scoring</h2><p className="text-xs mb-4" style={{ color: "#A1A1AA" }}>Enter a prompt to get AI-powered quality analysis across 4 dimensions.</p><div className="rounded-xl overflow-hidden mb-4" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><textarea value={qaInput} onChange={(e) => setQaInput(e.target.value)} placeholder="Paste your prompt here to analyze..." rows={5} className="w-full bg-transparent text-sm p-4 outline-none resize-none input-glow" style={{ color: "#e2e8f0", fontFamily: "monospace" }} /></div><TipEnhanced text="AI-powered 4-dimension prompt analysis" shortcut="Enter"><button onClick={handleQualityScore} disabled={qaLoading || !qaInput.trim()} className="px-6 py-2.5 rounded-lg text-sm font-medium transition-all disabled:opacity-40 ripple-container" style={{ background: `${zoneColor}18`, color: zoneColor, border: `1px solid ${zoneColor}44` }}>{qaLoading ? <><Loader2 className="w-4 h-4 animate-spin inline mr-2" /> Analyzing...</> : "Analyze Prompt"}</button></TipEnhanced><AnimatePresence>{qaResult && (<motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mt-6 rounded-xl p-6" style={{ background: "#14161A", border: `1px solid ${zoneColor}22` }}><div className="flex flex-col sm:flex-row items-center gap-6 mb-4"><RadarChart scores={qaResult.scores} /><div className="grid grid-cols-2 gap-3 flex-1">{(["clarity", "specificity", "structure", "actionability"] as const).map((dim) => { const score = qaResult.scores[dim]; const color = score >= 8 ? "#22c55e" : score >= 5 ? "#eab308" : "#ef4444"; return (<div key={dim} className="text-center"><div className="text-2xl font-bold" style={{ color }}>{score}</div><div className="w-full h-1.5 rounded-full mb-1 mt-1" style={{ background: "rgba(255,255,255,0.07)" }}><motion.div className="h-full rounded-full" style={{ width: `${score * 10}%`, background: color }} initial={{ width: 0 }} animate={{ width: `${score * 10}%` }} transition={{ duration: 0.6 }} /></div><div className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "#9CA3AF" }}>{dim}</div></div>); })}</div></div><div className="text-xs leading-relaxed" style={{ color: "#A1A1AA" }}><span className="font-bold" style={{ color: zoneColor }}>Feedback:</span> {qaResult.feedback}</div><div className="mt-3 text-[10px] font-mono" style={{ color: "#9CA3AF" }}>Overall: {((qaResult.scores.clarity + qaResult.scores.specificity + qaResult.scores.structure + qaResult.scores.actionability) / 4).toFixed(1)} / 10</div></motion.div>)}</AnimatePresence></div>)}
+              {activeSubTab.validate === "Quality Score" && (<div className="max-w-2xl mx-auto"><h2 className="text-lg font-bold mb-2">AI Quality Scoring</h2><p className="text-xs mb-4" style={{ color: "#A1A1AA" }}>Enter a prompt to get AI-powered quality analysis across 4 dimensions.</p><div className="rounded-xl overflow-hidden mb-4" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><textarea value={qaInput} onChange={(e) => dispatch({ type: "SET_QA_INPUT", payload: e.target.value })} placeholder="Paste your prompt here to analyze..." rows={5} className="w-full bg-transparent text-sm p-4 outline-none resize-none input-glow" style={{ color: "#e2e8f0", fontFamily: "monospace" }} /></div><TipEnhanced text="AI-powered 4-dimension prompt analysis" shortcut="Enter"><button onClick={handleQualityScore} disabled={qaLoading || !qaInput.trim()} className="px-6 py-2.5 rounded-lg text-sm font-medium transition-all disabled:opacity-40 ripple-container" style={{ background: `${zoneColor}18`, color: zoneColor, border: `1px solid ${zoneColor}44` }}>{qaLoading ? <><Loader2 className="w-4 h-4 animate-spin inline mr-2" /> Analyzing...</> : "Analyze Prompt"}</button></TipEnhanced><AnimatePresence>{qaResult && (<motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mt-6 rounded-xl p-6" style={{ background: "#14161A", border: `1px solid ${zoneColor}22` }}><div className="flex flex-col sm:flex-row items-center gap-6 mb-4"><RadarChart scores={qaResult.scores} /><div className="grid grid-cols-2 gap-3 flex-1">{(["clarity", "specificity", "structure", "actionability"] as const).map((dim) => { const score = qaResult.scores[dim]; const color = score >= 8 ? "#22c55e" : score >= 5 ? "#eab308" : "#ef4444"; return (<div key={dim} className="text-center"><div className="text-2xl font-bold" style={{ color }}>{score}</div><div className="w-full h-1.5 rounded-full mb-1 mt-1" style={{ background: "rgba(255,255,255,0.07)" }}><motion.div className="h-full rounded-full" style={{ width: `${score * 10}%`, background: color }} initial={{ width: 0 }} animate={{ width: `${score * 10}%` }} transition={{ duration: 0.6 }} /></div><div className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "#9CA3AF" }}>{dim}</div></div>); })}</div></div><div className="text-xs leading-relaxed" style={{ color: "#A1A1AA" }}><span className="font-bold" style={{ color: zoneColor }}>Feedback:</span> {qaResult.feedback}</div><div className="mt-3 text-[10px] font-mono" style={{ color: "#9CA3AF" }}>Overall: {((qaResult.scores.clarity + qaResult.scores.specificity + qaResult.scores.structure + qaResult.scores.actionability) / 4).toFixed(1)} / 10</div></motion.div>)}</AnimatePresence></div>)}
             </>)}
 
             {/* ═══ PLAYBOOK ═══ */}
             {activeZone === "playbook" && (<>
-              {activeSubTab.playbook === "Workflows" && (<div><div className="mb-4 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#9CA3AF" }} /><input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search workflows..." className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none input-glow" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} /></div>
+              {activeSubTab.playbook === "Workflows" && (<div><div className="mb-4 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#9CA3AF" }} /><input value={searchQuery} onChange={(e) => dispatch({ type: "SET_SEARCH", payload: e.target.value })} placeholder="Search workflows..." className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none input-glow" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} /></div>
                 {/* Workflow Connector Visual */}
                 <div className="mb-6 rounded-xl p-4" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}>
                   <h3 className="text-xs font-bold mb-3" style={{ color: zoneColor }}>Workflow Interconnections</h3>
@@ -1566,8 +1251,8 @@ export default function Home() {
                   <h3 className="text-xs font-bold mb-2" style={{ color: zoneColor }}>🔗 Chain Prompt Generator</h3>
                   <p className="text-[10px] mb-3" style={{ color: "#9CA3AF" }}>Enter your goal, then tap a chain to combine all animal thinking modes into one mega-prompt.</p>
                   <div className="flex gap-2">
-                    <input value={chainUserInput} onChange={(e) => setChainUserInput(e.target.value)} placeholder="e.g. Build an AI content pipeline..." className="flex-1 px-3 py-2 rounded-lg text-xs outline-none input-glow" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} />
-                    {chainUserInput.trim() && <button onClick={() => { setChainUserInput(""); setChainGenResult(null); }} className="px-2 rounded-lg text-[10px]" style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444" }}>Clear</button>}
+                    <input value={chainUserInput} onChange={(e) => dispatch({ type: "SET_CHAIN_INPUT", payload: e.target.value })} placeholder="e.g. Build an AI content pipeline..." className="flex-1 px-3 py-2 rounded-lg text-xs outline-none input-glow" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} />
+                    {chainUserInput.trim() && <button onClick={() => { dispatch({ type: "SET_CHAIN_INPUT", payload: "" }); setChainGenResult(null); }} className="px-2 rounded-lg text-[10px]" style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444" }}>Clear</button>}
                   </div>
                 </div>
                 {/* Generated Chain Result */}
@@ -1642,7 +1327,7 @@ export default function Home() {
                 {/* Search Bar */}
                 <div className="mb-4 relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#9CA3AF" }} />
-                  <input value={skillsSearchQuery} onChange={(e) => setSkillsSearchQuery(e.target.value)} placeholder="Search skills by name or description..." className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none input-glow" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} />
+                  <input value={skillsSearchQuery} onChange={(e) => dispatch({ type: "SET_SKILLS_SEARCH", payload: e.target.value })} placeholder="Search skills by name or description..." className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none input-glow" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} />
                 </div>
 
                 {/* Category Filter Pills */}
@@ -1699,7 +1384,7 @@ export default function Home() {
                                   <button onClick={(e) => { e.stopPropagation(); handleCopy(`[${skill.icon} ${skill.name}] ${skill.description}`, skillId); }} className="flex-1 flex items-center justify-center gap-1 text-[10px] px-2.5 py-1.5 rounded-lg font-medium transition-all" style={{ background: `${catColor}15`, color: catColor, border: `1px solid ${catColor}33` }}>
                                     <Copy className="w-3 h-3" /> Add to Basket
                                   </button>
-                                  <button onClick={(e) => { e.stopPropagation(); const cat = SKILL_CATEGORIES.indexOf(skill.category); if (cat >= 0) { setActiveZone("system"); setActiveSubTab((p) => ({ ...p, system: "Skills Library" })); setSkillsCategoryFilter(skill.category); } }} className="flex items-center justify-center gap-1 text-[10px] px-2.5 py-1.5 rounded-lg font-medium transition-all" style={{ background: "rgba(255,255,255,0.04)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.07)" }}>
+                                  <button onClick={(e) => { e.stopPropagation(); const cat = SKILL_CATEGORIES.indexOf(skill.category); if (cat >= 0) { dispatch({ type: "SET_ZONE", payload: "system" }); dispatch({ type: "SET_SUBTAB", payload: { ...activeSubTab, system: "Skills Library" } }); setSkillsCategoryFilter(skill.category); } }} className="flex items-center justify-center gap-1 text-[10px] px-2.5 py-1.5 rounded-lg font-medium transition-all" style={{ background: "rgba(255,255,255,0.04)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.07)" }}>
                                     <Search className="w-3 h-3" /> View Category
                                   </button>
                                 </div>
@@ -1808,7 +1493,7 @@ export default function Home() {
 
               {/* Infographics */}
               {activeSubTab.system === "Infographics" && (<div className="max-w-4xl mx-auto"><h2 className="text-lg font-bold mb-2">Zone Overview Infographic</h2><p className="text-xs mb-6" style={{ color: "#A1A1AA" }}>Content distribution across all zones.</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">{ZONES.map((z, i) => { const tabs = ZONE_TABS[z.id] || []; const count = tabs.reduce((sum, t) => sum + (ZONE_TAB_COUNTS[z.id]?.[t] || 0), 0); const firstTab = tabs[0] || ""; return (<motion.div key={z.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} onClick={() => { handleZoneChange(z.id); if (firstTab) setActiveSubTab((p) => ({ ...p, [z.id]: firstTab })); }} className="rounded-xl p-4 text-center cursor-pointer transition-all hover:-translate-y-0.5" style={{ background: "#14161A", border: `1px solid ${z.color}22` }}><span className="text-lg">{z.icon}</span><div className="text-xl font-bold mt-1" style={{ color: z.color }}><AnimatedCounter value={count} /></div><div className="text-[10px]" style={{ color: "#9CA3AF" }}>{z.label}</div><div className="text-[9px] mt-1" style={{ color: "#9CA3AF" }}>Click to navigate →</div></motion.div>); })}</div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">{ZONES.map((z, i) => { const tabs = ZONE_TABS[z.id] || []; const count = tabs.reduce((sum, t) => sum + (ZONE_TAB_COUNTS[z.id]?.[t] || 0), 0); const firstTab = tabs[0] || ""; return (<motion.div key={z.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} onClick={() => { handleZoneChange(z.id); if (firstTab) dispatch({ type: "SET_SUBTAB", payload: { ...activeSubTab, [z.id]: firstTab } }); }} className="rounded-xl p-4 text-center cursor-pointer transition-all hover:-translate-y-0.5" style={{ background: "#14161A", border: `1px solid ${z.color}22` }}><span className="text-lg">{z.icon}</span><div className="text-xl font-bold mt-1" style={{ color: z.color }}><AnimatedCounter value={count} /></div><div className="text-[10px]" style={{ color: "#9CA3AF" }}>{z.label}</div><div className="text-[9px] mt-1" style={{ color: "#9CA3AF" }}>Click to navigate →</div></motion.div>); })}</div>
                 {/* Modifier Coverage Heat Map */}
                 <div className="rounded-xl p-6 mb-6" style={{ background: "#14161A", border: "1px solid rgba(255,255,255,0.07)" }}><h3 className="text-sm font-bold mb-4">Modifier Coverage Heat Map</h3><div className="space-y-1">{MOD_CATS.slice(0, 6).map((cat) => (<div key={cat} className="flex items-center gap-2"><span className="text-[10px] font-mono w-20 flex-shrink-0 text-right" style={{ color: "#9CA3AF" }}>{cat}</span><div className="flex-1 flex gap-0.5">{["Tasks", "Modifiers", "Templates", "Lint"].map((zone) => { const hasMatch = (cat === "Role" || cat === "Agent" || cat === "Productivity") && zone !== "Lint"; return <div key={zone} className="h-4 flex-1 rounded-sm transition-all" style={{ background: hasMatch ? `${zoneColor}44` : "rgba(255,255,255,0.04)" }} title={`${cat} × ${zone}: ${hasMatch ? "Applies" : "No direct link"}`} />; })}</div></div>))}</div><div className="flex items-center gap-3 mt-3 text-[9px]" style={{ color: "#9CA3AF" }}><div className="flex items-center gap-1"><div className="w-3 h-3 rounded-sm" style={{ background: `${zoneColor}44` }} /> Applies</div><div className="flex items-center gap-1"><div className="w-3 h-3 rounded-sm" style={{ background: "rgba(255,255,255,0.04)" }} /> No direct link</div></div></div>
               </div>)}
@@ -1894,9 +1579,9 @@ export default function Home() {
                   <div className="flex items-center gap-2"><Sparkles className="w-4 h-4" style={{ color: zoneColor }} /><h3 className="text-sm font-bold" style={{ color: zoneColor }}>Quick Compose</h3></div>
                   <button onClick={() => setShowQuickCompose(false)} className="p-1 rounded-lg hover:bg-white/10 transition-all" style={{ color: "#9CA3AF" }}><X className="w-3.5 h-3.5" /></button>
                 </div>
-                <textarea value={composeText} onChange={(e) => setComposeText(e.target.value)} placeholder="Compose your prompt here..." rows={4} className="w-full rounded-lg p-3 text-xs outline-none resize-none input-glow" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF", fontFamily: "monospace" }} />
+                <textarea value={composeText} onChange={(e) => dispatch({ type: "SET_COMPOSE_TEXT", payload: e.target.value })} placeholder="Compose your prompt here..." rows={4} className="w-full rounded-lg p-3 text-xs outline-none resize-none input-glow" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF", fontFamily: "monospace" }} />
                 <div className="flex gap-2">
-                  <button onClick={() => { if (composeText.trim()) { handleCopy(composeText.trim(), "qc-basket"); setComposeText(""); } else toast.error("Write something first."); }} className="flex-1 flex items-center justify-center gap-1 text-[10px] px-3 py-2 rounded-lg font-medium transition-all" style={{ background: `${zoneColor}15`, color: zoneColor, border: `1px solid ${zoneColor}33` }}><Copy className="w-3 h-3" /> Add to Basket</button>
+                  <button onClick={() => { if (composeText.trim()) { handleCopy(composeText.trim(), "qc-basket"); dispatch({ type: "SET_COMPOSE_TEXT", payload: "" }); } else toast.error("Write something first."); }} className="flex-1 flex items-center justify-center gap-1 text-[10px] px-3 py-2 rounded-lg font-medium transition-all" style={{ background: `${zoneColor}15`, color: zoneColor, border: `1px solid ${zoneColor}33` }}><Copy className="w-3 h-3" /> Add to Basket</button>
                   <button onClick={() => { if (composeText.trim()) handleDirectCopy(composeText.trim()); else toast.error("Write something first."); }} className="flex items-center justify-center gap-1 text-[10px] px-3 py-2 rounded-lg font-medium transition-all" style={{ background: "rgba(255,255,255,0.04)", color: "#A1A1AA", border: "1px solid rgba(255,255,255,0.07)" }}>Copy</button>
                 </div>
                 {/* Quick Insert Chips */}
@@ -1911,9 +1596,9 @@ export default function Home() {
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                       <div className="relative mb-1"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3" style={{ color: "#9CA3AF" }} /><input value={qcSearch} onChange={(e) => setQcSearch(e.target.value)} placeholder="Search..." className="w-full pl-8 pr-3 py-1.5 rounded-lg text-[10px] outline-none input-glow" style={{ background: "#0B0D10", border: "1px solid rgba(255,255,255,0.07)", color: "#FFFFFF" }} /></div>
                       <div className="max-h-40 overflow-y-auto space-y-0.5">
-                        {qcDropdown === "mods" && qcModList.slice(0, 20).map((m, i) => (<button key={i} onClick={() => { setComposeText((p) => p + (p ? "\n" : "") + m.mod); setQcDropdown(null); setQcSearch(""); }} className="w-full text-left px-2.5 py-1.5 rounded-lg text-[10px] transition-all hover:bg-white/5 truncate" style={{ color: "#A1A1AA" }}>{m.mod}</button>))}
-                        {qcDropdown === "tmpls" && qcTmplList.slice(0, 20).map((t, i) => (<button key={i} onClick={() => { setComposeText((p) => p + (p ? "\n\n" : "") + t.content); setQcDropdown(null); setQcSearch(""); }} className="w-full text-left px-2.5 py-1.5 rounded-lg text-[10px] transition-all hover:bg-white/5 truncate" style={{ color: "#A1A1AA" }}>{t.label}: {t.desc}</button>))}
-                        {qcDropdown === "animals" && qcAnimalList.slice(0, 20).map((a, i) => (<button key={i} onClick={() => { setComposeText((p) => p + (p ? "\n\n" : "") + a.prompt); setQcDropdown(null); setQcSearch(""); }} className="w-full text-left px-2.5 py-1.5 rounded-lg text-[10px] transition-all hover:bg-white/5 truncate" style={{ color: "#A1A1AA" }}>{a.emoji} {a.name} — {a.mode}</button>))}
+                        {qcDropdown === "mods" && qcModList.slice(0, 20).map((m, i) => (<button key={i} onClick={() => { dispatch({ type: "SET_COMPOSE_TEXT", payload: composeText + (composeText ? "\n" : "") + m.mod }); setQcDropdown(null); setQcSearch(""); }} className="w-full text-left px-2.5 py-1.5 rounded-lg text-[10px] transition-all hover:bg-white/5 truncate" style={{ color: "#A1A1AA" }}>{m.mod}</button>))}
+                        {qcDropdown === "tmpls" && qcTmplList.slice(0, 20).map((t, i) => (<button key={i} onClick={() => { dispatch({ type: "SET_COMPOSE_TEXT", payload: composeText + (composeText ? "\n\n" : "") + t.content }); setQcDropdown(null); setQcSearch(""); }} className="w-full text-left px-2.5 py-1.5 rounded-lg text-[10px] transition-all hover:bg-white/5 truncate" style={{ color: "#A1A1AA" }}>{t.label}: {t.desc}</button>))}
+                        {qcDropdown === "animals" && qcAnimalList.slice(0, 20).map((a, i) => (<button key={i} onClick={() => { dispatch({ type: "SET_COMPOSE_TEXT", payload: composeText + (composeText ? "\n\n" : "") + a.prompt }); setQcDropdown(null); setQcSearch(""); }} className="w-full text-left px-2.5 py-1.5 rounded-lg text-[10px] transition-all hover:bg-white/5 truncate" style={{ color: "#A1A1AA" }}>{a.emoji} {a.name} — {a.mode}</button>))}
                       </div>
                     </motion.div>
                   )}

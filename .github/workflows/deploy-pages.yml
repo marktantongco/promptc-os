@@ -28,26 +28,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Temporarily remove API routes for static export
+        run: |
+          # API routes cannot be statically exported — move them aside
+          mv src/app/api src/app/_api_disabled
+
       - name: Build static export
         env:
-          NEXT_OUTPUT: export
+          NEXT_STATIC_EXPORT: "true"
+        run: npm run build
+
+      - name: Restore API routes
+        if: always()
         run: |
-          # Override next.config.ts for static export
-          node -e "
-            const fs = require('fs');
-            const config = require('./next.config.ts');
-            const newConfig = {
-              output: 'export',
-              typescript: { ignoreBuildErrors: true },
-              reactStrictMode: false,
-              images: { unoptimized: true },
-              basePath: '/promptc-os',
-              assetPrefix: '/promptc-os',
-            };
-            fs.writeFileSync('next.config.mjs', 'export default ' + JSON.stringify(newConfig, null, 2));
-          "
-          rm -f next.config.ts
-          npm run build
+          # Restore API routes so they stay in the repo
+          if [ -d src/app/_api_disabled ]; then
+            mv src/app/_api_disabled src/app/api
+          fi
 
       - name: Add .nojekyll
         run: touch out/.nojekyll
