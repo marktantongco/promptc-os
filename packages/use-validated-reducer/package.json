@@ -1,0 +1,54 @@
+{
+  "name": "use-validated-reducer",
+  "version": "0.1.0",
+  "description": "React hook: useReducer + Zod validation + debounced batch localStorage persistence. Validated state at every boundary.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "lint": "eslint src/",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "zod": ">=3.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.0.0",
+    "@types/react": "^19",
+    "jsdom": "^25.0.0",
+    "react": "^19.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5",
+    "vitest": "^2.0.0",
+    "zod": "^3.0.0"
+  },
+  "keywords": [
+    "react",
+    "useReducer",
+    "zod",
+    "validation",
+    "localStorage",
+    "persistence",
+    "debounce",
+    "state-management",
+    "typescript"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marktantongco/promptc-os",
+    "directory": "packages/use-validated-reducer"
+  },
+  "homepage": "https://marktantongco.github.io/promptc-os/"
+}

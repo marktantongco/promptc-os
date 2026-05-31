@@ -1,0 +1,552 @@
+{
+  "name": "promptc-os",
+  "version": "4.0.0",
+  "description": "AI Prompt Engineering Operating System — 6-zone workspace with 47+ modifiers, 21 workflows, 66 skills, and data integrity layer",
+  "homepage": "https://marktantongco.github.io/promptc-os/",
+  "repository": "https://github.com/marktantongco/promptc-os",
+  "license": "MIT",
+  "categories": [
+    {
+      "name": "AI / LLM Core",
+      "icon": "\ud83e\udde0",
+      "color": "#a78bfa",
+      "skills": ["LLM", "VLM", "ASR", "TTS", "image-generation", "image-edit", "image-understand", "video-generation", "video-understand"]
+    },
+    {
+      "name": "Web Search & Content",
+      "icon": "\ud83d\udd0d",
+      "color": "#38bdf8",
+      "skills": ["web-search", "web-reader", "agent-browser", "multi-search-engine", "contentanalysis", "ai-news-collectors", "qingyan-research", "finance"]
+    },
+    {
+      "name": "Document Generation",
+      "icon": "\ud83d\udcc4",
+      "color": "#f97316",
+      "skills": ["docx", "pdf", "xlsx", "ppt", "pptx"]
+    },
+    {
+      "name": "Prompt Engineering",
+      "icon": "\ud83d\udca1",
+      "color": "#eab308",
+      "skills": ["promptc", "chain-of-thought", "socratic-method", "explained-code"]
+    },
+    {
+      "name": "Skill Management",
+      "icon": "\u2699\ufe0f",
+      "color": "#6B7280",
+      "skills": ["skill-creator", "skill-finder", "skill-finder-cn", "skill-assessor", "skill-vetter"]
+    },
+    {
+      "name": "Web Development",
+      "icon": "\ud83d\udcbb",
+      "color": "#22c55e",
+      "skills": ["fullstack-dev", "coding-agent", "ui-ux-pro-max", "visual-design-foundations", "web-artifacts-builder"]
+    },
+    {
+      "name": "Animation & Visual",
+      "icon": "\u2728",
+      "color": "#ec4899",
+      "skills": ["gsap-animations", "ai-visual-synthesis", "photography-ai"]
+    },
+    {
+      "name": "Content & Marketing",
+      "icon": "\ud83d\udce2",
+      "color": "#f43f5e",
+      "skills": ["blog-writer", "seo-content-writer", "content-strategy", "marketing-mode", "social-content-pillars", "podcast-generate"]
+    },
+    {
+      "name": "Business & Research",
+      "icon": "\ud83d\udcca",
+      "color": "#3b82f6",
+      "skills": ["market-research-reports", "jtbd-research", "interview-designer", "storyboard-manager", "stock-analysis-skill", "gumroad-pipeline", "get-fortune-analysis"]
+    },
+    {
+      "name": "Agent Frameworks",
+      "icon": "\ud83e\udd16",
+      "color": "#06b6d4",
+      "skills": ["mcp-builder", "deployment-manager", "simulation-sandbox", "output-formatter"]
+    },
+    {
+      "name": "Analysis & Thinking",
+      "icon": "\ud83e\udde9",
+      "color": "#d946ef",
+      "skills": ["context-compressor", "devils-advocate", "auto-target-tracker", "gift-evaluator", "dream-interpreter"]
+    },
+    {
+      "name": "Data Visualization",
+      "icon": "\ud83d\udcc8",
+      "color": "#10b981",
+      "skills": ["charts"]
+    },
+    {
+      "name": "Utilities",
+      "icon": "\ud83d\udd27",
+      "color": "#78716c",
+      "skills": ["writing-plans", "mindfulness-meditation", "aminer-open-academic", "web-shader-extractor"]
+    }
+  ],
+  "skills": [
+    {
+      "name": "LLM",
+      "category": "AI / LLM Core",
+      "description": "LLM chat completions via z-ai-web-dev-sdk",
+      "files": 3,
+      "triggers": ["chat completion", "LLM", "language model", "AI chat", "generate text", "chatbot", "conversation"]
+    },
+    {
+      "name": "VLM",
+      "category": "AI / LLM Core",
+      "description": "Vision-based AI chat — image understanding",
+      "files": 3,
+      "triggers": ["vision model", "image chat", "visual AI", "analyze image", "image understanding", "VLM", "multimodal"]
+    },
+    {
+      "name": "ASR",
+      "category": "AI / LLM Core",
+      "description": "Speech-to-text transcription",
+      "files": 3,
+      "triggers": ["speech to text", "transcribe", "ASR", "audio transcription", "voice recognition", "transcribe audio", "dictation"]
+    },
+    {
+      "name": "TTS",
+      "category": "AI / LLM Core",
+      "description": "Text-to-speech — multiple voices, adjustable speed",
+      "files": 3,
+      "triggers": ["text to speech", "TTS", "read aloud", "voice synthesis", "audio generation", "speak text", "narrate"]
+    },
+    {
+      "name": "image-generation",
+      "category": "AI / LLM Core",
+      "description": "AI image creation from text descriptions",
+      "files": 3,
+      "triggers": ["generate image", "create image", "AI art", "text to image", "image generation", "draw", "illustration"]
+    },
+    {
+      "name": "image-edit",
+      "category": "AI / LLM Core",
+      "description": "AI image modification and editing",
+      "files": 3,
+      "triggers": ["edit image", "modify image", "image editing", "retouch", "inpaint", "image manipulation", "change image"]
+    },
+    {
+      "name": "image-understand",
+      "category": "AI / LLM Core",
+      "description": "Image analysis, OCR, object detection",
+      "files": 3,
+      "triggers": ["analyze image", "OCR", "object detection", "image recognition", "read image", "describe image", "what's in this image"]
+    },
+    {
+      "name": "video-generation",
+      "category": "AI / LLM Core",
+      "description": "AI video generation from text/images",
+      "files": 3,
+      "triggers": ["generate video", "create video", "AI video", "text to video", "video generation", "make a video"]
+    },
+    {
+      "name": "video-understand",
+      "category": "AI / LLM Core",
+      "description": "Video content analysis and scene description",
+      "files": 3,
+      "triggers": ["analyze video", "video understanding", "describe video", "video analysis", "scene detection", "what happens in this video"]
+    },
+    {
+      "name": "web-search",
+      "category": "Web Search & Content",
+      "description": "Web search via z-ai-web-dev-sdk",
+      "files": 3,
+      "triggers": ["search web", "web search", "look up", "find online", "google", "search the internet", "search for"]
+    },
+    {
+      "name": "web-reader",
+      "category": "Web Search & Content",
+      "description": "Web page content extraction",
+      "files": 3,
+      "triggers": ["read webpage", "extract content", "scrape page", "web reader", "fetch URL", "get page content", "read this URL"]
+    },
+    {
+      "name": "agent-browser",
+      "category": "Web Search & Content",
+      "description": "Headless browser automation",
+      "files": 1,
+      "triggers": ["browse", "browser automation", "headless browser", "navigate website", "click button", "fill form", "screenshot page"]
+    },
+    {
+      "name": "multi-search-engine",
+      "category": "Web Search & Content",
+      "description": "8 CN search engines with advanced operators",
+      "files": 7,
+      "triggers": ["Chinese search", "multi engine search", "Baidu", "搜狗", "Bing China", "CN search", "中文搜索"]
+    },
+    {
+      "name": "contentanalysis",
+      "category": "Web Search & Content",
+      "description": "Content extraction from videos, podcasts, articles",
+      "files": 3,
+      "triggers": ["content analysis", "extract content", "podcast transcript", "video summary", "article extraction", "content extraction"]
+    },
+    {
+      "name": "ai-news-collectors",
+      "category": "Web Search & Content",
+      "description": "AI news aggregation and trending",
+      "files": 3,
+      "triggers": ["AI news", "tech news", "latest AI", "news aggregator", "trending AI", "AI updates", "what's new in AI"]
+    },
+    {
+      "name": "qingyan-research",
+      "category": "Web Search & Content",
+      "description": "Deep web research + HTML report generation",
+      "files": 2,
+      "triggers": ["deep research", "web research", "research report", "investigate topic", "comprehensive research", "HTML report"]
+    },
+    {
+      "name": "finance",
+      "category": "Web Search & Content",
+      "description": "Financial data — stocks, market analysis",
+      "files": 2,
+      "triggers": ["stock price", "financial data", "market analysis", "investment", "ticker", "portfolio", "financial market"]
+    },
+    {
+      "name": "docx",
+      "category": "Document Generation",
+      "description": "Word document creation and editing",
+      "files": 85,
+      "triggers": ["Word document", "docx", "create document", "edit docx", "Word file", "write document", "report document"]
+    },
+    {
+      "name": "pdf",
+      "category": "Document Generation",
+      "description": "PDF generation — cover, TOC, charts, forms",
+      "files": 44,
+      "triggers": ["PDF", "generate PDF", "create PDF", "PDF report", "PDF document", "export PDF", "print to PDF"]
+    },
+    {
+      "name": "xlsx",
+      "category": "Document Generation",
+      "description": "Excel spreadsheets — charts, formulas, VBA",
+      "files": 22,
+      "triggers": ["Excel", "spreadsheet", "xlsx", "create spreadsheet", "workbook", "data table", "Excel chart"]
+    },
+    {
+      "name": "ppt",
+      "category": "Document Generation",
+      "description": "PowerPoint presentations — Beamer, LaTeX",
+      "files": 75,
+      "triggers": ["PowerPoint", "presentation", "slides", "ppt", "create slides", "slide deck", "Beamer"]
+    },
+    {
+      "name": "pptx",
+      "category": "Document Generation",
+      "description": "PPTX creation/editing with tracked changes",
+      "files": 57,
+      "triggers": ["PPTX", "edit presentation", "update slides", "tracked changes", "modify PPTX", "presentation editing"]
+    },
+    {
+      "name": "promptc",
+      "category": "Prompt Engineering",
+      "description": "AI Prompt Engineering Operating System",
+      "files": 1,
+      "triggers": ["prompt engineering", "promptc", "prompt OS", "prompt system", "prompt operating system", "promptc-os"]
+    },
+    {
+      "name": "chain-of-thought",
+      "category": "Prompt Engineering",
+      "description": "Chain-of-thought reasoning",
+      "files": 1,
+      "triggers": ["chain of thought", "reasoning", "step by step", "think through", "CoT", "logical reasoning", "reasoning chain"]
+    },
+    {
+      "name": "socratic-method",
+      "category": "Prompt Engineering",
+      "description": "Socratic questioning for deep analysis",
+      "files": 1,
+      "triggers": ["Socratic", "questioning", "deep analysis", "probe assumptions", "Socratic method", "critical questioning"]
+    },
+    {
+      "name": "explained-code",
+      "category": "Prompt Engineering",
+      "description": "Beginner-friendly code explanations",
+      "files": 1,
+      "triggers": ["explain code", "code explanation", "walkthrough", "how does this work", "code walkthrough", "explain this code"]
+    },
+    {
+      "name": "skill-creator",
+      "category": "Skill Management",
+      "description": "Create, modify, eval, benchmark skills",
+      "files": 18,
+      "triggers": ["create skill", "new skill", "build skill", "skill builder", "skill creation", "make a skill", "skill eval"]
+    },
+    {
+      "name": "skill-finder",
+      "category": "Skill Management",
+      "description": "AI agent skills discovery and evaluation",
+      "files": 1,
+      "triggers": ["find skill", "discover skill", "skill search", "skill finder", "what skill", "skill catalog", "browse skills"]
+    },
+    {
+      "name": "skill-finder-cn",
+      "category": "Skill Management",
+      "description": "Chinese skill finder — ClawHub discovery",
+      "files": 4,
+      "triggers": ["中文技能", "ClawHub", "Chinese skill", "技能搜索", "技能发现", "skill finder Chinese"]
+    },
+    {
+      "name": "skill-assessor",
+      "category": "Skill Management",
+      "description": "Evaluate prompt engineering skills",
+      "files": 1,
+      "triggers": ["assess skill", "evaluate skill", "skill quality", "skill assessment", "rate skill", "benchmark skill"]
+    },
+    {
+      "name": "skill-vetter",
+      "category": "Skill Management",
+      "description": "Security-first skill vetting",
+      "files": 1,
+      "triggers": ["vet skill", "skill security", "security check", "vetting", "skill safety", "validate skill", "trust check"]
+    },
+    {
+      "name": "fullstack-dev",
+      "category": "Web Development",
+      "description": "Next.js 16 + TypeScript + Tailwind CSS 4",
+      "files": 1,
+      "triggers": ["fullstack", "Next.js", "web app", "build application", "full stack", "TypeScript app", "Tailwind"]
+    },
+    {
+      "name": "coding-agent",
+      "category": "Web Development",
+      "description": "Full-stack dev agent — plan, execute, verify",
+      "files": 8,
+      "triggers": ["coding agent", "dev agent", "code agent", "autonomous coding", "build feature", "implement feature", "code it"]
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "category": "Web Development",
+      "description": "UI/UX design intelligence and implementation",
+      "files": 56,
+      "triggers": ["UI design", "UX design", "user interface", "user experience", "design system", "component design", "wireframe"]
+    },
+    {
+      "name": "visual-design-foundations",
+      "category": "Web Development",
+      "description": "Typography, color, spacing, iconography",
+      "files": 4,
+      "triggers": ["typography", "color system", "spacing", "iconography", "design foundations", "visual design", "design tokens"]
+    },
+    {
+      "name": "web-artifacts-builder",
+      "category": "Web Development",
+      "description": "Build standalone web artifacts and widgets",
+      "files": 1,
+      "triggers": ["web artifact", "standalone widget", "embed widget", "web component", "artifact builder", "HTML widget"]
+    },
+    {
+      "name": "gsap-animations",
+      "category": "Animation & Visual",
+      "description": "GSAP with React, ScrollTrigger, timelines",
+      "files": 1,
+      "triggers": ["GSAP", "animation", "scroll animation", "motion design", "animate", "ScrollTrigger", "timeline animation"]
+    },
+    {
+      "name": "ai-visual-synthesis",
+      "category": "Animation & Visual",
+      "description": "Visual engineering with 8-layer architecture",
+      "files": 1,
+      "triggers": ["visual synthesis", "AI visual", "visual engineering", "generative art", "creative coding", "visual effect"]
+    },
+    {
+      "name": "photography-ai",
+      "category": "Animation & Visual",
+      "description": "Professional visual creation framework",
+      "files": 1,
+      "triggers": ["photography", "photo AI", "professional photo", "visual creation", "photo editing", "image composition"]
+    },
+    {
+      "name": "blog-writer",
+      "category": "Content & Marketing",
+      "description": "Blog posts in distinctive writing style",
+      "files": 12,
+      "triggers": ["write blog", "blog post", "article writing", "blog content", "blog writer", "write article"]
+    },
+    {
+      "name": "seo-content-writer",
+      "category": "Content & Marketing",
+      "description": "SEO-optimized content creation",
+      "files": 4,
+      "triggers": ["SEO content", "SEO writing", "optimize for search", "keyword content", "SEO article", "search optimization"]
+    },
+    {
+      "name": "content-strategy",
+      "category": "Content & Marketing",
+      "description": "Content marketing strategy",
+      "files": 2,
+      "triggers": ["content strategy", "content plan", "editorial calendar", "content marketing", "content roadmap"]
+    },
+    {
+      "name": "marketing-mode",
+      "category": "Content & Marketing",
+      "description": "23 marketing skills combined",
+      "files": 5,
+      "triggers": ["marketing", "marketing mode", "marketing strategy", "promote", "advertising", "growth marketing", "campaign"]
+    },
+    {
+      "name": "social-content-pillars",
+      "category": "Content & Marketing",
+      "description": "Social media content pillar strategy",
+      "files": 1,
+      "triggers": ["social media", "content pillars", "social strategy", "content pillars strategy", "social content plan"]
+    },
+    {
+      "name": "podcast-generate",
+      "category": "Content & Marketing",
+      "description": "Podcast generation from content or web",
+      "files": 7,
+      "triggers": ["podcast", "generate podcast", "podcast script", "audio content", "podcast creation", "make podcast"]
+    },
+    {
+      "name": "market-research-reports",
+      "category": "Business & Research",
+      "description": "McKinsey-style market research reports",
+      "files": 8,
+      "triggers": ["market research", "industry report", "McKinsey report", "market analysis", "research report", "industry analysis"]
+    },
+    {
+      "name": "jtbd-research",
+      "category": "Business & Research",
+      "description": "Jobs to be Done product research",
+      "files": 1,
+      "triggers": ["jobs to be done", "JTBD", "product research", "customer needs", "user needs", "job story"]
+    },
+    {
+      "name": "interview-designer",
+      "category": "Business & Research",
+      "description": "Resume analysis + interview design",
+      "files": 5,
+      "triggers": ["interview design", "resume analysis", "interview questions", "hiring", "candidate assessment", "interview prep"]
+    },
+    {
+      "name": "storyboard-manager",
+      "category": "Business & Research",
+      "description": "Story planning, character dev, timeline",
+      "files": 7,
+      "triggers": ["storyboard", "story planning", "character development", "narrative timeline", "plot outline", "story structure"]
+    },
+    {
+      "name": "stock-analysis-skill",
+      "category": "Business & Research",
+      "description": "Stock analysis — technical/fundamental",
+      "files": 10,
+      "triggers": ["stock analysis", "technical analysis", "fundamental analysis", "stock pick", "equity research", "stock research"]
+    },
+    {
+      "name": "gumroad-pipeline",
+      "category": "Business & Research",
+      "description": "Gumroad product pipeline management",
+      "files": 1,
+      "triggers": ["Gumroad", "digital product", "product pipeline", "sell online", "digital product launch", "Gumroad product"]
+    },
+    {
+      "name": "get-fortune-analysis",
+      "category": "Business & Research",
+      "description": "Fortune/astrology report generation",
+      "files": 2,
+      "triggers": ["fortune", "astrology", "horoscope", "fortune telling", "zodiac", "fortune analysis", "占卜"]
+    },
+    {
+      "name": "mcp-builder",
+      "category": "Agent Frameworks",
+      "description": "MCP server builder for Claude Desktop",
+      "files": 1,
+      "triggers": ["MCP", "MCP server", "Claude Desktop", "build MCP", "MCP integration", "model context protocol"]
+    },
+    {
+      "name": "deployment-manager",
+      "category": "Agent Frameworks",
+      "description": "Deployment pipeline management",
+      "files": 1,
+      "triggers": ["deploy", "deployment", "CI/CD", "release", "deploy pipeline", "ship it", "deployment manager"]
+    },
+    {
+      "name": "simulation-sandbox",
+      "category": "Agent Frameworks",
+      "description": "Code simulation and testing",
+      "files": 1,
+      "triggers": ["simulate", "sandbox", "test code", "run simulation", "code testing", "sandbox environment"]
+    },
+    {
+      "name": "output-formatter",
+      "category": "Agent Frameworks",
+      "description": "Output format standardization",
+      "files": 1,
+      "triggers": ["format output", "standardize output", "output format", "format response", "clean output", "output formatter"]
+    },
+    {
+      "name": "context-compressor",
+      "category": "Analysis & Thinking",
+      "description": "Context compression for long conversations",
+      "files": 1,
+      "triggers": ["compress context", "reduce context", "summarize conversation", "context window", "long conversation", "context management"]
+    },
+    {
+      "name": "devils-advocate",
+      "category": "Analysis & Thinking",
+      "description": "Adversarial analysis — stress-test ideas",
+      "files": 1,
+      "triggers": ["devil's advocate", "stress test", "challenge idea", "adversarial", "counterargument", "critique", "poke holes"]
+    },
+    {
+      "name": "auto-target-tracker",
+      "category": "Analysis & Thinking",
+      "description": "Goal progress tracking with VLM",
+      "files": 1,
+      "triggers": ["track progress", "goal tracking", "target tracker", "progress monitoring", "goal tracker", "track goals"]
+    },
+    {
+      "name": "gift-evaluator",
+      "category": "Analysis & Thinking",
+      "description": "Gift analysis — value, authenticity, social",
+      "files": 2,
+      "triggers": ["gift analysis", "evaluate gift", "gift value", "gift idea", "present evaluation", "gift recommendation"]
+    },
+    {
+      "name": "dream-interpreter",
+      "category": "Analysis & Thinking",
+      "description": "Dream interpretation — 3 perspectives",
+      "files": 9,
+      "triggers": ["dream interpretation", "interpret dream", "dream meaning", "dream analysis", "dream symbol", "what does my dream mean"]
+    },
+    {
+      "name": "charts",
+      "category": "Data Visualization",
+      "description": "Charts — matplotlib, ECharts, D3, Mermaid",
+      "files": 12,
+      "triggers": ["chart", "graph", "visualization", "plot", "diagram", "data visualization", "create chart", "make graph"]
+    },
+    {
+      "name": "writing-plans",
+      "category": "Utilities",
+      "description": "Multi-step task planning before coding",
+      "files": 2,
+      "triggers": ["plan tasks", "writing plan", "task plan", "step by step plan", "implementation plan", "plan before coding"]
+    },
+    {
+      "name": "mindfulness-meditation",
+      "category": "Utilities",
+      "description": "Guided meditation, streaks, reminders",
+      "files": 2,
+      "triggers": ["meditation", "mindfulness", "guided meditation", "breathing exercise", "relax", "stress relief", "calm"]
+    },
+    {
+      "name": "aminer-open-academic",
+      "category": "Utilities",
+      "description": "Academic data search and paper analysis",
+      "files": 5,
+      "triggers": ["academic search", "paper search", "AMiner", "research paper", "scholarly search", "citation", "find papers"]
+    },
+    {
+      "name": "web-shader-extractor",
+      "category": "Utilities",
+      "description": "Extract and port web shaders",
+      "files": 12,
+      "triggers": ["shader", "WebGL", "GLSL", "extract shader", "shader effect", "visual effect code", "canvas shader", "port shader"]
+    }
+  ]
+}

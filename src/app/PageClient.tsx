@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
 const ReactMarkdown = dynamic(() => import("react-markdown"), { ssr: false });
+import { safeIncludes } from "@/lib/utils";
 import {
   ZONES, MODS, MOD_CATS, TASKS, TMPLS, BRANDS, ANIMALS, CHAINS,
   LAYERS, LAYER_TPL, ENHANCEMENTS, LINT_RULES, SWAPS, SWAP_LEVELS,
@@ -508,12 +509,23 @@ export default function Home() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Load basket from localStorage
+  // Load basket from localStorage — filter corrupt items
   useEffect(() => {
     try {
       const saved = localStorage.getItem("promptc-basket");
-      if (saved) setHistory(JSON.parse(saved));
-    } catch {}
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const valid = Array.isArray(parsed)
+          ? parsed.filter((h: any) => h && typeof h.text === 'string' && h.text.trim().length > 0 && h.id)
+          : [];
+        if (valid.length !== parsed?.length) {
+          console.warn(`[promptc] Filtered ${parsed?.length - valid.length} corrupt basket items on load`);
+        }
+        setHistory(valid);
+      }
+    } catch (err) {
+      console.warn("[promptc] Failed to load basket:", err);
+    }
   }, []);
 
   // Save basket to localStorage on change
@@ -542,6 +554,11 @@ export default function Home() {
       await navigator.clipboard.writeText(text);
       setCopiedId(id);
       setClipboardHistory(prev => [{ text, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), zone: activeZone }, ...prev.slice(0, 49)]);
+      // Validation gate — never add corrupt items to basket
+      if (!text || typeof text !== 'string' || text.trim().length === 0) {
+        toast.error("Cannot add empty item to basket.");
+        return;
+      }
       const item: BasketItem = {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         text,
@@ -651,7 +668,7 @@ export default function Home() {
     if (basketZoneFilter !== "all") list = list.filter((h) => h.zone === basketZoneFilter);
     if (basketSearch.trim()) {
       const q = basketSearch.toLowerCase();
-      list = list.filter((h) => h.text.toLowerCase().includes(q) || h.zone.toLowerCase().includes(q));
+      list = list.filter((h) => safeIncludes(h.text, q) || safeIncludes(h.zone, q));
     }
     const sorted = [...list].sort((a, b) => {
       if (a.pinned && !b.pinned) return -1;
@@ -840,12 +857,12 @@ export default function Home() {
   }, [composerFields]);
   // handleZoneChange moved above to avoid TDZ (see top of component)
 
-  const filteredMods = useMemo(() => { if (!searchQuery) return MODS; const q = searchQuery.toLowerCase(); return MODS.filter((m) => m.mod.toLowerCase().includes(q) || m.cat.toLowerCase().includes(q) || m.tip.toLowerCase().includes(q)); }, [searchQuery]);
-  const filteredWorkflows = useMemo(() => { if (!searchQuery) return WORKFLOWS_DATA; const q = searchQuery.toLowerCase(); return WORKFLOWS_DATA.filter((w) => w.title.toLowerCase().includes(q) || w.purpose.toLowerCase().includes(q) || w.cat.toLowerCase().includes(q)); }, [searchQuery]);
+  const filteredMods = useMemo(() => { if (!searchQuery) return MODS; const q = searchQuery.toLowerCase(); return MODS.filter((m) => safeIncludes(m.mod, q) || safeIncludes(m.cat, q) || safeIncludes(m.tip, q)); }, [searchQuery]);
+  const filteredWorkflows = useMemo(() => { if (!searchQuery) return WORKFLOWS_DATA; const q = searchQuery.toLowerCase(); return WORKFLOWS_DATA.filter((w) => safeIncludes(w.title, q) || safeIncludes(w.purpose, q) || safeIncludes(w.cat, q)); }, [searchQuery]);
   const filteredSkills = useMemo(() => {
     let list = SKILLS_CATALOG;
     if (skillsCategoryFilter !== "all") list = list.filter((s) => s.category === skillsCategoryFilter);
-    if (skillsSearchQuery.trim()) { const q = skillsSearchQuery.toLowerCase(); list = list.filter((s) => s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)); }
+    if (skillsSearchQuery.trim()) { const q = skillsSearchQuery.toLowerCase(); list = list.filter((s) => safeIncludes(s.name, q) || safeIncludes(s.description, q)); }
     return list;
   }, [skillsCategoryFilter, skillsSearchQuery]);
 
@@ -886,9 +903,9 @@ export default function Home() {
   }, [history]);
 
   // Quick Compose filtered lists
-  const qcModList = useMemo(() => { if (!qcSearch) return MODS; return MODS.filter((m) => m.mod.toLowerCase().includes(qcSearch.toLowerCase())); }, [qcSearch]);
-  const qcTmplList = useMemo(() => { if (!qcSearch) return TMPLS; return TMPLS.filter((t) => t.label.toLowerCase().includes(qcSearch.toLowerCase())); }, [qcSearch]);
-  const qcAnimalList = useMemo(() => { if (!qcSearch) return ANIMALS; return ANIMALS.filter((a) => a.name.toLowerCase().includes(qcSearch.toLowerCase())); }, [qcSearch]);
+  const qcModList = useMemo(() => { if (!qcSearch) return MODS; return MODS.filter((m) => safeIncludes(m.mod, qcSearch)); }, [qcSearch]);
+  const qcTmplList = useMemo(() => { if (!qcSearch) return TMPLS; return TMPLS.filter((t) => safeIncludes(t.label, qcSearch)); }, [qcSearch]);
+  const qcAnimalList = useMemo(() => { if (!qcSearch) return ANIMALS; return ANIMALS.filter((a) => safeIncludes(a.name, qcSearch)); }, [qcSearch]);
 
   const handleSelectFromPalette = useCallback((zone: string, tab: string) => { handleZoneChange(zone); setActiveSubTab((p) => ({ ...p, [zone]: tab })); }, [handleZoneChange]);
 
