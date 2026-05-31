@@ -28,3 +28,27 @@ Stage Summary:
 - Vercel deployment triggered: dpl_9WJk6skZdAUXJCktttujPZVQ5tjJ
 - Key files modified: PageClient.tsx, layout.tsx, globals.css, package.json
 - New files: public/manifest.json, public/sw.js, public/icons/icon-192.png, public/icons/icon-512.png
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: v4.0 Comprehensive Upgrade — Three Promotions (C-1 → Beaver → Eagle)
+
+Work Log:
+- Cloned promptc-os repo from GitHub with PAT authentication
+- Applied Phase 1 (C-1 Triage): safeIncludes() utility, BasketItem validation gate, localStorage load filter, 7 filter chains hardened
+- Applied Phase 2 (Beaver): stateSchema.ts with Zod validators, useAppReducer.ts with usePersistedReducer, stateSchema.test.ts with 25 property-based tests
+- Created comprehensive README.md v4.0 with data integrity architecture, MCP roadmap, three promotions narrative
+- Created skills-manifest.json with 66 skills across 13 categories for skills.sh registration
+- Extracted usePersistedReducer into packages/use-validated-reducer npm package (7 files, 8/8 tests passing)
+- Added GitHub Pages deployment workflow (.github/workflows/deploy-pages.yml)
+- Committed and pushed to GitHub (2 commits: v4.0 + GitHub Pages workflow)
+
+Stage Summary:
+- Commit 95a50a2: v4.0 Three Promotions (21 files changed, 5932 insertions)
+- Commit 06592bd: GitHub Pages deployment workflow
+- All code pushed to main branch
+- Key new files: src/lib/stateSchema.ts, src/hooks/useAppReducer.ts, src/lib/stateSchema.test.ts, skills-manifest.json, packages/use-validated-reducer/
+- Key modified files: src/app/PageClient.tsx (7 safeIncludes replacements + validation gate + load filter), src/lib/utils.ts (safeIncludes), README.md (v4.0)
+- GitHub Pages workflow configured for static export with /promptc-os basePath
+- npm package use-validated-reducer ready for publish (0.1.0, dual CJS/ESM)
