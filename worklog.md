@@ -52,3 +52,32 @@ Stage Summary:
 - Key modified files: src/app/PageClient.tsx (7 safeIncludes replacements + validation gate + load filter), src/lib/utils.ts (safeIncludes), README.md (v4.0)
 - GitHub Pages workflow configured for static export with /promptc-os basePath
 - npm package use-validated-reducer ready for publish (0.1.0, dual CJS/ESM)
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: v4.0 Comprehensive Upgrade — Decomposition, Reducer Wiring, Dual Deploy
+
+Work Log:
+- Explored full repo structure — identified 2004-line PageClient.tsx monolith as key decomposition target
+- Extracted types/constants to src/lib/types.ts (221 lines) — BasketItem, ResultState, ZONE_TABS, ANIMAL_COLORS, etc.
+- Extracted error handling to src/lib/errorHandling.ts (60 lines) — classifyError, withRetry, lsGet/lsSet/lsSetDebounced
+- Extracted UI components to src/components/ui-shared/ (6 files) — ScrollableWithArrows, Skeleton, TipEnhanced, AnimatedCounter, Tip
+- Wired in usePersistedReducer — replaced 35+ useEffect localStorage writers with single reducer
+- All persisted state (20 fields) managed by usePersistedReducer + Zod validation + debounced batch persist
+- PageClient.tsx: 2004 → 1689 lines (-16%), useEffect count: 35+ → 6
+- Fixed next.config.ts: dual-mode (standalone for Vercel, export for GitHub Pages) via NEXT_STATIC_EXPORT env var
+- Fixed GitHub Pages workflow: temporarily moves API routes aside during static export build
+- Fixed Vercel workflow: manual-only trigger (Vercel auto-deploys via git integration)
+- Fixed package.json: build script handles both modes, added build:static convenience script
+- Created comprehensive README v4.0 (15 sections, Three Promotions, Data Integrity Architecture, MCP Roadmap)
+- Build verified: both standalone (Vercel) and static export (GitHub Pages) modes compile successfully
+- Committed and pushed to GitHub
+
+Stage Summary:
+- Commit 27f25b1: v4.0 Comprehensive upgrade (15 files changed, 742 insertions, 558 deletions)
+- All code pushed to main branch
+- Build passes for both Vercel (standalone) and GitHub Pages (static export)
+- GitHub repo: https://github.com/marktantongco/promptc-os
+- GitHub Pages: https://marktantongco.github.io/promptc-os/ (needs GitHub Pages enabled in Settings → Pages → Source: GitHub Actions)
+- Vercel: https://promptc-os.vercel.app (auto-deploys from main branch)
