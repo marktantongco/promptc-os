@@ -3,16 +3,21 @@
 **AI Prompt Engineering Operating System** — A comprehensive 6-zone workspace for building, validating, and monetizing AI prompts. 47+ modifiers, 21 workflows, 66 skills, Zod-validated state, debounced persistence, and WCAG AA accessibility.
 
 [![Version](https://img.shields.io/badge/v4.0-blue)](https://github.com/marktantongco/promptc-os)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-brightgreen)](https://marktantongco.github.io/promptc-os/)
+[![Vercel](https://img.shields.io/badge/Vercel-live-brightgreen)](https://promptc-os.vercel.app)
 [![Zod](https://img.shields.io/badge/Zod-validated-purple)](https://zod.dev)
 [![WCAG AA](https://img.shields.io/badge/WCAG-AA-green)](https://www.w3.org/WAI/WCAG21/quickref/)
 [![PWA](https://img.shields.io/badge/PWA-ready-orange)](https://web.dev/progressive-web-apps/)
+[![Tests](https://img.shields.io/badge/tests-25%20passing-success)](src/lib/stateSchema.test.ts)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](https://opensource.org/licenses/MIT)
 
 | | Links |
 |---|---|
-| 🌐 | **Live App:** [marktantongco.github.io/promptc-os](https://marktantongco.github.io/promptc-os/) |
+| 🌐 | **Live App (GitHub Pages):** [marktantongco.github.io/promptc-os](https://marktantongco.github.io/promptc-os/) |
 | 🚀 | **Vercel:** [promptc-os.vercel.app](https://promptc-os.vercel.app) |
 | 📦 | **Repository:** [github.com/marktantongco/promptc-os](https://github.com/marktantongco/promptc-os) |
+| 📋 | **npm Package:** [use-validated-reducer](https://github.com/marktantongco/promptc-os/tree/main/packages/use-validated-reducer) |
+| 📊 | **Skills Manifest:** [skills-manifest.json](https://github.com/marktantongco/promptc-os/blob/main/skills-manifest.json) |
 
 ---
 
@@ -109,7 +114,7 @@ Only changed keys written to localStorage
 |-----------|--------|---------|
 | **`skills-manifest.json`** | ✅ Done | 66 skills registered for skills.sh discovery — 13 categories, trigger keywords, file counts |
 | **MCP server** | 📐 Design documented | Exposing search/basket/compose as tools for AI agents via Model Context Protocol |
-| **`use-validated-reducer`** | 📐 Extraction documented | npm package extraction of `usePersistedReducer` hook — generic React hook for Zod-validated persisted state |
+| **`use-validated-reducer`** | ✅ Built & tested | npm package extraction of `usePersistedReducer` hook — generic React hook for Zod-validated persisted state (8/8 tests passing, dual CJS/ESM) |
 | **Platform API** | 🔜 Planned | REST/MCP endpoints for programmatic access to the prompt library |
 
 ---
@@ -540,10 +545,23 @@ promptc OS MCP Server
 
 ### npm Package: `use-validated-reducer`
 
-The `usePersistedReducer` hook in `src/hooks/useAppReducer.ts` is designed for extraction into a standalone npm package:
+The `usePersistedReducer` hook has been extracted into a standalone npm package at `packages/use-validated-reducer/`. It is built, tested (8/8 tests passing), and ready for publishing:
+
+```bash
+# Build and test locally
+cd packages/use-validated-reducer
+npm install
+npm run build    # → dist/index.js (CJS) + dist/index.mjs (ESM) + types
+npm test         # → 8 tests passing
+
+# Publish to npm (requires npm login)
+npm publish
+```
 
 ```ts
-// use-validated-reducer — coming soon
+// Installation (after publish):
+// npm install use-validated-reducer
+
 import { usePersistedReducer } from "use-validated-reducer";
 import { z } from "zod";
 
