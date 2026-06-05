@@ -1,6 +1,15 @@
 ---
-name: Podcast Generate
-description: Generate podcast episodes from user-provided content or by searching the web for specified topics. If user uploads a text file/article, creates a dual-host dialogue podcast (or single-host upon request). If no content is provided, searches the web for information about the user-specified topic and generates a podcast. Duration scales with content size (3-20 minutes, ~240 chars/min). Uses z-ai-web-dev-sdk for LLM script generation and TTS audio synthesis. Outputs both a podcast script (Markdown) and a complete audio file (WAV).
+name: podcast-generate
+description: >
+  Generate podcast episodes from user-provided content or by searching the web
+  for specified topics. Creates dual-host dialogue podcasts with LLM script
+  generation and TTS audio synthesis. Use when: creating a podcast, generating
+  audio content, converting text to podcast, building a dual-host show.
+  Triggers: podcast, generate podcast, audio content, dual host, TTS podcast,
+  episode generation.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
 license: MIT
 ---
 

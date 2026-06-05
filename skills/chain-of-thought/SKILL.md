@@ -1,3 +1,18 @@
+---
+name: chain-of-thought
+description: >
+  Structured step-by-step reasoning for complex problems. Activate when the
+  user presents a multi-step mathematical, logical, or analytical problem,
+  architecture or design decisions with many moving parts, debugging scenarios
+  requiring causal reasoning, or any task where showing the reasoning process
+  is as valuable as the answer. Triggers: think step by step, chain of thought,
+  reasoning, analyze this, break this down.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
+license: MIT
+---
+
 # Chain-of-Thought Reasoning
 
 ## Context

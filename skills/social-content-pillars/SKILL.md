@@ -1,3 +1,18 @@
+---
+name: social-content-pillars
+description: >
+  Create monthly content calendars, content strategies, and post templates for
+  social media across brands and platforms. Covers content pillar definition,
+  platform-specific formatting, caption writing, and scheduling workflows. Use
+  when: building a content calendar, defining content pillars, creating social
+  media templates, planning monthly posts. Triggers: content calendar, social
+  media strategy, content pillars, monthly posts, social media templates.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
+license: MIT
+---
+
 # Social Content Pillars
 
 ## Context

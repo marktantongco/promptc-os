@@ -1,6 +1,16 @@
 ---
 name: skill-creator
-description: Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.
+description: >
+  Create new skills, modify and improve existing skills, and measure skill
+  performance. Use when: creating a skill from scratch, editing or optimizing
+  an existing skill, running evals to test a skill, benchmarking skill
+  performance with variance analysis, or optimizing a skill's description for
+  better triggering accuracy. Triggers: create skill, new skill, edit skill,
+  skill eval, benchmark skill, optimize skill.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
+license: MIT
 ---
 
 # Skill Creator

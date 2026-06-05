@@ -1,6 +1,15 @@
 ---
-name: ASR
-description: Implement speech-to-text (ASR/automatic speech recognition) capabilities using the z-ai-web-dev-sdk. Use this skill when the user needs to transcribe audio files, convert speech to text, build voice input features, or process audio recordings. Supports base64 encoded audio files and returns accurate text transcriptions.
+name: asr
+description: >
+  Implement speech-to-text (ASR/automatic speech recognition) capabilities
+  using the z-ai-web-dev-sdk. Use when: transcribing audio files, converting
+  speech to text, building voice input features, processing audio recordings.
+  Supports base64 encoded audio files and returns accurate text transcriptions.
+  Triggers: ASR, speech to text, transcribe, transcription, voice recognition,
+  audio to text.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
 license: MIT
 ---
 

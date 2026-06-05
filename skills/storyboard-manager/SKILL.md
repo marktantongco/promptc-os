@@ -1,6 +1,16 @@
 ---
 name: storyboard-manager
-description: Assist writers with story planning, character development, plot structuring, chapter writing, timeline tracking, and consistency checking. Use this skill when working with creative writing projects organized in folders containing characters, chapters, story planning documents, and summaries. Trigger this skill for tasks like "Help me develop this character," "Write the next chapter," "Check consistency across my story," or "Track the timeline of events."
+description: >
+  Assist writers with story planning, character development, plot structuring,
+  chapter writing, timeline tracking, and consistency checking. Use when:
+  working with creative writing projects, developing characters, planning plot
+  structure, tracking timelines, checking consistency. Triggers: story
+  planning, character development, plot structure, chapter writing, timeline,
+  consistency check.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
+license: MIT
 ---
 
 # Storyboard Manager

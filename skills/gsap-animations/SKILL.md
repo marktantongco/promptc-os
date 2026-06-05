@@ -1,3 +1,18 @@
+---
+name: gsap-animations
+description: >
+  Comprehensive GSAP animation engineering for React applications with
+  ScrollTrigger, timeline choreography, micro-interaction systems, and
+  cinematic motion design. Use when: building GSAP animations, scroll-triggered
+  effects, complex timeline sequences, React animation integration, cinematic
+  web experiences. Triggers: gsap, animation, scroll animation, timeline,
+  useGSAP, ScrollTrigger, cinematic motion, motion design.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
+license: MIT
+---
+
 # gsap-animations
 
 Comprehensive GSAP animation skill with React integration, ScrollTrigger, timelines, and advanced patterns for cinematic web experiences.

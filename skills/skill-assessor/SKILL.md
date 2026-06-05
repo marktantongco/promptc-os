@@ -1,3 +1,16 @@
+---
+name: skill-assessor
+description: >
+  Assess and measure skill performance, coverage, and quality metrics. Use
+  when: evaluating skill effectiveness, measuring skill coverage gaps,
+  profiling skill performance, or conducting skill audits. Triggers: assess
+  skill, skill performance, skill quality, skill audit, skill metrics.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
+license: MIT
+---
+
 # skill-assessor
 
 Evaluate users on prompt engineering and Gen-Z UI skills with brutal, actionable feedback.

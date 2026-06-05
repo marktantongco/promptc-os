@@ -1,3 +1,18 @@
+---
+name: playwright-cli
+description: >
+  Headless browser automation for testing, scraping, and interaction using the
+  agent-browser CLI tool. Navigate, click, type, snapshot, and screenshot pages
+  via structured commands. Use when: automating browser tasks, web scraping,
+  testing web pages, browser interaction, taking screenshots programmatically.
+  Triggers: browser automation, playwright, agent-browser, headless browser,
+  web scraping.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
+license: MIT
+---
+
 # Playwright CLI — Browser Automation Skill
 
 Headless browser automation for testing, scraping, and interaction using the `agent-browser` CLI tool.

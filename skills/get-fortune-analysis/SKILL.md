@@ -1,7 +1,16 @@
 ---
 name: get-fortune-analysis
-description: 生成视觉华丽、内容详实、具有仪式感的流年运势报告（流金星象风格）。
+description: >
+  Generate visually stunning, detailed, and ceremonial annual fortune reports
+  with constellation aesthetic styling. Use when: creating fortune reports,
+  zodiac analysis, annual predictions. Triggers: fortune, zodiac, annual
+  forecast, horoscope.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
+license: MIT
 ---
+
 # Skill Name: get-fortune-analysis
 # Version: 4.1.0
 # Description: 生成视觉华丽、内容详实、具有仪式感的流年运势报告（流金星象风格）。

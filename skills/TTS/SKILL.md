@@ -1,6 +1,14 @@
 ---
-name: TTS
-description: Implement text-to-speech (TTS) capabilities using the z-ai-web-dev-sdk. Use this skill when the user needs to convert text into natural-sounding speech, create audio content, build voice-enabled applications, or generate spoken audio files. Supports multiple voices, adjustable speed, and various audio formats.
+name: tts
+description: >
+  Implement text-to-speech (TTS) capabilities using the z-ai-web-dev-sdk. Use
+  when: converting text into natural-sounding speech, creating audio content,
+  building voice-enabled applications, generating spoken audio files. Supports
+  multiple voices, adjustable speed, and various audio formats. Triggers: TTS,
+  text to speech, voice generation, audio synthesis, speech synthesis.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
 license: MIT
 ---
 

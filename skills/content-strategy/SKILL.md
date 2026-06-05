@@ -1,6 +1,17 @@
 ---
 name: content-strategy
-description: Build and execute a content marketing strategy for a solopreneur business. Use when planning what content to create, deciding on content formats and channels, building a content calendar, measuring content performance, or systematizing content production. Covers audience research for content, content pillars, distribution strategy, repurposing workflows, and metrics. Trigger on "content strategy", "content marketing", "what content should I create", "content plan", "content calendar", "content ideas", "content distribution", "grow through content".
+description: >
+  Build and execute a content marketing strategy for solopreneur businesses.
+  Covers audience research, content pillars, distribution strategy, repurposing
+  workflows, and performance metrics. Use when: planning what content to
+  create, deciding on content formats and channels, building a content
+  calendar, measuring content performance. Triggers: content strategy, content
+  marketing, content plan, content calendar, content ideas, content
+  distribution.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
+license: MIT
 ---
 
 # Content Strategy

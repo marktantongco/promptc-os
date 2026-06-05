@@ -1,12 +1,17 @@
 ---
-name: promptc OS
-description: "AI Prompt Engineering Operating System — 6-zone workspace with 47+ modifiers, 21 workflows, 66 skills, Zod-validated state, MCP server, basket system, and monetize strategies."
-version: 4.0.0
-category: Prompt Engineering
-tags: [prompt-engineering, ai, llm, chatgpt, claude, gemini, modifiers, templates, workflows, mcp]
-homepage: https://marktantongco.github.io/promptc-os/
-repository: https://github.com/marktantongco/promptc-os
-mcpEndpoint: https://promptc-os.vercel.app/api/mcp
+name: promptc
+description: >
+  AI Prompt Engineering Operating System with 6-zone workspace, 47+ modifiers,
+  21 workflows, 66 skills, Zod-validated state, MCP server, basket system, and
+  monetize strategies. Use when: building or extending promptc OS, adding
+  modifiers/templates/workflows, integrating AI prompt analysis, creating brand
+  identity systems, querying the prompt library via MCP, validating state with
+  Zod schemas. Triggers: promptc, prompt engineering, modifier, template,
+  workflow, MCP, basket, compose.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
+license: MIT
 ---
 
 # promptc OS — AI Prompt Engineering Operating System

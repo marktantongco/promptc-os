@@ -1,6 +1,14 @@
 ---
 name: gift-evaluator
-description: The PRIMARY tool for Spring Festival gift analysis and social interaction generation. Use this skill when users upload photos of gifts (alcohol, tea, supplements, etc.) to inquire about their value, authenticity, or how to respond socially. Integrates visual perception, market valuation, and HTML card generation.
+description: >
+  Spring Festival gift analysis and social interaction generation. Use when:
+  users upload photos of gifts to inquire about value, authenticity, or how to
+  respond socially. Integrates visual perception, market valuation, and HTML
+  card generation. Triggers: gift value, gift analysis, social etiquette, gift
+  authenticity.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
 license: Internal Tool
 ---
 

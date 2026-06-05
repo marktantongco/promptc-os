@@ -20,7 +20,7 @@ If I ask you to do X:
 
 1. **Do it manually first** (3–10 real examples only — no skill file yet)
 2. **Show me the output.** Ask: "Does this look right?"
-3. **If I approve** → write the SKILL.md in `/home/z/my-project/skills/`
+3. **If I approve** → write the SKILL.md in `skills/<name>/SKILL.md`
 4. **If it repeats on a schedule** → set up a cron job
 
 *The test: If I have to ask for the same thing twice — you failed.
@@ -30,12 +30,83 @@ First ask = discovery. Second ask = it should already be a skill on a cron.*
 
 ## BEFORE CREATING ANY SKILL — CHECK FIRST
 
-Search `/home/z/my-project/skills/` for an existing skill that covers this.
+Search `skills/` for an existing skill that covers this.
 
 - If one exists → **extend it.** Do not duplicate.
 - If none exists → **create a new one.**
 
 *Every skill must be MECE: One type of work. One owner skill. Zero overlap. Zero gaps.*
+
+---
+
+## SKILL FORMAT (skills.sh Standard)
+
+Every skill MUST follow the **skills.sh open agent skills ecosystem** standard.
+Skills are directories containing a `SKILL.md` file with YAML frontmatter.
+
+### Required SKILL.md Structure
+
+```markdown
+---
+name: <kebab-case-directory-name>
+description: >
+  What this skill does and when to use it. Include trigger phrases
+  and keywords for auto-loading. First sentence: what the skill does.
+  Following sentences: when to use it, keywords, trigger phrases.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
+license: MIT
+---
+
+# Skill Name
+
+## When to Use
+<Trigger conditions and keywords for auto-activation>
+
+## Instructions
+<Step-by-step workflow from input to output>
+
+## Constraints
+<Hard rules — what this skill must never do>
+
+## Examples
+<1–2 samples of ideal output>
+```
+
+### Required Frontmatter Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | **Yes** | Unique kebab-case identifier matching directory name |
+| `description` | **Yes** | What skill does + when to use it + trigger phrases |
+| `metadata.author` | **Yes** | Author of the skill |
+| `metadata.version` | **Yes** | Semantic version string |
+| `license` | **Yes** | License identifier (MIT, Proprietary, etc.) |
+| `metadata.internal` | No | Set `true` to hide from normal discovery |
+
+### Installation (skills.sh CLI)
+
+```bash
+# Install a specific skill from this repo
+npx skills add marktantongco/promptc-os --skill <skill-name>
+
+# Install all skills from this repo
+npx skills add marktantongco/promptc-os
+
+# List available skills
+npx skills add marktantongco/promptc-os --list
+
+# Install globally
+npx skills add marktantongco/promptc-os --skill <name> -g
+```
+
+### Skill Discovery Locations
+
+The `npx skills add` CLI discovers skills in these directories:
+- `skills/` (primary — where all 69 skills live)
+- `.claude/skills/` (Claude Code compatibility)
+- `.agents/skills/` (Codex/OpenAI compatibility)
 
 ---
 
@@ -46,11 +117,11 @@ Follow every step. No skipping.
 1. **CONCEPT** — Describe the process in plain language. What triggers it? What does it do? What does done look like?
 2. **PROTOTYPE** — Run it on 3–10 real items. No skill file yet. Show me the output.
 3. **EVALUATE** — Wait for my approval. Revise until it's right.
-4. **CODIFY** — Write the SKILL.md file with these four sections:
-   - `context`: what this skill is for and when to use it
-   - `instructions`: step-by-step workflow from input to output
-   - `constraints`: hard rules — what this skill must never do
-   - `examples`: 1–2 samples of ideal output
+4. **CODIFY** — Write the SKILL.md file with YAML frontmatter + these sections:
+   - `When to Use`: trigger conditions and keywords
+   - `Instructions`: step-by-step workflow from input to output
+   - `Constraints`: hard rules — what this skill must never do
+   - `Examples`: 1–2 samples of ideal output
 5. **CRON** — If this repeats → schedule it. Do not wait for me to ask.
 6. **MONITOR** — Check the first 3 automated runs. Flag anything off. Iterate.
 
@@ -74,7 +145,7 @@ When I say "can you do X" — the conversation is not done until:
 
 - [x] X has been prototyped
 - [x] X has been approved by me
-- [x] X exists as a SKILL.md in `/home/z/my-project/skills/`
+- [x] X exists as a SKILL.md in `skills/<name>/SKILL.md`
 - [x] X is on a cron (if recurring)
 
 A conversation that ends with X only being done once is an incomplete conversation.
@@ -96,49 +167,33 @@ Your job is to make yourself unnecessary — one skill at a time.*
 
 | Concept | Path |
 |---------|------|
-| Skills directory | `/home/z/my-project/skills/` |
-| Skills registry | `/home/z/my-project/skills.md` |
+| Skills directory | `skills/` |
+| Skills registry (skills.sh) | `skills.sh.json` |
+| Skills manifest | `skills-manifest.json` |
 | Worklog | `/home/z/my-project/worklog.md` |
 | Downloads | `/home/z/my-project/download/` |
-| Web app | `/home/z/my-project/src/app/` |
-| Skill creator | Invoke `skill-creator` skill |
-| Skill finder | Invoke `skill-finder` skill |
-| Skill assessor | Invoke `skill-assessor` skill |
-| Cron jobs | Use the `cron` tool |
+| Web app | `src/app/` |
+| Claude skills mirror | `.claude/skills/` |
+| Agent skills mirror | `.agents/skills/` |
+| Skill creator | `npx skills add marktantongco/promptc-os --skill skill-creator` |
+| Skill finder | `npx skills add marktantongco/promptc-os --skill skill-finder` |
+| Skill assessor | `npx skills add marktantongco/promptc-os --skill skill-assessor` |
 
-### Installed Skills: 66 across 13 categories
-See `/home/z/my-project/skills.md` for the complete registry.
-Key categories: AI/LLM Core (9), Web Search (7), Document Generation (5), Prompt Engineering (4), Skill Management (5), Web Development (5), Animation (3), Content/Marketing (6), Business/Research (7), Agent Frameworks (4), Analysis (5), Data Viz (1), Utilities (6)
+### Installed Skills: 69 across 15 categories
 
----
+See `skills.sh.json` for the complete grouped registry.
+See https://skills.sh/marktantongco/promptc-os for the public directory.
 
-## SKILL FORMAT
-
-Every SKILL.md must have:
-
-```markdown
-# [Skill Name] - [One-line description]
-
-## Context
-What this skill is for and when to use it.
-
-## Instructions
-Step-by-step workflow from input to output.
-
-## Constraints
-Hard rules — what this skill must never do.
-
-## Examples
-1–2 samples of ideal output.
-```
+Key categories: AI & Media Processing (15), Document Generation (5), Charts & Visualization (3), Prompt Engineering (4), Web Development (8), Animation & Motion (6), Content & Marketing (10), Business & Research (7), Agent Frameworks (9), Skill Management (5), Analysis & Thinking (6), Browser & Scraping (9), Cloud & Infrastructure (7), Lifestyle & Creativity (6), Search & Discovery (4)
 
 ---
 
 ## PROJECT: promptc OS — AI Prompt Engineering Operating System
 
 ### Architecture
-- **Framework**: Next.js 15+ (App Router) + TypeScript + Tailwind CSS 4 + shadcn/ui
+- **Framework**: Next.js 16+ (App Router) + TypeScript + Tailwind CSS 4 + shadcn/ui
 - **AI Backend**: `z-ai-web-dev-sdk` (server-side only via API routes)
+- **Data Integrity**: Zod schema validation + `usePersistedReducer` (debounced batch localStorage)
 - **Design**: Dark-mode native, zone-colored accent system, Framer Motion animations
 
 ### 6 Zones
@@ -162,9 +217,9 @@ Typography: DM Sans (body), Bebas Neue (display), DM Mono (code)
 ```
 
 ### Build Commands
-- `bun run dev` — Development server (port 3000)
-- `bun run lint` — ESLint check
-- `bun run build` — Production build
+- `npm run dev` — Development server (port 3000)
+- `npm run lint` — ESLint check
+- `npm run build` — Production build
 
 ### Key Data Constants (from promptc-os)
 - `MASTER` — 10-rule system prompt with advocacy mode
@@ -192,9 +247,11 @@ Typography: DM Sans (body), Bebas Neue (display), DM Mono (code)
 
 | Platform | URL | Purpose |
 |----------|-----|---------|
-| GitHub | https://github.com/marktantongco | Code repositories |
-| GitHub Pages | https://marktantongco.github.io | Static sites |
-| Vercel | https://vercel.com | App deployments |
+| GitHub | https://github.com/marktantongco/promptc-os | Code repository |
+| GitHub Pages | https://marktantongco.github.io/promptc-os/ | Static site |
+| Vercel | https://promptc-os.vercel.app/ | App deployment |
+| npm | https://www.npmjs.com/package/use-validated-reducer | Published package |
+| skills.sh | https://skills.sh/marktantongco/promptc-os | Skills directory |
 
 ---
 

@@ -1,3 +1,18 @@
+---
+name: context-compressor
+description: >
+  Compress and prioritize conversation context when it has grown long, noisy,
+  or repetitive. Use when: conversation exceeds manageable length, switching
+  topics while preserving prior decisions, preparing context for another agent
+  or tool, working within token-limited environments, user asks for a summary
+  of what was discussed. Triggers: compress context, summarize conversation,
+  too long, context window, token limit.
+metadata:
+  author: Z.AI
+  version: "1.0.0"
+license: MIT
+---
+
 # Context Compressor
 
 ## Context
