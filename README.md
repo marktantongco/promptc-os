@@ -8,6 +8,7 @@
 [![Zod](https://img.shields.io/badge/Zod-validated-purple)](https://zod.dev)
 [![WCAG AA](https://img.shields.io/badge/WCAG-AA-green)](https://www.w3.org/WAI/WCAG21/quickref/)
 [![PWA](https://img.shields.io/badge/PWA-ready-orange)](https://web.dev/progressive-web-apps/)
+[![MCP](https://img.shields.io/badge/MCP-14%20tools-blueviolet)](https://promptc-os.vercel.app/api/mcp)
 [![Tests](https://img.shields.io/badge/tests-25%20passing-success)](src/lib/stateSchema.test.ts)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](https://opensource.org/licenses/MIT)
 
@@ -18,6 +19,7 @@
 | 📦 | **Repository:** [github.com/marktantongco/promptc-os](https://github.com/marktantongco/promptc-os) |
 | 📋 | **npm Package:** [use-validated-reducer](https://github.com/marktantongco/promptc-os/tree/main/packages/use-validated-reducer) |
 | 📊 | **Skills Manifest:** [skills-manifest.json](https://github.com/marktantongco/promptc-os/blob/main/skills-manifest.json) |
+| 🔌 | **MCP Server:** [promptc-os.vercel.app/api/mcp](https://promptc-os.vercel.app/api/mcp) |
 
 ---
 
@@ -113,9 +115,9 @@ Only changed keys written to localStorage
 | Component | Status | Purpose |
 |-----------|--------|---------|
 | **`skills-manifest.json`** | ✅ Done | 66 skills registered for skills.sh discovery — 13 categories, trigger keywords, file counts |
-| **MCP server** | 📐 Design documented | Exposing search/basket/compose as tools for AI agents via Model Context Protocol |
+| **MCP server** | ✅ Implemented | 14 tools exposed via JSON-RPC 2.0 at `/api/mcp` — search, skills, modifiers, templates, brands, animals, zones, basket CRUD, compose, analyze, system_prompt |
 | **`use-validated-reducer`** | ✅ Built & tested | npm package extraction of `usePersistedReducer` hook — generic React hook for Zod-validated persisted state (8/8 tests passing, dual CJS/ESM) |
-| **Platform API** | 🔜 Planned | REST/MCP endpoints for programmatic access to the prompt library |
+| **Platform API** | ✅ Done | MCP endpoint at `/api/mcp` (Vercel) — full JSON-RPC 2.0 server with 14 tools |
 
 ---
 
@@ -444,7 +446,8 @@ promptc-os/
 │   │   ├── api/
 │   │   │   ├── route.ts          # Health check endpoint
 │   │   │   ├── generate/route.ts # Prompt generation API
-│   │   │   └── analyze/route.ts  # Prompt analysis API
+│   │   │   ├── analyze/route.ts  # Prompt analysis API
+│   │   │   └── mcp/route.ts      # v4.0: MCP server (14 tools, JSON-RPC 2.0)
 │   │   └── data/
 │   │       ├── promptc-data.ts   # Core data layer (1,337 lines) — 22 exports
 │   │       └── skills-catalog.ts # Skills registry (162 lines) — 66 skills, 13 categories
@@ -488,7 +491,7 @@ promptc-os/
 
 | Version | Changes |
 |---------|---------|
-| **v4.0** | **The Three Promotions** — C-1 Triage: `safeIncludes()` null-safe search, BasketItem validation gate, localStorage load filter, 7 hardened filter chains. Beaver: `stateSchema.ts` Zod validators, `usePersistedReducer` hook (replaces 35+ useEffect writers), `appReducer` with 20 typed actions + BATCH_UPDATE, `loadPersistedState()` with boundary validation, 25 property-based tests (1,000+ random inputs). Eagle: `skills-manifest.json` (66 skills), MCP server design, `use-validated-reducer` npm extraction documented |
+| **v4.0** | **The Three Promotions** — C-1 Triage: `safeIncludes()` null-safe search, BasketItem validation gate, localStorage load filter, 7 hardened filter chains. Beaver: `stateSchema.ts` Zod validators, `usePersistedReducer` hook (replaces 35+ useEffect writers), `appReducer` with 20 typed actions + BATCH_UPDATE, `loadPersistedState()` with boundary validation, 25 property-based tests (1,000+ random inputs). Eagle: `skills-manifest.json` (66 skills), MCP server implemented (14 tools, JSON-RPC 2.0 at `/api/mcp`), `use-validated-reducer` npm package (built & tested, 8/8 tests), SKILL.md for skills.sh registration |
 | **v3.9** | WCAG AA accessibility overhaul (contrast, aria-labels, focus-visible, touch targets), mobile-first 375px design, interaction state spec (80ms press, 150ms hover), error handling system (retry → notify → log → halt), Meta Builder fully local, PWA support, Wordswap redesign |
 | **v3.8** | PWA manifest + service worker + icons, mobile right space fix, bottom buttons always visible, Meta Builder local restructuring |
 | **v3.7** | Modifier +Add to Basket, Prompt Chaining Format, Meta Builder API fix, Clipboard History shortcut |
@@ -514,34 +517,82 @@ These principles guide every decision in the promptc OS codebase. They are non-n
 
 ---
 
-## MCP Server Roadmap
+## MCP Server
 
-The Eagle phase includes exposing promptc OS as a Model Context Protocol (MCP) server, making the prompt library, basket, and composer available as tools for AI agents like Claude, GPT, and others.
+promptc OS v4.0 implements a Model Context Protocol (MCP) server at `/api/mcp`, making the prompt library, basket, and composer available as tools for AI agents like Claude, GPT, and others. The server implements JSON-RPC 2.0 over HTTP POST (StreamableHTTP transport).
 
-### Planned MCP Tools
+**Endpoint:** `https://promptc-os.vercel.app/api/mcp`
+
+### MCP Tools (14 implemented)
 
 | Tool | Description | Status |
 |------|-------------|--------|
-| `search_prompts` | Search across all zones — modifiers, templates, tasks, workflows, brands, animals | 📐 Design documented |
-| `basket_add` | Add a prompt to the collection basket | 📐 Design documented |
-| `basket_list` | List all items in the collection basket | 📐 Design documented |
-| `basket_remove` | Remove an item from the collection basket | 📐 Design documented |
-| `compose_prompt` | Run the 8-layer Composer to build a structured prompt | 📐 Design documented |
-| `validate_prompt` | Run lint rules and quality scoring on a prompt | 🔜 Planned |
-| `get_workflow` | Retrieve a complete workflow with all steps | 🔜 Planned |
+| `search` | Search across all content — modifiers, templates, tasks, workflows, brands, animals, skills | ✅ Implemented |
+| `skills_list` | List 66 skills with optional category filter | ✅ Implemented |
+| `skills_get` | Get detailed skill info by name | ✅ Implemented |
+| `modifiers_list` | List 47 modifiers with optional category filter | ✅ Implemented |
+| `templates_list` | List all prompt templates | ✅ Implemented |
+| `brands_list` | List 6 brand design systems | ✅ Implemented |
+| `animals_list` | List 7 thinking mode animals | ✅ Implemented |
+| `zones_list` | List 6 workspace zones | ✅ Implemented |
+| `basket_add` | Add item to basket (Zod-validated via basketItemSchema) | ✅ Implemented |
+| `basket_remove` | Remove item from basket by id | ✅ Implemented |
+| `basket_list` | List basket items with zone filter + 5 sort modes | ✅ Implemented |
+| `compose` | Compose structured prompt from 8 layers (Role → Context → Objective → Constraints → Aesthetic → Planning → Output → Refinement) | ✅ Implemented |
+| `analyze` | Score prompt on 4 dimensions (clarity, specificity, structure, actionability) using AI | ✅ Implemented |
+| `system_prompt` | Get the master system prompt | ✅ Implemented |
 
 ### MCP Architecture
 
 ```
 AI Agent (Claude, GPT, etc.)
-    ↓ MCP Protocol (JSON-RPC over stdio/SSE)
-promptc OS MCP Server
+    ↓ MCP Protocol (JSON-RPC 2.0 over HTTP POST)
+promptc OS MCP Server (/api/mcp)
     ↓
-├── Search Engine → safeIncludes() filter chain
-├── Basket Manager → basketItemSchema validation
+├── Search Engine → safeIncludes() null-safe filter chain
+├── Skills Registry → SKILLS_CATALOG with 66 skills
+├── Modifiers/Templates/Tasks → promptc-data.ts (1,337 lines)
+├── Basket Manager → basketItemSchema Zod validation
 ├── Composer → 8-layer prompt builder
-└── Validator → Lint rules + Quality Score
+└── Analyzer → z-ai-web-dev-sdk AI scoring
 ```
+
+### Calling the MCP Server
+
+```bash
+# Initialize connection
+curl -X POST https://promptc-os.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"my-agent","version":"1.0"}}}'
+
+# Search for role modifiers
+curl -X POST https://promptc-os.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"search","arguments":{"query":"role","category":"Role"}}}'
+
+# Compose a structured prompt
+curl -X POST https://promptc-os.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"compose","arguments":{"role":"senior developer","objective":"Build a responsive dashboard"}}}'
+
+# Analyze a prompt
+curl -X POST https://promptc-os.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"analyze","arguments":{"prompt":"Make a nice website for my business"}}}'
+
+# Discovery endpoint (GET)
+curl https://promptc-os.vercel.app/api/mcp
+```
+
+### JSON-RPC Methods
+
+| Method | Description |
+|--------|-------------|
+| `initialize` | Handshake — returns server capabilities and protocol version |
+| `notifications/initialized` | Client acknowledgment (returns 204) |
+| `tools/list` | Returns all 14 tool definitions with input schemas |
+| `tools/call` | Execute a tool by name with arguments |
+| `ping` | Health check |
 
 ### npm Package: `use-validated-reducer`
 
