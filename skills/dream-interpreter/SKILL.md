@@ -1,14 +1,6 @@
 ---
 name: dream-interpreter
-description: >
-  AI dream interpreter that asks for key details and generates interpretations
-  from multiple perspectives. Outputs structured JSON for frontend rendering as
-  dream analysis cards. Use when: interpreting dreams, dream analysis, dream
-  meaning. Triggers: dream, dream interpretation, dream analysis.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
+description: AI 解梦大师。用户描述梦境，智能追问关键细节后，从三个视角（周公解梦/心理分析/赛博神棍）生成解读，输出结构化 JSON 供前端渲染"梦境解析卡"。
 ---
 
 # dream-interpreter

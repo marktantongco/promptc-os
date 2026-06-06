@@ -1,14 +1,6 @@
 ---
-name: llm
-description: >
-  Implement large language model (LLM) chat completions using the
-  z-ai-web-dev-sdk. Use when: building conversational AI applications,
-  chatbots, AI assistants, or any text generation features. Supports multi-turn
-  conversations, system prompts, and context management. Triggers: LLM, chat
-  completion, chatbot, AI assistant, text generation, GPT, conversation.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
+name: LLM
+description: Implement large language model (LLM) chat completions using the z-ai-web-dev-sdk. Use this skill when the user needs to build conversational AI applications, chatbots, AI assistants, or any text generation features. Supports multi-turn conversations, system prompts, and context management.
 license: MIT
 ---
 

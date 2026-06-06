@@ -1,15 +1,6 @@
 ---
-name: multi-search-engine
-description: >
-  Multi search engine integration with 8 domestic (CN) search engines. Supports
-  advanced search operators, time filters, site search, and WeChat article
-  search. No API keys required. Use when: searching across multiple Chinese
-  search engines, advanced search queries, WeChat article discovery. Triggers:
-  multi search, Chinese search, Baidu, Sogou, WeChat search, search engines.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
+name: "multi-search-engine"
+description: "Multi search engine integration with 8 domestic (CN) search engines. Supports advanced search operators, time filters, site search, and WeChat article search. No API keys required."
 ---
 
 # Multi Search Engine v2.0.1

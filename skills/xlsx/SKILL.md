@@ -1,14 +1,9 @@
 ---
 name: xlsx
-description: >
-  Comprehensive spreadsheet creation, editing, and analysis for .xlsx, .xlsm,
-  .csv, and .tsv files. Use when: opening, reading, editing, or fixing
-  spreadsheets, creating new spreadsheets, analyzing data with Excel output,
-  converting between tabular formats, cleaning/merging/pivoting data. Triggers:
-  xlsx, Excel, spreadsheet, CSV, data table, report, data analysis, workbook.
 metadata:
   author: Z.AI
-  version: "1.0.0"
+  version: "1.0"
+description: "Use this skill any time a spreadsheet file is the primary input or output. This means any task where the user wants to: open, read, edit, or fix an existing .xlsx, .xlsm, .csv, or .tsv file; create a new spreadsheet from scratch or from other data sources; analyze data and output results as an Excel file with charts; convert between tabular file formats (CSV/JSON/PDF → XLSX or vice versa); clean, merge, pivot, or transform tabular data. Trigger especially when the user references a spreadsheet file by name or path, says 'make a table/report/model', mentions Excel/CSV/数据分析/报表/汇总, or wants data visualization inside a spreadsheet."
 license: Proprietary. LICENSE.txt has complete terms
 ---
 

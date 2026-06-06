@@ -1,16 +1,6 @@
 ---
-name: contentanalysis
-description: >
-  Content extraction and analysis with wisdom extraction from videos, podcasts,
-  articles, and YouTube. Use when: extracting wisdom from content, analyzing
-  media, generating insight reports, extracting key takeaways, summarizing
-  video or podcast content. Triggers: extract wisdom, content analysis, analyze
-  content, insight report, analyze video, analyze podcast, extract insights,
-  key takeaways.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
+name: ContentAnalysis
+description: Content extraction and analysis — wisdom extraction from videos, podcasts, articles, and YouTube. USE WHEN extract wisdom, content analysis, analyze content, insight report, analyze video, analyze podcast, extract insights, key takeaways, what did I miss, extract from YouTube.
 ---
 
 # ContentAnalysis

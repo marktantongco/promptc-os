@@ -1,14 +1,6 @@
 ---
 name: skill-vetter
-description: >
-  Security-first skill vetting for AI agents. Use before installing any skill
-  from ClawdHub, GitHub, or other sources. Checks for red flags, permission
-  scope, and suspicious patterns. Triggers: vet skill, security check, skill
-  safety, check skill, audit skill, validate skill.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
+description: Security-first skill vetting for AI agents. Use before installing any skill from ClawdHub, GitHub, or other sources. Checks for red flags, permission scope, and suspicious patterns.
 ---
 
 # Skill Vetter 🔒

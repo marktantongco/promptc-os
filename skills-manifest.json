@@ -1,638 +1,552 @@
 {
   "name": "promptc-os",
-  "version": "5.0.0",
-  "description": "AI Prompt Engineering Operating System \u2014 6-zone workspace with 47+ modifiers, 21 workflows, 69 skills (skills.sh standard), data integrity layer, MCP server",
-  "repository": "https://github.com/marktantongco/promptc-os",
+  "version": "4.0.0",
+  "description": "AI Prompt Engineering Operating System — 6-zone workspace with 47+ modifiers, 21 workflows, 66 skills, and data integrity layer",
   "homepage": "https://marktantongco.github.io/promptc-os/",
-  "skillsShUrl": "https://skills.sh/marktantongco/promptc-os",
-  "install": "npx skills add marktantongco/promptc-os",
-  "totalSkills": 69,
-  "totalCategories": 15,
-  "protocol": "MCP",
-  "protocolVersion": "2025-03-26",
-  "transport": "StreamableHTTP",
-  "mcpEndpoint": "https://promptc-os.vercel.app/api/mcp",
+  "repository": "https://github.com/marktantongco/promptc-os",
+  "license": "MIT",
+  "categories": [
+    {
+      "name": "AI / LLM Core",
+      "icon": "\ud83e\udde0",
+      "color": "#a78bfa",
+      "skills": ["LLM", "VLM", "ASR", "TTS", "image-generation", "image-edit", "image-understand", "video-generation", "video-understand"]
+    },
+    {
+      "name": "Web Search & Content",
+      "icon": "\ud83d\udd0d",
+      "color": "#38bdf8",
+      "skills": ["web-search", "web-reader", "agent-browser", "multi-search-engine", "contentanalysis", "ai-news-collectors", "qingyan-research", "finance"]
+    },
+    {
+      "name": "Document Generation",
+      "icon": "\ud83d\udcc4",
+      "color": "#f97316",
+      "skills": ["docx", "pdf", "xlsx", "ppt", "pptx"]
+    },
+    {
+      "name": "Prompt Engineering",
+      "icon": "\ud83d\udca1",
+      "color": "#eab308",
+      "skills": ["promptc", "chain-of-thought", "socratic-method", "explained-code"]
+    },
+    {
+      "name": "Skill Management",
+      "icon": "\u2699\ufe0f",
+      "color": "#6B7280",
+      "skills": ["skill-creator", "skill-finder", "skill-finder-cn", "skill-assessor", "skill-vetter"]
+    },
+    {
+      "name": "Web Development",
+      "icon": "\ud83d\udcbb",
+      "color": "#22c55e",
+      "skills": ["fullstack-dev", "coding-agent", "ui-ux-pro-max", "visual-design-foundations", "web-artifacts-builder"]
+    },
+    {
+      "name": "Animation & Visual",
+      "icon": "\u2728",
+      "color": "#ec4899",
+      "skills": ["gsap-animations", "ai-visual-synthesis", "photography-ai"]
+    },
+    {
+      "name": "Content & Marketing",
+      "icon": "\ud83d\udce2",
+      "color": "#f43f5e",
+      "skills": ["blog-writer", "seo-content-writer", "content-strategy", "marketing-mode", "social-content-pillars", "podcast-generate"]
+    },
+    {
+      "name": "Business & Research",
+      "icon": "\ud83d\udcca",
+      "color": "#3b82f6",
+      "skills": ["market-research-reports", "jtbd-research", "interview-designer", "storyboard-manager", "stock-analysis-skill", "gumroad-pipeline", "get-fortune-analysis"]
+    },
+    {
+      "name": "Agent Frameworks",
+      "icon": "\ud83e\udd16",
+      "color": "#06b6d4",
+      "skills": ["mcp-builder", "deployment-manager", "simulation-sandbox", "output-formatter"]
+    },
+    {
+      "name": "Analysis & Thinking",
+      "icon": "\ud83e\udde9",
+      "color": "#d946ef",
+      "skills": ["context-compressor", "devils-advocate", "auto-target-tracker", "gift-evaluator", "dream-interpreter"]
+    },
+    {
+      "name": "Data Visualization",
+      "icon": "\ud83d\udcc8",
+      "color": "#10b981",
+      "skills": ["charts"]
+    },
+    {
+      "name": "Utilities",
+      "icon": "\ud83d\udd27",
+      "color": "#78716c",
+      "skills": ["writing-plans", "mindfulness-meditation", "aminer-open-academic", "web-shader-extractor"]
+    }
+  ],
   "skills": [
     {
-      "name": "asr",
-      "directory": "ASR",
-      "description": "Implement speech-to-text (ASR/automatic speech recognition) capabilities using the z-ai-web-dev-sdk. Use when: transcribing audio files, converting speech to text, building voice input features, proce...",
-      "version": "1.0.0",
-      "license": "MIT",
+      "name": "LLM",
+      "category": "AI / LLM Core",
+      "description": "LLM chat completions via z-ai-web-dev-sdk",
       "files": 3,
-      "install": "npx skills add marktantongco/promptc-os --skill asr"
+      "triggers": ["chat completion", "LLM", "language model", "AI chat", "generate text", "chatbot", "conversation"]
     },
     {
-      "name": "llm",
-      "directory": "LLM",
-      "description": "Implement large language model (LLM) chat completions using the z-ai-web-dev-sdk. Use when: building conversational AI applications, chatbots, AI assistants, or any text generation features. Supports ...",
-      "version": "1.0.0",
-      "license": "MIT",
+      "name": "VLM",
+      "category": "AI / LLM Core",
+      "description": "Vision-based AI chat — image understanding",
       "files": 3,
-      "install": "npx skills add marktantongco/promptc-os --skill llm"
+      "triggers": ["vision model", "image chat", "visual AI", "analyze image", "image understanding", "VLM", "multimodal"]
     },
     {
-      "name": "tts",
-      "directory": "TTS",
-      "description": "Implement text-to-speech (TTS) capabilities using the z-ai-web-dev-sdk. Use when: converting text into natural-sounding speech, creating audio content, building voice-enabled applications, generating ...",
-      "version": "1.0.0",
-      "license": "MIT",
+      "name": "ASR",
+      "category": "AI / LLM Core",
+      "description": "Speech-to-text transcription",
       "files": 3,
-      "install": "npx skills add marktantongco/promptc-os --skill tts"
+      "triggers": ["speech to text", "transcribe", "ASR", "audio transcription", "voice recognition", "transcribe audio", "dictation"]
     },
     {
-      "name": "vlm",
-      "directory": "VLM",
-      "description": "Implement vision-based AI chat capabilities using the z-ai-web-dev-sdk. Use when: analyzing images, describing visual content, creating applications combining image understanding with conversational A...",
-      "version": "1.0.0",
-      "license": "MIT",
+      "name": "TTS",
+      "category": "AI / LLM Core",
+      "description": "Text-to-speech — multiple voices, adjustable speed",
       "files": 3,
-      "install": "npx skills add marktantongco/promptc-os --skill vlm"
-    },
-    {
-      "name": "agent-browser",
-      "directory": "agent-browser",
-      "description": "Fast Rust-based headless browser automation CLI with Node.js fallback that enables AI agents to navigate, click, type, and snapshot pages via structured commands. Use when: automating browser tasks, w...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill agent-browser"
-    },
-    {
-      "name": "ai-news-collectors",
-      "directory": "ai-news-collectors",
-      "description": "AI news aggregation and trending topics tool. Collects and ranks AI industry news including product launches, research papers, industry trends, funding news, open-source updates, and viral community d...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 3,
-      "install": "npx skills add marktantongco/promptc-os --skill ai-news-collectors"
-    },
-    {
-      "name": "ai-visual-synthesis",
-      "directory": "ai-visual-synthesis",
-      "description": "Complete prompt engineering guide with 8-layer architecture, animal thinking modes, design vocabulary, typography combos, and quality checklists for AI visual generation. Use when: generating AI image...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill ai-visual-synthesis"
-    },
-    {
-      "name": "aminer-open-academic",
-      "directory": "aminer-open-academic",
-      "description": "Academic search and paper discovery through the AMiner platform. Find scholars, publications, citations, and research trends. Use when: searching for academic papers, finding researcher profiles, anal...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 5,
-      "install": "npx skills add marktantongco/promptc-os --skill aminer-open-academic"
-    },
-    {
-      "name": "auto-target-tracker",
-      "directory": "auto-target-tracker",
-      "description": "Automatic goal progress tracker that detects goal-related images in conversation and uses VLM to identify key information for goal journaling. Use when: tracking learning progress, fitness tracking, w...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill auto-target-tracker"
-    },
-    {
-      "name": "blog-writer",
-      "directory": "blog-writer",
-      "description": "Write blog posts, articles, and long-form content in a distinctive authentic, opinionated writing style. Handles the complete workflow from research review through publication. Use when: drafting blog...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 12,
-      "install": "npx skills add marktantongco/promptc-os --skill blog-writer"
-    },
-    {
-      "name": "chain-of-thought",
-      "directory": "chain-of-thought",
-      "description": "Structured step-by-step reasoning for complex problems. Activate when the user presents a multi-step mathematical, logical, or analytical problem, architecture or design decisions with many moving par...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill chain-of-thought"
-    },
-    {
-      "name": "charts",
-      "directory": "charts",
-      "description": "Professional chart and diagram creation covering data charts (bar, line, pie, scatter, heatmap, radar, candlestick, boxplot, histogram, area, waterfall), structural diagrams (flowcharts, mind maps, tr...",
-      "version": "1.0.0",
-      "license": "Proprietary. LICENSE.txt has complete terms",
-      "files": 12,
-      "install": "npx skills add marktantongco/promptc-os --skill charts"
-    },
-    {
-      "name": "coding-agent",
-      "directory": "coding-agent",
-      "description": "Coding workflow with planning, implementation, verification, and testing for clean software development. Use when: writing production code, implementing features with a structured workflow, code revie...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 8,
-      "install": "npx skills add marktantongco/promptc-os --skill coding-agent"
-    },
-    {
-      "name": "content-strategy",
-      "directory": "content-strategy",
-      "description": "Build and execute a content marketing strategy for solopreneur businesses. Covers audience research, content pillars, distribution strategy, repurposing workflows, and performance metrics. Use when: p...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 2,
-      "install": "npx skills add marktantongco/promptc-os --skill content-strategy"
-    },
-    {
-      "name": "contentanalysis",
-      "directory": "contentanalysis",
-      "description": "Content extraction and analysis with wisdom extraction from videos, podcasts, articles, and YouTube. Use when: extracting wisdom from content, analyzing media, generating insight reports, extracting k...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 3,
-      "install": "npx skills add marktantongco/promptc-os --skill contentanalysis"
-    },
-    {
-      "name": "context-compressor",
-      "directory": "context-compressor",
-      "description": "Compress and prioritize conversation context when it has grown long, noisy, or repetitive. Use when: conversation exceeds manageable length, switching topics while preserving prior decisions, preparin...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill context-compressor"
-    },
-    {
-      "name": "deployment-manager",
-      "directory": "deployment-manager",
-      "description": "Deploy projects to hosting platforms, configure CI/CD pipelines, manage environment variables, monitor deployment health, and execute rollbacks. Covers GitHub Pages, Vercel, and Netlify. Use when: dep...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill deployment-manager"
-    },
-    {
-      "name": "devils-advocate",
-      "directory": "devils-advocate",
-      "description": "Rigorous challenge and stress-testing of proposed plans, arguments, or decisions before finalization. Identifies logic flaws, missing evidence, and unconsidered alternatives. Use when: reviewing busin...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill devils-advocate"
-    },
-    {
-      "name": "docx",
-      "directory": "docx",
-      "description": "Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. Use when: creating new Word documents, modifying or edi...",
-      "version": "1.0.0",
-      "license": "Proprietary. LICENSE.txt has complete terms",
-      "files": 85,
-      "install": "npx skills add marktantongco/promptc-os --skill docx"
-    },
-    {
-      "name": "dream-interpreter",
-      "directory": "dream-interpreter",
-      "description": "AI dream interpreter that asks for key details and generates interpretations from multiple perspectives. Outputs structured JSON for frontend rendering as dream analysis cards. Use when: interpreting ...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 9,
-      "install": "npx skills add marktantongco/promptc-os --skill dream-interpreter"
-    },
-    {
-      "name": "explained-code",
-      "directory": "explained-code",
-      "description": "Transforms complex code into intuitive, step-by-step explanations using analogies, diagrams, and plain language. Designed for beginners and non-developers. Use when: a beginner asks what code does, ex...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill explained-code"
-    },
-    {
-      "name": "finance",
-      "directory": "finance",
-      "description": "Comprehensive Finance API integration for real-time and historical financial data analysis, market research, and investment decision-making. Use when: querying stock prices, analyzing market data, get...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 2,
-      "install": "npx skills add marktantongco/promptc-os --skill finance"
-    },
-    {
-      "name": "front-end-design",
-      "directory": "front-end-design",
-      "description": "Coding workflow with planning, implementation, verification, and testing for clean software development. Use when: building frontend features, implementing UI components, writing production code, code...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill front-end-design"
-    },
-    {
-      "name": "fullstack-dev",
-      "directory": "fullstack-dev",
-      "description": "Fullstack web development with Next.js 16, TypeScript, Tailwind CSS 4, shadcn/ui, Prisma ORM. Use when: building web apps, creating UI components, setting up database schemas, implementing API routes,...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill fullstack-dev"
-    },
-    {
-      "name": "get-fortune-analysis",
-      "directory": "get-fortune-analysis",
-      "description": "Generate visually stunning, detailed, and ceremonial annual fortune reports with constellation aesthetic styling. Use when: creating fortune reports, zodiac analysis, annual predictions. Triggers: for...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 2,
-      "install": "npx skills add marktantongco/promptc-os --skill get-fortune-analysis"
-    },
-    {
-      "name": "gift-evaluator",
-      "directory": "gift-evaluator",
-      "description": "Spring Festival gift analysis and social interaction generation. Use when: users upload photos of gifts to inquire about value, authenticity, or how to respond socially. Integrates visual perception, ...",
-      "version": "1.0.0",
-      "license": "Internal Tool",
-      "files": 2,
-      "install": "npx skills add marktantongco/promptc-os --skill gift-evaluator"
-    },
-    {
-      "name": "gsap-animations",
-      "directory": "gsap-animations",
-      "description": "Comprehensive GSAP animation engineering for React applications with ScrollTrigger, timeline choreography, micro-interaction systems, and cinematic motion design. Use when: building GSAP animations, s...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill gsap-animations"
-    },
-    {
-      "name": "gumroad-pipeline",
-      "directory": "gumroad-pipeline",
-      "description": "Full pipeline for creating, launching, and monetizing digital products on Gumroad \u2014 from product ideation through post-launch optimization, including email funnels, sales pages, and upsell sequences. ...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill gumroad-pipeline"
-    },
-    {
-      "name": "image-edit",
-      "directory": "image-edit",
-      "description": "Implement AI image editing and modification capabilities using the z-ai-web-dev-sdk. Use when: editing existing images, creating variations, modifying visual content, redesigning assets, or transformi...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 3,
-      "install": "npx skills add marktantongco/promptc-os --skill image-edit"
+      "triggers": ["text to speech", "TTS", "read aloud", "voice synthesis", "audio generation", "speak text", "narrate"]
     },
     {
       "name": "image-generation",
-      "directory": "image-generation",
-      "description": "Implement AI image generation capabilities using the z-ai-web-dev-sdk. Use when: creating images from text descriptions, generating visual content, creating artwork, designing assets, or building appl...",
-      "version": "1.0.0",
-      "license": "MIT",
+      "category": "AI / LLM Core",
+      "description": "AI image creation from text descriptions",
       "files": 3,
-      "install": "npx skills add marktantongco/promptc-os --skill image-generation"
+      "triggers": ["generate image", "create image", "AI art", "text to image", "image generation", "draw", "illustration"]
+    },
+    {
+      "name": "image-edit",
+      "category": "AI / LLM Core",
+      "description": "AI image modification and editing",
+      "files": 3,
+      "triggers": ["edit image", "modify image", "image editing", "retouch", "inpaint", "image manipulation", "change image"]
     },
     {
       "name": "image-understand",
-      "directory": "image-understand",
-      "description": "Implement specialized image understanding capabilities using the z-ai-web-dev-sdk. Use when: analyzing static images, extracting visual information, performing OCR, detecting objects, classifying imag...",
-      "version": "1.0.0",
-      "license": "MIT",
+      "category": "AI / LLM Core",
+      "description": "Image analysis, OCR, object detection",
       "files": 3,
-      "install": "npx skills add marktantongco/promptc-os --skill image-understand"
-    },
-    {
-      "name": "interview-designer",
-      "directory": "interview-designer",
-      "description": "Analyze resumes and design interview strategies using evidence-based methodology (Topgrading, performance-based hiring, bias control). Use when: preparing for interviews, creating structured interview...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 5,
-      "install": "npx skills add marktantongco/promptc-os --skill interview-designer"
-    },
-    {
-      "name": "jtbd-research",
-      "directory": "jtbd-research",
-      "description": "Structured Jobs to be Done (JTBD) product research methodology. Breaks down user needs into functional, emotional, and social components to find high-output solutions. Use when: starting product disco...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill jtbd-research"
-    },
-    {
-      "name": "market-research-reports",
-      "directory": "market-research-reports",
-      "description": "Generate comprehensive market research reports (50+ pages) in the style of top consulting firms (McKinsey, BCG, Gartner). Features professional formatting, extensive visual generation, deep research i...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 8,
-      "install": "npx skills add marktantongco/promptc-os --skill market-research-reports"
-    },
-    {
-      "name": "marketing-mode",
-      "directory": "marketing-mode",
-      "description": "Marketing Mode combines 23 comprehensive marketing skills covering strategy, psychology, content, SEO, conversion optimization, and paid growth. Use when: users need marketing strategy, copywriting, S...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 5,
-      "install": "npx skills add marktantongco/promptc-os --skill marketing-mode"
-    },
-    {
-      "name": "mcp-builder",
-      "directory": "mcp-builder",
-      "description": "Build Model Context Protocol (MCP) servers that expose tools, resources, and prompts for AI agents. Covers the full lifecycle from planning through evaluation. Use when: building an MCP server, creati...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill mcp-builder"
-    },
-    {
-      "name": "mindfulness-meditation",
-      "directory": "mindfulness-meditation",
-      "description": "Build a meditation practice with guided sessions, streaks, and mindfulness reminders. Use when: creating meditation guides, building mindfulness routines, generating meditation sessions, tracking medi...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 2,
-      "install": "npx skills add marktantongco/promptc-os --skill mindfulness-meditation"
-    },
-    {
-      "name": "multi-search-engine",
-      "directory": "multi-search-engine",
-      "description": "Multi search engine integration with 8 domestic (CN) search engines. Supports advanced search operators, time filters, site search, and WeChat article search. No API keys required. Use when: searching...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 7,
-      "install": "npx skills add marktantongco/promptc-os --skill multi-search-engine"
-    },
-    {
-      "name": "output-formatter",
-      "directory": "output-formatter",
-      "description": "Structure and format agent output for maximum clarity and tool compatibility. Use when: the user requests a specific output format (JSON, table, markdown), the response will be consumed by another sys...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill output-formatter"
-    },
-    {
-      "name": "pdf",
-      "directory": "pdf",
-      "description": "Comprehensive PDF document creation, editing, and manipulation with ReportLab. Supports cover pages, typography, charts, tables, multi-column layouts, and CJK content. Use when: creating PDF documents...",
-      "version": "1.0.0",
-      "license": "Proprietary. LICENSE.txt has complete terms",
-      "files": 44,
-      "install": "npx skills add marktantongco/promptc-os --skill pdf"
-    },
-    {
-      "name": "photography-ai",
-      "directory": "photography-ai",
-      "description": "Professional visual engineering skills framework for AI-powered image and video creation. Covers prompt engineering, photographic literacy, strategic negation, identity preservation, post-processing, ...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill photography-ai"
-    },
-    {
-      "name": "playwright-cli",
-      "directory": "playwright-cli",
-      "description": "Headless browser automation for testing, scraping, and interaction using the agent-browser CLI tool. Navigate, click, type, snapshot, and screenshot pages via structured commands. Use when: automating...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill playwright-cli"
-    },
-    {
-      "name": "podcast-generate",
-      "directory": "podcast-generate",
-      "description": "Generate podcast episodes from user-provided content or by searching the web for specified topics. Creates dual-host dialogue podcasts with LLM script generation and TTS audio synthesis. Use when: cre...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 7,
-      "install": "npx skills add marktantongco/promptc-os --skill podcast-generate"
-    },
-    {
-      "name": "ppt",
-      "directory": "ppt",
-      "description": "Presentation creation, editing, and analysis for .pptx files including Beamer module for academic/paper-based presentations (PDF output). Use when: creating new presentations, modifying content, worki...",
-      "version": "1.0.0",
-      "license": "Proprietary. LICENSE.txt has complete terms",
-      "files": 75,
-      "install": "npx skills add marktantongco/promptc-os --skill ppt"
-    },
-    {
-      "name": "pptx",
-      "directory": "pptx",
-      "description": "Presentation creation, editing, and analysis for .pptx files. Use when: creating new presentations, modifying or editing content, working with layouts, adding comments or speaker notes, or any other p...",
-      "version": "1.0.0",
-      "license": "Proprietary. LICENSE.txt has complete terms",
-      "files": 57,
-      "install": "npx skills add marktantongco/promptc-os --skill pptx"
-    },
-    {
-      "name": "promptc",
-      "directory": "promptc",
-      "description": "AI Prompt Engineering Operating System with 6-zone workspace, 47+ modifiers, 21 workflows, 66 skills, Zod-validated state, MCP server, basket system, and monetize strategies. Use when: building or ext...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill promptc"
-    },
-    {
-      "name": "qingyan-research",
-      "directory": "qingyan-research",
-      "description": "Deep web research and HTML report generation with publication-quality formatting, interactive data visualizations, and automatic table of contents. Use when: conducting systematic information gatherin...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 2,
-      "install": "npx skills add marktantongco/promptc-os --skill qingyan-research"
-    },
-    {
-      "name": "seo-content-writer",
-      "directory": "seo-content-writer",
-      "description": "Create high-quality, SEO-optimized content that ranks in search engines. Applies on-page SEO best practices, keyword optimization, and content structure for maximum visibility and engagement. Use when...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 4,
-      "install": "npx skills add marktantongco/promptc-os --skill seo-content-writer"
-    },
-    {
-      "name": "simulation-sandbox",
-      "directory": "simulation-sandbox",
-      "description": "Test scenarios, decisions, or code without real-world consequences. Simulate architectural decisions, stress-test business logic, explore what-if scenarios, prototype algorithms with synthetic data, a...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill simulation-sandbox"
-    },
-    {
-      "name": "skill-assessor",
-      "directory": "skill-assessor",
-      "description": "Assess and measure skill performance, coverage, and quality metrics. Use when: evaluating skill effectiveness, measuring skill coverage gaps, profiling skill performance, or conducting skill audits. T...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill skill-assessor"
-    },
-    {
-      "name": "skill-creator",
-      "directory": "skill-creator",
-      "description": "Create new skills, modify and improve existing skills, and measure skill performance. Use when: creating a skill from scratch, editing or optimizing an existing skill, running evals to test a skill, b...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 18,
-      "install": "npx skills add marktantongco/promptc-os --skill skill-creator"
-    },
-    {
-      "name": "skill-finder",
-      "directory": "skill-finder",
-      "description": "Discover, evaluate, and install AI agent skills from community repositories and platforms. Ensures vetting before installation and prevents duplicate capabilities. Use when: needing a capability not i...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill skill-finder"
-    },
-    {
-      "name": "skill-finder-cn",
-      "directory": "skill-finder-cn",
-      "description": "Skill discovery and installation assistant for Chinese-language users. Helps find and install skills from ClawHub and other platforms. Use when: searching for skills in Chinese, discovering available ...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 4,
-      "install": "npx skills add marktantongco/promptc-os --skill skill-finder-cn"
-    },
-    {
-      "name": "skill-vetter",
-      "directory": "skill-vetter",
-      "description": "Security-first skill vetting for AI agents. Use before installing any skill from ClawdHub, GitHub, or other sources. Checks for red flags, permission scope, and suspicious patterns. Triggers: vet skil...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill skill-vetter"
-    },
-    {
-      "name": "social-content-pillars",
-      "directory": "social-content-pillars",
-      "description": "Create monthly content calendars, content strategies, and post templates for social media across brands and platforms. Covers content pillar definition, platform-specific formatting, caption writing, ...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill social-content-pillars"
-    },
-    {
-      "name": "socratic-method",
-      "directory": "socratic-method",
-      "description": "Guide users to discover answers through structured questioning rather than direct answers. Use when: the user is learning a new concept, debugging their own logic, exploring a design decision, or in a...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill socratic-method"
-    },
-    {
-      "name": "stock-analysis-skill",
-      "directory": "stock-analysis-skill",
-      "description": "Comprehensive stock market analysis covering A-share (China), Hong Kong, and US equities. Provides buy/sell/hold recommendations, decision dashboards, technical/fundamental/sentiment analysis, dividen...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 10,
-      "install": "npx skills add marktantongco/promptc-os --skill stock-analysis-skill"
-    },
-    {
-      "name": "storyboard-manager",
-      "directory": "storyboard-manager",
-      "description": "Assist writers with story planning, character development, plot structuring, chapter writing, timeline tracking, and consistency checking. Use when: working with creative writing projects, developing ...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 7,
-      "install": "npx skills add marktantongco/promptc-os --skill storyboard-manager"
-    },
-    {
-      "name": "ui-ux-pro-max",
-      "directory": "ui-ux-pro-max",
-      "description": "UI/UX design intelligence and implementation guidance for building polished interfaces. Use when: the user asks for UI design, UX flows, information architecture, visual style direction, design system...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 56,
-      "install": "npx skills add marktantongco/promptc-os --skill ui-ux-pro-max"
-    },
-    {
-      "name": "uiux-pro-max",
-      "directory": "uiux-pro-max",
-      "description": "UI/UX design intelligence v2 with extended assets and data references for building polished interfaces. Use when: the user asks for UI design, UX flows, information architecture, visual style directio...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 49,
-      "install": "npx skills add marktantongco/promptc-os --skill uiux-pro-max"
+      "triggers": ["analyze image", "OCR", "object detection", "image recognition", "read image", "describe image", "what's in this image"]
     },
     {
       "name": "video-generation",
-      "directory": "video-generation",
-      "description": "Implement AI-powered video generation capabilities using the z-ai-web-dev-sdk. Supports asynchronous task management with status polling and result retrieval. Use when: generating videos from text pro...",
-      "version": "1.0.0",
-      "license": "MIT",
+      "category": "AI / LLM Core",
+      "description": "AI video generation from text/images",
       "files": 3,
-      "install": "npx skills add marktantongco/promptc-os --skill video-generation"
+      "triggers": ["generate video", "create video", "AI video", "text to video", "video generation", "make a video"]
     },
     {
       "name": "video-understand",
-      "directory": "video-understand",
-      "description": "Implement specialized video understanding capabilities using the z-ai-web-dev-sdk. Use when: analyzing video content, understanding motion and temporal sequences, extracting information from video fra...",
-      "version": "1.0.0",
-      "license": "MIT",
+      "category": "AI / LLM Core",
+      "description": "Video content analysis and scene description",
       "files": 3,
-      "install": "npx skills add marktantongco/promptc-os --skill video-understand"
-    },
-    {
-      "name": "visual-design-foundations",
-      "directory": "visual-design-foundations",
-      "description": "Apply typography, color theory, spacing systems, and iconography principles to create cohesive visual designs. Use when: establishing design tokens, building style guides, improving visual hierarchy a...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 4,
-      "install": "npx skills add marktantongco/promptc-os --skill visual-design-foundations"
-    },
-    {
-      "name": "web-artifacts-builder",
-      "directory": "web-artifacts-builder",
-      "description": "Create single-file HTML artifacts containing fully self-contained interactive web applications or visualizations that work by opening the HTML file directly in a browser. Use when: creating an HTML ar...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 1,
-      "install": "npx skills add marktantongco/promptc-os --skill web-artifacts-builder"
-    },
-    {
-      "name": "web-reader",
-      "directory": "web-reader",
-      "description": "Implement web page content extraction capabilities using the z-ai-web-dev-sdk. Use when: scraping web pages, extracting article content, retrieving page metadata, or building applications that process...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 3,
-      "install": "npx skills add marktantongco/promptc-os --skill web-reader"
+      "triggers": ["analyze video", "video understanding", "describe video", "video analysis", "scene detection", "what happens in this video"]
     },
     {
       "name": "web-search",
-      "directory": "web-search",
-      "description": "Implement web search capabilities using the z-ai-web-dev-sdk. Use when: searching for real-time information from the web, retrieving up-to-date content beyond the knowledge cutoff, finding the latest ...",
-      "version": "1.0.0",
-      "license": "MIT",
+      "category": "Web Search & Content",
+      "description": "Web search via z-ai-web-dev-sdk",
       "files": 3,
-      "install": "npx skills add marktantongco/promptc-os --skill web-search"
+      "triggers": ["search web", "web search", "look up", "find online", "google", "search the internet", "search for"]
     },
     {
-      "name": "web-shader-extractor",
-      "directory": "web-shader-extractor",
-      "description": "Extract WebGL/Canvas/Shader visual effects code from web pages, deobfuscate, and port as standalone native JS projects. Use when: extracting shader effects from websites, replicating web visual effect...",
-      "version": "1.0.0",
-      "license": "MIT",
-      "files": 12,
-      "install": "npx skills add marktantongco/promptc-os --skill web-shader-extractor"
+      "name": "web-reader",
+      "category": "Web Search & Content",
+      "description": "Web page content extraction",
+      "files": 3,
+      "triggers": ["read webpage", "extract content", "scrape page", "web reader", "fetch URL", "get page content", "read this URL"]
     },
     {
-      "name": "writing-plans",
-      "directory": "writing-plans",
-      "description": "Use when you have a spec or requirements for a multi-step task, before touching code. Provides structured planning workflow that breaks down complex tasks into actionable steps. Triggers: writing plan...",
-      "version": "1.0.0",
-      "license": "MIT",
+      "name": "agent-browser",
+      "category": "Web Search & Content",
+      "description": "Headless browser automation",
+      "files": 1,
+      "triggers": ["browse", "browser automation", "headless browser", "navigate website", "click button", "fill form", "screenshot page"]
+    },
+    {
+      "name": "multi-search-engine",
+      "category": "Web Search & Content",
+      "description": "8 CN search engines with advanced operators",
+      "files": 7,
+      "triggers": ["Chinese search", "multi engine search", "Baidu", "搜狗", "Bing China", "CN search", "中文搜索"]
+    },
+    {
+      "name": "contentanalysis",
+      "category": "Web Search & Content",
+      "description": "Content extraction from videos, podcasts, articles",
+      "files": 3,
+      "triggers": ["content analysis", "extract content", "podcast transcript", "video summary", "article extraction", "content extraction"]
+    },
+    {
+      "name": "ai-news-collectors",
+      "category": "Web Search & Content",
+      "description": "AI news aggregation and trending",
+      "files": 3,
+      "triggers": ["AI news", "tech news", "latest AI", "news aggregator", "trending AI", "AI updates", "what's new in AI"]
+    },
+    {
+      "name": "qingyan-research",
+      "category": "Web Search & Content",
+      "description": "Deep web research + HTML report generation",
       "files": 2,
-      "install": "npx skills add marktantongco/promptc-os --skill writing-plans"
+      "triggers": ["deep research", "web research", "research report", "investigate topic", "comprehensive research", "HTML report"]
+    },
+    {
+      "name": "finance",
+      "category": "Web Search & Content",
+      "description": "Financial data — stocks, market analysis",
+      "files": 2,
+      "triggers": ["stock price", "financial data", "market analysis", "investment", "ticker", "portfolio", "financial market"]
+    },
+    {
+      "name": "docx",
+      "category": "Document Generation",
+      "description": "Word document creation and editing",
+      "files": 85,
+      "triggers": ["Word document", "docx", "create document", "edit docx", "Word file", "write document", "report document"]
+    },
+    {
+      "name": "pdf",
+      "category": "Document Generation",
+      "description": "PDF generation — cover, TOC, charts, forms",
+      "files": 44,
+      "triggers": ["PDF", "generate PDF", "create PDF", "PDF report", "PDF document", "export PDF", "print to PDF"]
     },
     {
       "name": "xlsx",
-      "directory": "xlsx",
-      "description": "Comprehensive spreadsheet creation, editing, and analysis for .xlsx, .xlsm, .csv, and .tsv files. Use when: opening, reading, editing, or fixing spreadsheets, creating new spreadsheets, analyzing data...",
-      "version": "1.0.0",
-      "license": "Proprietary. LICENSE.txt has complete terms",
+      "category": "Document Generation",
+      "description": "Excel spreadsheets — charts, formulas, VBA",
       "files": 22,
-      "install": "npx skills add marktantongco/promptc-os --skill xlsx"
+      "triggers": ["Excel", "spreadsheet", "xlsx", "create spreadsheet", "workbook", "data table", "Excel chart"]
+    },
+    {
+      "name": "ppt",
+      "category": "Document Generation",
+      "description": "PowerPoint presentations — Beamer, LaTeX",
+      "files": 75,
+      "triggers": ["PowerPoint", "presentation", "slides", "ppt", "create slides", "slide deck", "Beamer"]
+    },
+    {
+      "name": "pptx",
+      "category": "Document Generation",
+      "description": "PPTX creation/editing with tracked changes",
+      "files": 57,
+      "triggers": ["PPTX", "edit presentation", "update slides", "tracked changes", "modify PPTX", "presentation editing"]
+    },
+    {
+      "name": "promptc",
+      "category": "Prompt Engineering",
+      "description": "AI Prompt Engineering Operating System",
+      "files": 1,
+      "triggers": ["prompt engineering", "promptc", "prompt OS", "prompt system", "prompt operating system", "promptc-os"]
+    },
+    {
+      "name": "chain-of-thought",
+      "category": "Prompt Engineering",
+      "description": "Chain-of-thought reasoning",
+      "files": 1,
+      "triggers": ["chain of thought", "reasoning", "step by step", "think through", "CoT", "logical reasoning", "reasoning chain"]
+    },
+    {
+      "name": "socratic-method",
+      "category": "Prompt Engineering",
+      "description": "Socratic questioning for deep analysis",
+      "files": 1,
+      "triggers": ["Socratic", "questioning", "deep analysis", "probe assumptions", "Socratic method", "critical questioning"]
+    },
+    {
+      "name": "explained-code",
+      "category": "Prompt Engineering",
+      "description": "Beginner-friendly code explanations",
+      "files": 1,
+      "triggers": ["explain code", "code explanation", "walkthrough", "how does this work", "code walkthrough", "explain this code"]
+    },
+    {
+      "name": "skill-creator",
+      "category": "Skill Management",
+      "description": "Create, modify, eval, benchmark skills",
+      "files": 18,
+      "triggers": ["create skill", "new skill", "build skill", "skill builder", "skill creation", "make a skill", "skill eval"]
+    },
+    {
+      "name": "skill-finder",
+      "category": "Skill Management",
+      "description": "AI agent skills discovery and evaluation",
+      "files": 1,
+      "triggers": ["find skill", "discover skill", "skill search", "skill finder", "what skill", "skill catalog", "browse skills"]
+    },
+    {
+      "name": "skill-finder-cn",
+      "category": "Skill Management",
+      "description": "Chinese skill finder — ClawHub discovery",
+      "files": 4,
+      "triggers": ["中文技能", "ClawHub", "Chinese skill", "技能搜索", "技能发现", "skill finder Chinese"]
+    },
+    {
+      "name": "skill-assessor",
+      "category": "Skill Management",
+      "description": "Evaluate prompt engineering skills",
+      "files": 1,
+      "triggers": ["assess skill", "evaluate skill", "skill quality", "skill assessment", "rate skill", "benchmark skill"]
+    },
+    {
+      "name": "skill-vetter",
+      "category": "Skill Management",
+      "description": "Security-first skill vetting",
+      "files": 1,
+      "triggers": ["vet skill", "skill security", "security check", "vetting", "skill safety", "validate skill", "trust check"]
+    },
+    {
+      "name": "fullstack-dev",
+      "category": "Web Development",
+      "description": "Next.js 16 + TypeScript + Tailwind CSS 4",
+      "files": 1,
+      "triggers": ["fullstack", "Next.js", "web app", "build application", "full stack", "TypeScript app", "Tailwind"]
+    },
+    {
+      "name": "coding-agent",
+      "category": "Web Development",
+      "description": "Full-stack dev agent — plan, execute, verify",
+      "files": 8,
+      "triggers": ["coding agent", "dev agent", "code agent", "autonomous coding", "build feature", "implement feature", "code it"]
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "category": "Web Development",
+      "description": "UI/UX design intelligence and implementation",
+      "files": 56,
+      "triggers": ["UI design", "UX design", "user interface", "user experience", "design system", "component design", "wireframe"]
+    },
+    {
+      "name": "visual-design-foundations",
+      "category": "Web Development",
+      "description": "Typography, color, spacing, iconography",
+      "files": 4,
+      "triggers": ["typography", "color system", "spacing", "iconography", "design foundations", "visual design", "design tokens"]
+    },
+    {
+      "name": "web-artifacts-builder",
+      "category": "Web Development",
+      "description": "Build standalone web artifacts and widgets",
+      "files": 1,
+      "triggers": ["web artifact", "standalone widget", "embed widget", "web component", "artifact builder", "HTML widget"]
+    },
+    {
+      "name": "gsap-animations",
+      "category": "Animation & Visual",
+      "description": "GSAP with React, ScrollTrigger, timelines",
+      "files": 1,
+      "triggers": ["GSAP", "animation", "scroll animation", "motion design", "animate", "ScrollTrigger", "timeline animation"]
+    },
+    {
+      "name": "ai-visual-synthesis",
+      "category": "Animation & Visual",
+      "description": "Visual engineering with 8-layer architecture",
+      "files": 1,
+      "triggers": ["visual synthesis", "AI visual", "visual engineering", "generative art", "creative coding", "visual effect"]
+    },
+    {
+      "name": "photography-ai",
+      "category": "Animation & Visual",
+      "description": "Professional visual creation framework",
+      "files": 1,
+      "triggers": ["photography", "photo AI", "professional photo", "visual creation", "photo editing", "image composition"]
+    },
+    {
+      "name": "blog-writer",
+      "category": "Content & Marketing",
+      "description": "Blog posts in distinctive writing style",
+      "files": 12,
+      "triggers": ["write blog", "blog post", "article writing", "blog content", "blog writer", "write article"]
+    },
+    {
+      "name": "seo-content-writer",
+      "category": "Content & Marketing",
+      "description": "SEO-optimized content creation",
+      "files": 4,
+      "triggers": ["SEO content", "SEO writing", "optimize for search", "keyword content", "SEO article", "search optimization"]
+    },
+    {
+      "name": "content-strategy",
+      "category": "Content & Marketing",
+      "description": "Content marketing strategy",
+      "files": 2,
+      "triggers": ["content strategy", "content plan", "editorial calendar", "content marketing", "content roadmap"]
+    },
+    {
+      "name": "marketing-mode",
+      "category": "Content & Marketing",
+      "description": "23 marketing skills combined",
+      "files": 5,
+      "triggers": ["marketing", "marketing mode", "marketing strategy", "promote", "advertising", "growth marketing", "campaign"]
+    },
+    {
+      "name": "social-content-pillars",
+      "category": "Content & Marketing",
+      "description": "Social media content pillar strategy",
+      "files": 1,
+      "triggers": ["social media", "content pillars", "social strategy", "content pillars strategy", "social content plan"]
+    },
+    {
+      "name": "podcast-generate",
+      "category": "Content & Marketing",
+      "description": "Podcast generation from content or web",
+      "files": 7,
+      "triggers": ["podcast", "generate podcast", "podcast script", "audio content", "podcast creation", "make podcast"]
+    },
+    {
+      "name": "market-research-reports",
+      "category": "Business & Research",
+      "description": "McKinsey-style market research reports",
+      "files": 8,
+      "triggers": ["market research", "industry report", "McKinsey report", "market analysis", "research report", "industry analysis"]
+    },
+    {
+      "name": "jtbd-research",
+      "category": "Business & Research",
+      "description": "Jobs to be Done product research",
+      "files": 1,
+      "triggers": ["jobs to be done", "JTBD", "product research", "customer needs", "user needs", "job story"]
+    },
+    {
+      "name": "interview-designer",
+      "category": "Business & Research",
+      "description": "Resume analysis + interview design",
+      "files": 5,
+      "triggers": ["interview design", "resume analysis", "interview questions", "hiring", "candidate assessment", "interview prep"]
+    },
+    {
+      "name": "storyboard-manager",
+      "category": "Business & Research",
+      "description": "Story planning, character dev, timeline",
+      "files": 7,
+      "triggers": ["storyboard", "story planning", "character development", "narrative timeline", "plot outline", "story structure"]
+    },
+    {
+      "name": "stock-analysis-skill",
+      "category": "Business & Research",
+      "description": "Stock analysis — technical/fundamental",
+      "files": 10,
+      "triggers": ["stock analysis", "technical analysis", "fundamental analysis", "stock pick", "equity research", "stock research"]
+    },
+    {
+      "name": "gumroad-pipeline",
+      "category": "Business & Research",
+      "description": "Gumroad product pipeline management",
+      "files": 1,
+      "triggers": ["Gumroad", "digital product", "product pipeline", "sell online", "digital product launch", "Gumroad product"]
+    },
+    {
+      "name": "get-fortune-analysis",
+      "category": "Business & Research",
+      "description": "Fortune/astrology report generation",
+      "files": 2,
+      "triggers": ["fortune", "astrology", "horoscope", "fortune telling", "zodiac", "fortune analysis", "占卜"]
+    },
+    {
+      "name": "mcp-builder",
+      "category": "Agent Frameworks",
+      "description": "MCP server builder for Claude Desktop",
+      "files": 1,
+      "triggers": ["MCP", "MCP server", "Claude Desktop", "build MCP", "MCP integration", "model context protocol"]
+    },
+    {
+      "name": "deployment-manager",
+      "category": "Agent Frameworks",
+      "description": "Deployment pipeline management",
+      "files": 1,
+      "triggers": ["deploy", "deployment", "CI/CD", "release", "deploy pipeline", "ship it", "deployment manager"]
+    },
+    {
+      "name": "simulation-sandbox",
+      "category": "Agent Frameworks",
+      "description": "Code simulation and testing",
+      "files": 1,
+      "triggers": ["simulate", "sandbox", "test code", "run simulation", "code testing", "sandbox environment"]
+    },
+    {
+      "name": "output-formatter",
+      "category": "Agent Frameworks",
+      "description": "Output format standardization",
+      "files": 1,
+      "triggers": ["format output", "standardize output", "output format", "format response", "clean output", "output formatter"]
+    },
+    {
+      "name": "context-compressor",
+      "category": "Analysis & Thinking",
+      "description": "Context compression for long conversations",
+      "files": 1,
+      "triggers": ["compress context", "reduce context", "summarize conversation", "context window", "long conversation", "context management"]
+    },
+    {
+      "name": "devils-advocate",
+      "category": "Analysis & Thinking",
+      "description": "Adversarial analysis — stress-test ideas",
+      "files": 1,
+      "triggers": ["devil's advocate", "stress test", "challenge idea", "adversarial", "counterargument", "critique", "poke holes"]
+    },
+    {
+      "name": "auto-target-tracker",
+      "category": "Analysis & Thinking",
+      "description": "Goal progress tracking with VLM",
+      "files": 1,
+      "triggers": ["track progress", "goal tracking", "target tracker", "progress monitoring", "goal tracker", "track goals"]
+    },
+    {
+      "name": "gift-evaluator",
+      "category": "Analysis & Thinking",
+      "description": "Gift analysis — value, authenticity, social",
+      "files": 2,
+      "triggers": ["gift analysis", "evaluate gift", "gift value", "gift idea", "present evaluation", "gift recommendation"]
+    },
+    {
+      "name": "dream-interpreter",
+      "category": "Analysis & Thinking",
+      "description": "Dream interpretation — 3 perspectives",
+      "files": 9,
+      "triggers": ["dream interpretation", "interpret dream", "dream meaning", "dream analysis", "dream symbol", "what does my dream mean"]
+    },
+    {
+      "name": "charts",
+      "category": "Data Visualization",
+      "description": "Charts — matplotlib, ECharts, D3, Mermaid",
+      "files": 12,
+      "triggers": ["chart", "graph", "visualization", "plot", "diagram", "data visualization", "create chart", "make graph"]
+    },
+    {
+      "name": "writing-plans",
+      "category": "Utilities",
+      "description": "Multi-step task planning before coding",
+      "files": 2,
+      "triggers": ["plan tasks", "writing plan", "task plan", "step by step plan", "implementation plan", "plan before coding"]
+    },
+    {
+      "name": "mindfulness-meditation",
+      "category": "Utilities",
+      "description": "Guided meditation, streaks, reminders",
+      "files": 2,
+      "triggers": ["meditation", "mindfulness", "guided meditation", "breathing exercise", "relax", "stress relief", "calm"]
+    },
+    {
+      "name": "aminer-open-academic",
+      "category": "Utilities",
+      "description": "Academic data search and paper analysis",
+      "files": 5,
+      "triggers": ["academic search", "paper search", "AMiner", "research paper", "scholarly search", "citation", "find papers"]
+    },
+    {
+      "name": "web-shader-extractor",
+      "category": "Utilities",
+      "description": "Extract and port web shaders",
+      "files": 12,
+      "triggers": ["shader", "WebGL", "GLSL", "extract shader", "shader effect", "visual effect code", "canvas shader", "port shader"]
     }
   ]
 }

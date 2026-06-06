@@ -1,17 +1,3 @@
----
-name: mcp-builder
-description: >
-  Build Model Context Protocol (MCP) servers that expose tools, resources, and
-  prompts for AI agents. Covers the full lifecycle from planning through
-  evaluation. Use when: building an MCP server, creating an MCP tool, adding
-  MCP integration, exposing APIs as agent tools. Triggers: MCP server, MCP
-  tool, model context protocol, MCP integration, MCP SDK.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-
 # MCP Builder
 
 ## Context

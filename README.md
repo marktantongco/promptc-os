@@ -1,6 +1,6 @@
-# ⚡ promptc OS v5.0
+# ⚡ promptc OS v4.0
 
-**AI Prompt Engineering Operating System** — A comprehensive 6-zone workspace for building, validating, and monetizing AI prompts. 47+ modifiers, 21 workflows, **69 skills (skills.sh standard)**, Zod-validated state, debounced persistence, and WCAG AA accessibility.
+**AI Prompt Engineering Operating System** — A comprehensive 6-zone workspace for building, validating, and monetizing AI prompts. 47+ modifiers, 21 workflows, 66 skills, Zod-validated state, debounced persistence, and WCAG AA accessibility.
 
 [![Version](https://img.shields.io/badge/v4.0-blue)](https://github.com/marktantongco/promptc-os)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-brightgreen)](https://marktantongco.github.io/promptc-os/)
@@ -8,7 +8,6 @@
 [![Zod](https://img.shields.io/badge/Zod-validated-purple)](https://zod.dev)
 [![WCAG AA](https://img.shields.io/badge/WCAG-AA-green)](https://www.w3.org/WAI/WCAG21/quickref/)
 [![PWA](https://img.shields.io/badge/PWA-ready-orange)](https://web.dev/progressive-web-apps/)
-[![MCP](https://img.shields.io/badge/MCP-16%20tools-blueviolet)](https://promptc-os.vercel.app/api/mcp)
 [![Tests](https://img.shields.io/badge/tests-25%20passing-success)](src/lib/stateSchema.test.ts)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](https://opensource.org/licenses/MIT)
 
@@ -17,10 +16,8 @@
 | 🌐 | **Live App (GitHub Pages):** [marktantongco.github.io/promptc-os](https://marktantongco.github.io/promptc-os/) |
 | 🚀 | **Vercel:** [promptc-os.vercel.app](https://promptc-os.vercel.app) |
 | 📦 | **Repository:** [github.com/marktantongco/promptc-os](https://github.com/marktantongco/promptc-os) |
-| 🔧 | **skills.sh Directory:** [skills.sh/marktantongco/promptc-os](https://skills.sh/marktantongco/promptc-os) |
 | 📋 | **npm Package:** [use-validated-reducer](https://github.com/marktantongco/promptc-os/tree/main/packages/use-validated-reducer) |
 | 📊 | **Skills Manifest:** [skills-manifest.json](https://github.com/marktantongco/promptc-os/blob/main/skills-manifest.json) |
-| 🔌 | **MCP Server:** [promptc-os.vercel.app/api/mcp](https://promptc-os.vercel.app/api/mcp) |
 
 ---
 
@@ -115,10 +112,10 @@ Only changed keys written to localStorage
 
 | Component | Status | Purpose |
 |-----------|--------|---------|
-| **`skills-manifest.json`** | ✅ Done | 69 skills registered for skills.sh discovery — 15 categories, trigger keywords, file counts |
-| **MCP server** | ✅ Implemented | 16 tools exposed via JSON-RPC 2.0 at `/api/mcp` — search, skills, modifiers, templates, brands, animals, zones, basket CRUD, compose, analyze, system_prompt |
+| **`skills-manifest.json`** | ✅ Done | 66 skills registered for skills.sh discovery — 13 categories, trigger keywords, file counts |
+| **MCP server** | 📐 Design documented | Exposing search/basket/compose as tools for AI agents via Model Context Protocol |
 | **`use-validated-reducer`** | ✅ Built & tested | npm package extraction of `usePersistedReducer` hook — generic React hook for Zod-validated persisted state (8/8 tests passing, dual CJS/ESM) |
-| **Platform API** | ✅ Done | MCP endpoint at `/api/mcp` (Vercel) — full JSON-RPC 2.0 server with 16 tools |
+| **Platform API** | 🔜 Planned | REST/MCP endpoints for programmatic access to the prompt library |
 
 ---
 
@@ -180,7 +177,7 @@ The starting zone. Browse, search, and collect the building blocks of great prom
 
 | Sub-tab | Contents |
 |---------|----------|
-| **Skills Library** | 69 skills across 15 categories |
+| **Skills Library** | 66 skills across 13 categories |
 | **Compounding** | System health dashboard |
 | **Principles** | 6 core operating principles |
 | **Skill Builder** | 6-step wizard |
@@ -447,11 +444,10 @@ promptc-os/
 │   │   ├── api/
 │   │   │   ├── route.ts          # Health check endpoint
 │   │   │   ├── generate/route.ts # Prompt generation API
-│   │   │   ├── analyze/route.ts  # Prompt analysis API
-│   │   │   └── mcp/route.ts      # v4.0: MCP server (16 tools, JSON-RPC 2.0)
+│   │   │   └── analyze/route.ts  # Prompt analysis API
 │   │   └── data/
 │   │       ├── promptc-data.ts   # Core data layer (1,337 lines) — 22 exports
-│   │       └── skills-catalog.ts # Skills registry (162 lines) — 69 skills, 15 categories
+│   │       └── skills-catalog.ts # Skills registry (162 lines) — 66 skills, 13 categories
 │   ├── components/
 │   │   ├── CommandPalette.tsx    # ⌘K search (safeIncludes filter chain)
 │   │   ├── OnboardingTour.tsx    # First-visit tutorial
@@ -471,7 +467,7 @@ promptc-os/
 │   ├── icons/                    # PWA icons (192px, 512px)
 │   ├── logo.svg                  # App logo
 │   └── robots.txt                # Search engine directives
-├── skills-manifest.json          # v4.0: 69 skills registered for skills.sh discovery
+├── skills-manifest.json          # v4.0: 66 skills registered for skills.sh discovery
 └── package.json                  # v4.0.0
 ```
 
@@ -492,8 +488,7 @@ promptc-os/
 
 | Version | Changes |
 |---------|---------|
-| **v5.0** | **skills.sh Standard** — All 69 skills restructured to follow the skills.sh open agent skills ecosystem standard. Every SKILL.md now has standardized YAML frontmatter (name, description, metadata, license). Skills installable via `npx skills add marktantongco/promptc-os --skill <name>`. Created `skills.sh.json` for repo page customization. Updated CLAUDE.md and AGENTS.md with skills.sh protocol. Skills reorganized into 15 categories. skills.sh badge added. |
-| **v4.0** | **The Three Promotions** — C-1 Triage: `safeIncludes()` null-safe search, BasketItem validation gate, localStorage load filter, 7 hardened filter chains. Beaver: `stateSchema.ts` Zod validators, `usePersistedReducer` hook (replaces 35+ useEffect writers), `appReducer` with 20 typed actions + BATCH_UPDATE, `loadPersistedState()` with boundary validation, 25 property-based tests (1,000+ random inputs). Eagle: `skills-manifest.json` (69 skills), MCP server implemented (16 tools, JSON-RPC 2.0 at `/api/mcp`), `use-validated-reducer` npm package (built & tested, 8/8 tests), SKILL.md for skills.sh registration |
+| **v4.0** | **The Three Promotions** — C-1 Triage: `safeIncludes()` null-safe search, BasketItem validation gate, localStorage load filter, 7 hardened filter chains. Beaver: `stateSchema.ts` Zod validators, `usePersistedReducer` hook (replaces 35+ useEffect writers), `appReducer` with 20 typed actions + BATCH_UPDATE, `loadPersistedState()` with boundary validation, 25 property-based tests (1,000+ random inputs). Eagle: `skills-manifest.json` (66 skills), MCP server design, `use-validated-reducer` npm extraction documented |
 | **v3.9** | WCAG AA accessibility overhaul (contrast, aria-labels, focus-visible, touch targets), mobile-first 375px design, interaction state spec (80ms press, 150ms hover), error handling system (retry → notify → log → halt), Meta Builder fully local, PWA support, Wordswap redesign |
 | **v3.8** | PWA manifest + service worker + icons, mobile right space fix, bottom buttons always visible, Meta Builder local restructuring |
 | **v3.7** | Modifier +Add to Basket, Prompt Chaining Format, Meta Builder API fix, Clipboard History shortcut |
@@ -519,82 +514,34 @@ These principles guide every decision in the promptc OS codebase. They are non-n
 
 ---
 
-## MCP Server
+## MCP Server Roadmap
 
-promptc OS v4.0 implements a Model Context Protocol (MCP) server at `/api/mcp`, making the prompt library, basket, and composer available as tools for AI agents like Claude, GPT, and others. The server implements JSON-RPC 2.0 over HTTP POST (StreamableHTTP transport).
+The Eagle phase includes exposing promptc OS as a Model Context Protocol (MCP) server, making the prompt library, basket, and composer available as tools for AI agents like Claude, GPT, and others.
 
-**Endpoint:** `https://promptc-os.vercel.app/api/mcp`
-
-### MCP Tools (14 implemented)
+### Planned MCP Tools
 
 | Tool | Description | Status |
 |------|-------------|--------|
-| `search` | Search across all content — modifiers, templates, tasks, workflows, brands, animals, skills | ✅ Implemented |
-| `skills_list` | List 69 skills with optional category filter | ✅ Implemented |
-| `skills_get` | Get detailed skill info by name | ✅ Implemented |
-| `modifiers_list` | List 47 modifiers with optional category filter | ✅ Implemented |
-| `templates_list` | List all prompt templates | ✅ Implemented |
-| `brands_list` | List 6 brand design systems | ✅ Implemented |
-| `animals_list` | List 7 thinking mode animals | ✅ Implemented |
-| `zones_list` | List 6 workspace zones | ✅ Implemented |
-| `basket_add` | Add item to basket (Zod-validated via basketItemSchema) | ✅ Implemented |
-| `basket_remove` | Remove item from basket by id | ✅ Implemented |
-| `basket_list` | List basket items with zone filter + 5 sort modes | ✅ Implemented |
-| `compose` | Compose structured prompt from 8 layers (Role → Context → Objective → Constraints → Aesthetic → Planning → Output → Refinement) | ✅ Implemented |
-| `analyze` | Score prompt on 4 dimensions (clarity, specificity, structure, actionability) using AI | ✅ Implemented |
-| `system_prompt` | Get the master system prompt | ✅ Implemented |
+| `search_prompts` | Search across all zones — modifiers, templates, tasks, workflows, brands, animals | 📐 Design documented |
+| `basket_add` | Add a prompt to the collection basket | 📐 Design documented |
+| `basket_list` | List all items in the collection basket | 📐 Design documented |
+| `basket_remove` | Remove an item from the collection basket | 📐 Design documented |
+| `compose_prompt` | Run the 8-layer Composer to build a structured prompt | 📐 Design documented |
+| `validate_prompt` | Run lint rules and quality scoring on a prompt | 🔜 Planned |
+| `get_workflow` | Retrieve a complete workflow with all steps | 🔜 Planned |
 
 ### MCP Architecture
 
 ```
 AI Agent (Claude, GPT, etc.)
-    ↓ MCP Protocol (JSON-RPC 2.0 over HTTP POST)
-promptc OS MCP Server (/api/mcp)
+    ↓ MCP Protocol (JSON-RPC over stdio/SSE)
+promptc OS MCP Server
     ↓
-├── Search Engine → safeIncludes() null-safe filter chain
-├── Skills Registry → SKILLS_CATALOG with 69 skills
-├── Modifiers/Templates/Tasks → promptc-data.ts (1,337 lines)
-├── Basket Manager → basketItemSchema Zod validation
+├── Search Engine → safeIncludes() filter chain
+├── Basket Manager → basketItemSchema validation
 ├── Composer → 8-layer prompt builder
-└── Analyzer → z-ai-web-dev-sdk AI scoring
+└── Validator → Lint rules + Quality Score
 ```
-
-### Calling the MCP Server
-
-```bash
-# Initialize connection
-curl -X POST https://promptc-os.vercel.app/api/mcp \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"my-agent","version":"1.0"}}}'
-
-# Search for role modifiers
-curl -X POST https://promptc-os.vercel.app/api/mcp \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"search","arguments":{"query":"role","category":"Role"}}}'
-
-# Compose a structured prompt
-curl -X POST https://promptc-os.vercel.app/api/mcp \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"compose","arguments":{"role":"senior developer","objective":"Build a responsive dashboard"}}}'
-
-# Analyze a prompt
-curl -X POST https://promptc-os.vercel.app/api/mcp \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"analyze","arguments":{"prompt":"Make a nice website for my business"}}}'
-
-# Discovery endpoint (GET)
-curl https://promptc-os.vercel.app/api/mcp
-```
-
-### JSON-RPC Methods
-
-| Method | Description |
-|--------|-------------|
-| `initialize` | Handshake — returns server capabilities and protocol version |
-| `notifications/initialized` | Client acknowledgment (returns 204) |
-| `tools/list` | Returns all 14 tool definitions with input schemas |
-| `tools/call` | Execute a tool by name with arguments |
-| `ping` | Health check |
 
 ### npm Package: `use-validated-reducer`
 
@@ -640,76 +587,6 @@ const [state, dispatch] = usePersistedReducer(reducer, initialState, schema, {
 - Zero dependencies beyond React + Zod
 
 **Extraction documented in:** `src/hooks/useAppReducer.ts` header comments
-
----
-
-## Skills.sh — Open Agent Skills Ecosystem
-
-promptc OS v5.0 adopts the **skills.sh open agent skills ecosystem** standard. Every skill follows the same protocol used by Vercel's `npx skills add` CLI, making them installable by any AI agent (Claude Code, Cursor, Codex, Windsurf, and 60+ more).
-
-### Install Any Skill
-
-```bash
-# Install a specific skill
-npx skills add marktantongco/promptc-os --skill fullstack-dev
-
-# Install all skills
-npx skills add marktantongco/promptc-os
-
-# List available skills
-npx skills add marktantongco/promptc-os --list
-
-# Install globally (available across all projects)
-npx skills add marktantongco/promptc-os --skill charts -g
-
-# Install to a specific agent
-npx skills add marktantongco/promptc-os --skill docx -a claude-code
-```
-
-### SKILL.md Standard Format
-
-Every skill in this repository follows the standardized YAML frontmatter format:
-
-```yaml
----
-name: <kebab-case-directory-name>
-description: >
-  What this skill does and when to use it. Include trigger phrases
-  and keywords for auto-loading by AI agents.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-```
-
-### Skills by Category (15 categories, 69 skills)
-
-| Category | Skills | Install Example |
-|----------|--------|-----------------|
-| **AI & Media Processing** (15) | asr, llm, tts, vlm, image-generation, image-edit, image-understand, video-generation, video-understand, web-search, web-reader, agent-browser, photography-ai, ai-visual-synthesis, podcast-generate | `--skill llm` |
-| **Document Generation** (5) | docx, pdf, xlsx, ppt, pptx | `--skill docx` |
-| **Charts & Visualization** (3) | charts, infographic-gen, web-artifacts-builder | `--skill charts` |
-| **Prompt Engineering** (4) | promptc, chain-of-thought, socratic-method, explained-code | `--skill promptc` |
-| **Web Development** (8) | fullstack-dev, ui-ux-pro-max, uiux-pro-max, anthropic-frontend-design, front-end-design, extraordinary-web-design, visual-design-foundations, coding-agent | `--skill fullstack-dev` |
-| **Animation & Motion** (6) | gsap-animations, gsap-animation-engineer, animation-hybrid-architect, motion-animation-engineer, remotion-ecosystem, video | `--skill gsap-animations` |
-| **Content & Marketing** (10) | blog-writer, seo-content-writer, content-strategy, marketing-mode, social-content-pillars, marketing-ab-testing, marketing-launch, marketing-video, humanizer, contentanalysis | `--skill blog-writer` |
-| **Business & Research** (7) | market-research-reports, jtbd-research, interview-designer, finance, stock-analysis-skill, storyboard-manager, gumroad-pipeline | `--skill finance` |
-| **Agent Frameworks** (9) | mcp-builder, mcp-spy, deployment-manager, simulation-sandbox, output-formatter, proactive-agent, self-improving-agent, superpowers, system-prompt-sync | `--skill mcp-builder` |
-| **Skill Management** (5) | skill-creator, skill-finder, skill-finder-cn, skill-assessor, skill-vetter | `--skill skill-creator` |
-| **Analysis & Thinking** (6) | context-compressor, devils-advocate, council-of-five, grill-me, think, diagnose | `--skill think` |
-| **Browser & Scraping** (9) | browser-cdp, browserbase-autobrowse, browserbase-fetch, fetch, firecrawl-crawl, firecrawl-scrape, spider, playwright-cli, web-shader-extractor | `--skill playwright-cli` |
-| **Cloud & Infrastructure** (7) | amazon-bedrock, aws-agents-deploy, sentry-ai-monitoring, sentry-nextjs-sdk, vercel, nvidia-build, github | `--skill vercel` |
-| **Lifestyle & Creativity** (6) | writing-plans, mindfulness-meditation, dream-interpreter, get-fortune-analysis, gift-evaluator, auto-target-tracker | `--skill dream-interpreter` |
-| **Search & Discovery** (4) | multi-search-engine, ai-news-collectors, aminer-open-academic, qingyan-research | `--skill multi-search-engine` |
-
-### Skills.sh Badge
-
-```markdown
-[![skills.sh](https://skills.sh/b/marktantongco/promptc-os)](https://skills.sh/marktantongco/promptc-os)
-```
-
-Browse the full directory: https://skills.sh/marktantongco/promptc-os
 
 ---
 

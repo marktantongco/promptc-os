@@ -1,17 +1,3 @@
----
-name: output-formatter
-description: >
-  Structure and format agent output for maximum clarity and tool compatibility.
-  Use when: the user requests a specific output format (JSON, table, markdown),
-  the response will be consumed by another system, generating reports or API
-  responses, formatting inconsistencies would reduce clarity. Triggers: format
-  output, structured output, JSON format, table format, markdown format.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-
 # Output Formatter
 
 ## Context

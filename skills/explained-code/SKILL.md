@@ -1,18 +1,3 @@
----
-name: explained-code
-description: >
-  Transforms complex code into intuitive, step-by-step explanations using
-  analogies, diagrams, and plain language. Designed for beginners and
-  non-developers. Use when: a beginner asks what code does, explaining code to
-  non-developers, writing onboarding documentation, creating educational
-  content, reviewing code with stakeholders. Triggers: explain this code, what
-  does this do, code walkthrough, beginner friendly.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-
 # Explained Code - Beginner-Friendly Code Explanation Skill
 
 > Transforms complex code into intuitive, step-by-step explanations using analogies, diagrams, and plain language. Designed for beginners and non-developers.

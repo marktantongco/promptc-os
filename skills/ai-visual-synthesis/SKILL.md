@@ -1,18 +1,3 @@
----
-name: ai-visual-synthesis
-description: >
-  Complete prompt engineering guide with 8-layer architecture, animal thinking
-  modes, design vocabulary, typography combos, and quality checklists for AI
-  visual generation. Use when: generating AI images, creating visual prompts,
-  designing with AI, building prompt architectures, applying 8-layer prompt
-  system. Triggers: visual synthesis, AI art, prompt architecture, 8-layer,
-  animal thinking, design vocabulary.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-
 # AI Visual Synthesis
 
 Complete prompt engineering guide with 8-layer architecture, animal thinking modes, design vocabulary, typography combos, and quality checklists.

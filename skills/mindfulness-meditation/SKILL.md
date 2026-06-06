@@ -1,15 +1,14 @@
 ---
 name: mindfulness-meditation
-description: >
-  Build a meditation practice with guided sessions, streaks, and mindfulness
-  reminders. Use when: creating meditation guides, building mindfulness
-  routines, generating meditation sessions, tracking meditation streaks.
-  Triggers: meditation, mindfulness, guided meditation, breathing exercise,
-  stress relief, calm.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
+description: Build a meditation practice with guided sessions, streaks, and mindfulness reminders
+author: clawd-team
+version: 1.0.0
+triggers:
+  - "meditate now"
+  - "mindfulness practice"
+  - "guided meditation"
+  - "meditation streak"
+  - "be present"
 ---
 
 # Mindfulness & Meditation

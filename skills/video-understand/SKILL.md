@@ -1,15 +1,6 @@
 ---
 name: video-understand
-description: >
-  Implement specialized video understanding capabilities using the
-  z-ai-web-dev-sdk. Use when: analyzing video content, understanding motion and
-  temporal sequences, extracting information from video frames, describing
-  video scenes, or performing video-based AI analysis. Optimized for MP4, AVI,
-  MOV, and other common video formats. Triggers: video understanding, analyze
-  video, video analysis, video frames, video content, temporal analysis.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
+description: Implement specialized video understanding capabilities using the z-ai-web-dev-sdk. Use this skill when the user needs to analyze video content, understand motion and temporal sequences, extract information from video frames, describe video scenes, or perform video-based AI analysis. Optimized for MP4, AVI, MOV, and other common video formats.
 license: MIT
 ---
 

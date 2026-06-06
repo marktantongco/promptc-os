@@ -39,81 +39,79 @@ Format: **bold label** + one tight sentence max. Rotate types every response: on
 - One idea per sentence. Make it digestible.
 - Think deeply. Write clearly. Let ideas lead.
 
-## SKILLS ECOSYSTEM (skills.sh Standard)
+## SKILLS TO REFERENCE
 
-This project follows the **skills.sh open agent skills ecosystem** standard.
-Every skill is installable via a single command:
+### GSAP Animations
+Full GSAP animation skill with ScrollTrigger, Draggable, TextPlugin, MotionPathPlugin, and more.
+Source: https://raw.githubusercontent.com/xerxes-on/gsap-animation-skill/main/gsap-animations.md
 
+CDN Installation:
+```html
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/Draggable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/MotionPathPlugin.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/TextPlugin.min.js"></script>
+```
+
+Categories: Basic Animations (fade, slide, scale, rotate), Advanced (stagger, timeline, morph, path, parallax), Scroll-Based (scroll-triggered, scrub, pin), Interactive (hover, click, drag), Text Animations (typewriter, character reveal, word stagger), SVG Animations (draw stroke, morph, path).
+
+### Photography AI
+AI Practitioner Skills Framework (2026) — Professional Visual Engineering for AI image generation.
+Source: https://marktantongco.github.io/aiskills-photog/skills.md
+
+Core principles: Photorealistic Logic First, Quiet Luxury of Execution, Intentional Architecture, Verification as Discipline.
+Layers: Foundation (Technical Prompt Engineering + Photographic Literacy), Consistency Layer (Strategic Negation + Identity Preservation), Refinement Layer (Post-Processing & Hybrid Workflows), Orchestration Layer (AI Agent Design + Production Deploy).
+
+### Playwright CLI (Agent Browser)
+Headless browser automation for testing, scraping, and interaction.
+Use `agent-browser` CLI for all browser automation tasks.
+
+Quick start:
 ```bash
-# Install a specific skill
-npx skills add marktantongco/promptc-os --skill <skill-name>
-
-# Install all skills
-npx skills add marktantongco/promptc-os
-
-# List available skills
-npx skills add marktantongco/promptc-os --list
+agent-browser open <url>        # Navigate to page
+agent-browser snapshot -i       # Get interactive elements with refs
+agent-browser click @e1         # Click element by ref
+agent-browser fill @e2 "text"   # Fill input
+agent-browser screenshot        # Capture page
+agent-browser close             # Close browser
 ```
 
-### Skill Directory
+Full commands: open, back, forward, reload, close, snapshot, click, dblclick, focus, fill, type, press, hover, check, uncheck, select, scroll, drag, upload, get, is visible/enabled/checked, wait, find, tab, frame, dialog, eval, console, errors, screenshot, pdf, record, state, cookies, storage, network, set.
 
-Skills live in `skills/<name>/SKILL.md` with standardized YAML frontmatter:
+### UIUX Pro Max
+Comprehensive UI/UX design system skill with data-driven design decisions.
+Available locally in `skills/ui-ux-pro-max/`.
 
-```yaml
----
-name: <kebab-case-name>
-description: >
-  What this skill does and when to use it. Include trigger phrases
-  and keywords for auto-loading.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-```
+Data assets: color systems, typography scales, UI reasoning patterns, landing page patterns, web interface patterns, product design patterns, chart systems, icon systems, react performance guidelines, animation style systems, stack-specific design tokens (Next.js, React, Vue, Svelte, Flutter, SwiftUI, React Native, Tailwind, shadcn, Astro, Nuxt, Nuxt UI, Jetpack Compose).
 
-### Key Skills
+### Front-End Design (Coding Agent)
+Full-stack development with Next.js, TypeScript, Tailwind CSS, and modern frameworks.
+Skill reference: `skills/coding-agent/` and `skills/fullstack-dev/`.
 
-| Skill | Install | Category |
-|-------|---------|----------|
-| promptc | `npx skills add marktantongco/promptc-os --skill promptc` | Prompt Engineering |
-| fullstack-dev | `npx skills add marktantongco/promptc-os --skill fullstack-dev` | Web Development |
-| docx | `npx skills add marktantongco/promptc-os --skill docx` | Document Generation |
-| charts | `npx skills add marktantongco/promptc-os --skill charts` | Visualization |
-| pdf | `npx skills add marktantongco/promptc-os --skill pdf` | Document Generation |
-| xlsx | `npx skills add marktantongco/promptc-os --skill xlsx` | Document Generation |
-| llm | `npx skills add marktantongco/promptc-os --skill llm` | AI Core |
-| image-generation | `npx skills add marktantongco/promptc-os --skill image-generation` | AI Media |
-| web-search | `npx skills add marktantongco/promptc-os --skill web-search` | Web Search |
-| mcp-builder | `npx skills add marktantongco/promptc-os --skill mcp-builder` | Agent Framework |
+Capabilities: project scaffolding, component architecture, API routes, database integration, responsive design, accessibility, performance optimization.
 
-### Skills.sh Directory
+### Skills.sh
+The Agent Skills Directory — discover and install community skills.
+Source: https://skills.sh
 
-Browse all skills: https://skills.sh/marktantongco/promptc-os
-
-Badge:
-```markdown
-[![skills.sh](https://skills.sh/b/marktantongco/promptc-os)](https://skills.sh/marktantongco/promptc-os)
-```
+Browse, search, and install agent skills from the community directory.
 
 ## PROJECT CONTEXT
 
-This is **promptc OS** — an AI prompt engineering operating system.
-Tech stack: Next.js 16, React 19, TypeScript, Tailwind CSS 4, shadcn/ui, Prisma.
+This is **promptc OS** — a motion-driven AI prompt engineering system.
+Tech stack: React 18, Vite, vanilla CSS (no Tailwind in app), GSAP for animations.
 Color system: void black #0B0D10, charcoal #14161A, cyan #4DFFFF, violet #FF6B00, magenta #FF4FD8, amber #FFB000.
-Typography: DM Sans (body), Bebas Neue (display), DM Mono (code).
-Data integrity: Zod schema validation + usePersistedReducer (debounced batch localStorage).
+Typography: Bebas Neue (display), DM Mono (code), DM Sans (body).
+Motion: cubic-bezier(0.16, 1, 0.3, 1) default easing, upward bias.
 
 ## BUILD & DEPLOY
 
 ```bash
 npm install
-npm run dev          # Development server (port 3000)
-npm run build        # Production build
-npm run build:static # Static export for GitHub Pages
+npm run build        # Vite build → dist/
+npm run preview      # Local preview on :4173
 npx vercel --prod    # Deploy to Vercel
 ```
 
-Deployments:
-- **GitHub Pages**: https://marktantongco.github.io/promptc-os/
-- **Vercel**: https://promptc-os.vercel.app/
+GitHub Actions auto-deploys to GitHub Pages on push to main.

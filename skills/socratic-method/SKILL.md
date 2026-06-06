@@ -1,17 +1,3 @@
----
-name: socratic-method
-description: >
-  Guide users to discover answers through structured questioning rather than
-  direct answers. Use when: the user is learning a new concept, debugging their
-  own logic, exploring a design decision, or in any educational or mentoring
-  context where discovery beats delivery. Triggers: socratic, guide me, help me
-  understand, teach me, let me think through this.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-
 # Socratic Method
 
 ## Context

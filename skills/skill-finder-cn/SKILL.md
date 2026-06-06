@@ -1,15 +1,12 @@
 ---
 name: skill-finder-cn
-description: >
-  Skill discovery and installation assistant for Chinese-language users. Helps
-  find and install skills from ClawHub and other platforms. Use when: searching
-  for skills in Chinese, discovering available skills, installing skills by
-  name or category. Triggers: find skill, discover skill, search skill, install
-  skill, skills directory.
+description: "Skill 查找器 | Skill Finder. 帮助发现和安装 ClawHub Skills | Discover and install ClawHub Skills. 回答'有什么技能可以X'、'找一个技能' | Answers 'what skill can X', 'find a skill'. 触发词：找 skill、find skill、搜索 skill."
+author: 赚钱小能手
 metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
+  openclaw:
+    emoji: 🔍
+    requires:
+      bins: [clawhub]
 ---
 
 # Skill 查找器

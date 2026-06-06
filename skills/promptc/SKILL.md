@@ -1,25 +1,7 @@
----
-name: promptc
-description: >
-  AI Prompt Engineering Operating System with 6-zone workspace, 47+ modifiers,
-  21 workflows, 66 skills, Zod-validated state, MCP server, basket system, and
-  monetize strategies. Use when: building or extending promptc OS, adding
-  modifiers/templates/workflows, integrating AI prompt analysis, creating brand
-  identity systems, querying the prompt library via MCP, validating state with
-  Zod schemas. Triggers: promptc, prompt engineering, modifier, template,
-  workflow, MCP, basket, compose.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-
-# promptc OS — AI Prompt Engineering Operating System
+# promptc — AI Prompt Engineering Operating System
 
 ## Context
-promptc OS is a production-grade prompt engineering environment that treats prompt creation as a systematic engineering discipline. It provides structured tools across 6 interconnected zones — from initial activation through building, validation, playbook orchestration, monetization, and system management. Every prompt, modifier, template, and workflow in the system is copy-ready — paste directly into ChatGPT, Claude, Gemini, or any AI chat.
-
-v4.0 introduces a Data Integrity Layer with Zod-validated state at every boundary and an MCP server exposing all capabilities as tools for AI agents.
+promptc OS is a comprehensive prompt engineering toolkit that transforms how users create, refine, validate, and monetize AI prompts. It operates through 5 zones (Activate, Build, Validate, Playbook, Monetize) with 47+ modifiers, 17 templates, 6 brand systems, 7 animal thinking modes, 22 workflows, and a meta prompt builder powered by AI.
 
 Use this skill when:
 - Building or extending the promptc OS web application
@@ -27,84 +9,59 @@ Use this skill when:
 - Integrating AI-powered prompt analysis features
 - Creating brand identity systems or meta-prompt methodologies
 - Designing monetization content or SaaS prompt templates
-- Querying the prompt library via MCP (Model Context Protocol)
-- Validating prompt state with Zod schemas
-- Implementing usePersistedReducer for debounced state persistence
 
 ## Instructions
 
 ### Zone Architecture
-1. **Activate** — Discover & Collect:
+1. **Activate** — User's primary workspace. Contains:
    - 8 task prompts (YouTube, Coding, Business, Research, UI/UX, Image AI, Copy, Email)
    - 47 modifier prompts across 9 categories (Role, Output, Reasoning, Speed, Strategy, Hack, Data, Agent, Productivity)
-   - 20 templates organized by type
-   - 6 brand design systems with complete identity specifications
-   - 7 animal thinking modes with multi-select and combined generation
-   - 8-layer prompt composer (Role → Context → Objective → Constraints → Aesthetic → Planning → Output → Refinement)
+   - 17 templates organized by type
+   - Secret Sauce collection (CopyReadyBox for composed prompts)
+   - Animal thinking mode selector
+   - 8-layer prompt composer
 
-2. **Build** — Construct & Transform:
-   - Master system prompt (10 core rules + advocacy mode + writing rules)
-   - 8 enhancement protocols with user input for combined enhancement
-   - Meta Builder with 3 instant prompt transformers (Quick Critique, Structured Analysis, Expert Engineering — fully offline)
+2. **Build** — Reference library:
+   - Master system prompt (10 core rules + advocacy mode)
+   - Enhancement protocols (Self-Refinement Loop, Chain-of-Thought, Self-Consistency, Tweak Protocol)
+   - Meta Prompt Builder with 3 AI-powered analysis templates
+   - Infographic dashboard with quality metrics
 
-3. **Validate** — Test & Improve:
-   - 28 automated lint checks across 5 segments
-   - 40+ weak → strong word replacements across 4 levels
-   - 60+ design terms with CSS implementations
-   - AI-powered 4-dimension quality scoring
+3. **Validate** — Quality assurance:
+   - 4-dimension quality scoring (clarity, specificity, structure, actionability)
+   - 128+ lint rules with categorized checks
+   - 45+ word swap suggestions
+   - Vocabulary enhancer
+   - Lint collection box (CopyReadyBox)
 
-4. **Playbook** — Orchestrate & Execute:
-   - 21 production workflows across Design, Dev, Business, AI/ML, and more
-   - 6 multi-animal thinking sequences
-   - 12 design element combinations with psychological rationale
-   - 4 display + mono font pairings
+4. **Playbook** — Workflow library:
+   - 22 step-by-step workflows across categories
+   - Workflow chain builder
+   - Layer composer
+   - Web app generator
+   - Before/after prompt diff
 
-5. **Monetize** — Earn & Scale:
-   - 6 highest-value prompt products with revenue potential
-   - 6 automation blueprints with tech stacks and time estimates
-   - 4 income strategies (Quick Win → Active → Passive → Hybrid)
-   - 5 agent frameworks with starter prompts
+5. **Monetize** — Revenue generation:
+   - Top 10 profitable prompt patterns
+   - SaaS prompt templates
+   - Deployment stack recommendations
+   - AI tool integration guides
+   - Automation workflow templates
 
-6. **System** — Meta-Control & Skills:
-   - 66 skills across 13 categories
-   - System health dashboard
-   - 6 core operating principles
-   - 6-step skill builder wizard
+### Meta Prompt Templates
+1. **Quick Critique** — Rate 1-10, 5 improvements, 2 refined variants
+2. **Structured Analysis** — Score, 3 improvements with 3 approaches each, 2 refined prompts
+3. **Expert Engineering** — Dual scores, 4 improvements (context/constraints/output/hierarchy), Precision & Strategy variants, self-test, rationale tags
 
-### MCP Server (v4.0 NEW)
-The MCP server at `/api/mcp` exposes promptc OS as a tool server for AI agents:
+### Brand Systems
+6 complete identity systems: powerUP, SaaS, E-commerce, Fintech, Insurance, Creative Agency. Each includes: color palette, typography, motion language, design rules, tone of voice.
 
-**14 MCP Tools:**
-| Tool | Description |
-|------|-------------|
-| `search` | Search across all content (modifiers, templates, tasks, brands, animals, skills) |
-| `skills_list` | List 66 skills with optional category filter |
-| `skills_get` | Get detailed skill info by name |
-| `modifiers_list` | List 47 modifiers with optional category filter |
-| `templates_list` | List all prompt templates |
-| `brands_list` | List 6 brand design systems |
-| `animals_list` | List 7 thinking mode animals |
-| `zones_list` | List 6 workspace zones |
-| `basket_add` | Add item to basket (Zod-validated) |
-| `basket_remove` | Remove item from basket |
-| `basket_list` | List basket items with filter/sort |
-| `compose` | Compose structured prompt from 8 layers |
-| `analyze` | Score prompt on 4 dimensions (AI-powered) |
-| `system_prompt` | Get the master system prompt |
-
-**Protocol:** JSON-RPC 2.0 over HTTP POST (StreamableHTTP transport)
-**Endpoint:** `https://promptc-os.vercel.app/api/mcp`
-
-### Data Integrity Architecture (v4.0)
-- **`safeIncludes()`** — Null-safe case-insensitive string search, prevents TypeError on null/undefined text
-- **`basketItemSchema`** — Zod validator for basket items, rejects corrupt data at the boundary
-- **`persistedStateSchema`** — Zod validator for 19 persisted state keys
-- **`usePersistedReducer`** — Custom hook: useReducer + Zod + debounced batch localStorage save (replaces 35+ useEffect writers)
-- **25 property-based tests** — 1,000+ random inputs proving validators never throw
+### Animal Thinking Modes
+7 modes with unique cognitive styles: Eagle (strategic overview), Owl (analytical depth), Ant (systematic execution), Rabbit (rapid iteration), Dolphin (creative lateral thinking), Beaver (architectural precision), Elephant (memory & wisdom). 6 pre-built chains for multi-mode reasoning.
 
 ### AI Integration Pattern
-- All AI calls go through `/api/generate` (POST) or MCP `analyze` tool
-- Request: `{ prompt: string, metaType: 1|2|3 }` or MCP tools/call
+- All AI calls go through `/api/generate` (POST)
+- Request: `{ prompt: string, metaType: 1|2|3 }` or `{ action: string, data: any }`
 - Uses `z-ai-web-dev-sdk` server-side only
 - System prompts use containment (XML tags) to prevent prompt injection
 - Results rendered as markdown via ReactMarkdown
@@ -118,50 +75,23 @@ The MCP server at `/api/mcp` exposes promptc OS as a tool server for AI agents:
 - Every modifier must have a practical tip explaining when/how to use it
 - Mobile-first responsive design required for all UI components
 - Zone accent colors are fixed and must not be changed
-- All state validation goes through Zod schemas — never trust raw input
-- Use `safeIncludes()` for all search/filter operations — never call `.toLowerCase()` on potentially null values
 
 ## Examples
 
-### Example 1: Calling the MCP Server
-```bash
-# Initialize connection
-curl -X POST https://promptc-os.vercel.app/api/mcp \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"my-agent","version":"1.0"}}}'
-
-# Search for role modifiers
-curl -X POST https://promptc-os.vercel.app/api/mcp \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"search","arguments":{"query":"role","category":"Role"}}}'
-
-# Compose a structured prompt
-curl -X POST https://promptc-os.vercel.app/api/mcp \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"compose","arguments":{"role":"senior full-stack developer","objective":"Build a responsive dashboard","constraints":"Mobile-first, WCAG AA, 60fps"}}}'
-```
-
-### Example 2: Adding a New Modifier
+### Example 1: Adding a New Modifier
 ```javascript
-// Add to MODS array in promptc-data.ts:
+// Add to MODS array:
 {cat:"Reasoning",mod:"simulate 3 different expert perspectives before answering,",tip:"Gets diverse viewpoints. Use for strategic decisions where blind spots are costly."}
 ```
 
-### Example 3: Using usePersistedReducer
-```typescript
-import { usePersistedReducer } from "@/hooks/useAppReducer";
-import { persistedStateSchema } from "@/lib/stateSchema";
-
-const [state, dispatch] = usePersistedReducer(
-  appReducer,
-  initialState,
-  persistedStateSchema,
-  { storageKey: "promptc-state", debounceMs: 500 }
-);
-
-// Individual action:
-dispatch({ type: "SET_SEARCH", payload: "role prompt" });
-
-// Batch update (atomic multi-field):
-dispatch({ type: "BATCH_UPDATE", payload: { zone: "build", search: "" } });
+### Example 2: Creating a Meta Prompt API Call
+```javascript
+// Client-side:
+const res = await fetch("/api/generate", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ prompt: userInput, metaType: 3 }),
+});
+const data = await res.json();
+// data.result contains the expert engineering analysis
 ```

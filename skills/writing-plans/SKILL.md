@@ -1,14 +1,6 @@
 ---
 name: writing-plans
-description: >
-  Use when you have a spec or requirements for a multi-step task, before
-  touching code. Provides structured planning workflow that breaks down complex
-  tasks into actionable steps. Triggers: writing plan, task plan, spec to plan,
-  requirements to steps, multi-step task, before coding.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
+description: Use when you have a spec or requirements for a multi-step task, before touching code
 ---
 
 # Writing Plans

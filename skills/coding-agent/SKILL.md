@@ -1,15 +1,11 @@
 ---
 name: coding-agent
-description: >
-  Coding workflow with planning, implementation, verification, and testing for
-  clean software development. Use when: writing production code, implementing
-  features with a structured workflow, code review, test-driven development.
-  Triggers: coding agent, implement, build feature, write code, coding
-  workflow, TDD.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
+slug: code
+version: 1.0.4
+homepage: https://clawic.com/skills/code
+description: Coding workflow with planning, implementation, verification, and testing for clean software development.
+changelog: Improved description for better discoverability
+metadata: {"clawdbot":{"emoji":"💻","requires":{"bins":[]},"os":["linux","darwin","win32"]}}
 ---
 
 ## When to Use

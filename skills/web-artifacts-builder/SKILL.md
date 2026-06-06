@@ -1,18 +1,3 @@
----
-name: web-artifacts-builder
-description: >
-  Create single-file HTML artifacts containing fully self-contained interactive
-  web applications or visualizations that work by opening the HTML file
-  directly in a browser. Use when: creating an HTML artifact, single-file web
-  app, self-contained HTML page, building an interactive demo, web artifact.
-  Triggers: HTML artifact, single file app, self-contained page, interactive
-  demo, web artifact.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-
 # Web Artifacts Builder
 
 ## Context

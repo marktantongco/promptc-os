@@ -1,18 +1,3 @@
----
-name: deployment-manager
-description: >
-  Deploy projects to hosting platforms, configure CI/CD pipelines, manage
-  environment variables, monitor deployment health, and execute rollbacks.
-  Covers GitHub Pages, Vercel, and Netlify. Use when: deploying to Vercel,
-  setting up GitHub Pages, deploying on Netlify, configuring CI/CD, rolling
-  back a deployment, monitoring uptime. Triggers: deploy, CI/CD, Vercel,
-  Netlify, GitHub Pages, rollback, deployment.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-
 # Deployment Manager
 
 ## Context

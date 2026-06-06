@@ -1,16 +1,7 @@
 ---
 name: fullstack-dev
-description: >
-  Fullstack web development with Next.js 16, TypeScript, Tailwind CSS 4,
-  shadcn/ui, Prisma ORM. Use when: building web apps, creating UI components,
-  setting up database schemas, implementing API routes, adding
-  websocket/socket.io support, fullstack project scaffolding, frontend or
-  backend development, Next.js applications. Triggers: fullstack, web app,
-  Next.js, React, API route, database, Prisma, shadcn, Tailwind.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
+description: "Fullstack web development with Next.js 16, TypeScript, Tailwind CSS 4, shadcn/ui, Prisma ORM. Use when: building web apps, creating UI components, setting up database schemas, implementing API routes, adding websocket/socket.io support, fullstack project scaffolding, frontend development, backend development, web dev, Next.js app."
+argument-hint: "Describe the fullstack feature or app you want to build"
 ---
 
 # Fullstack Web Development Skill

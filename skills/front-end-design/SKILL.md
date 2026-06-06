@@ -1,15 +1,11 @@
 ---
-name: front-end-design
-description: >
-  Coding workflow with planning, implementation, verification, and testing for
-  clean software development. Use when: building frontend features,
-  implementing UI components, writing production code, code review, test-driven
-  development. Triggers: frontend, code, implement, build feature, write code,
-  coding workflow.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
+name: coding-agent
+slug: code
+version: 1.0.4
+homepage: https://clawic.com/skills/code
+description: Coding workflow with planning, implementation, verification, and testing for clean software development.
+changelog: Improved description for better discoverability
+metadata: {"clawdbot":{"emoji":"💻","requires":{"bins":[]},"os":["linux","darwin","win32"]}}
 ---
 
 ## When to Use

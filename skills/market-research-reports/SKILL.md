@@ -1,17 +1,7 @@
 ---
 name: market-research-reports
-description: >
-  Generate comprehensive market research reports (50+ pages) in the style of
-  top consulting firms (McKinsey, BCG, Gartner). Features professional
-  formatting, extensive visual generation, deep research integration, and
-  multi-framework strategic analysis including Porter's Five Forces, PESTLE,
-  SWOT, TAM/SAM/SOM, and BCG Matrix. Triggers: market research, industry
-  report, consulting report, market analysis, competitive analysis, strategic
-  analysis.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
+description: "Generate comprehensive market research reports (50+ pages) in the style of top consulting firms (McKinsey, BCG, Gartner). Features professional LaTeX formatting, extensive visual generation with scientific-schematics and generate-image, deep integration with research-lookup for data gathering, and multi-framework strategic analysis including Porter's Five Forces, PESTLE, SWOT, TAM/SAM/SOM, and BCG Matrix."
+allowed-tools: [Read, Write, Edit, Bash]
 ---
 
 # Market Research Reports

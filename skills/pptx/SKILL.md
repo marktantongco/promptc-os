@@ -1,13 +1,6 @@
 ---
 name: pptx
-description: >
-  Presentation creation, editing, and analysis for .pptx files. Use when:
-  creating new presentations, modifying or editing content, working with
-  layouts, adding comments or speaker notes, or any other presentation tasks.
-  Triggers: pptx, PowerPoint, presentation, slides, deck, speaker notes.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
+description: "Presentation creation, editing, and analysis. When Claude needs to work with presentations (.pptx files) for: (1) Creating new presentations, (2) Modifying or editing content, (3) Working with layouts, (4) Adding comments or speaker notes, or any other presentation tasks"
 license: Proprietary. LICENSE.txt has complete terms
 ---
 

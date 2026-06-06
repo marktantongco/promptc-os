@@ -1,15 +1,9 @@
 ---
 name: docx
-description: >
-  Comprehensive document creation, editing, and analysis with support for
-  tracked changes, comments, formatting preservation, and text extraction. Use
-  when: creating new Word documents, modifying or editing content, working with
-  tracked changes, adding comments, or any other document tasks involving .docx
-  files. Triggers: docx, Word document, create document, edit document, tracked
-  changes, document generation.
 metadata:
   author: Z.AI
-  version: "1.0.0"
+  version: "1.0"
+description: "Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. When GLM needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks"
 license: Proprietary. LICENSE.txt has complete terms
 ---
 

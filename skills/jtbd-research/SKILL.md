@@ -1,19 +1,3 @@
----
-name: jtbd-research
-description: >
-  Structured Jobs to be Done (JTBD) product research methodology. Breaks down
-  user needs into functional, emotional, and social components to find
-  high-output solutions. Use when: starting product discovery, understanding
-  why users switch products, identifying unmet needs, building landing page
-  copy from real customer language, prioritizing features by core customer
-  jobs. Triggers: JTBD, jobs to be done, product research, user needs, customer
-  research.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-
 # JTBD Research - Jobs to be Done Product Research Methodology
 
 > A structured skill for conducting Jobs to be Done (JTBD) product research, breaking down user needs into functional, emotional, and social components to find high-output solutions.

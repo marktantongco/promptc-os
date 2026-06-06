@@ -1,15 +1,6 @@
 ---
 name: visual-design-foundations
-description: >
-  Apply typography, color theory, spacing systems, and iconography principles
-  to create cohesive visual designs. Use when: establishing design tokens,
-  building style guides, improving visual hierarchy and consistency. Triggers:
-  design foundations, typography, color theory, spacing, design tokens, style
-  guide, visual hierarchy.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
+description: Apply typography, color theory, spacing systems, and iconography principles to create cohesive visual designs. Use when establishing design tokens, building style guides, or improving visual hierarchy and consistency.
 ---
 
 # Visual Design Foundations

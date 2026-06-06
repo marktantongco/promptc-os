@@ -1,18 +1,3 @@
----
-name: devils-advocate
-description: >
-  Rigorous challenge and stress-testing of proposed plans, arguments, or
-  decisions before finalization. Identifies logic flaws, missing evidence, and
-  unconsidered alternatives. Use when: reviewing business strategies,
-  challenging technical architectures, stress-testing proposals, evaluating
-  vendor selections, pre-mortem analysis. Triggers: challenge this, devil's
-  advocate, stress test, what could go wrong, critique this plan.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-
 # Devil's Advocate
 
 ## Context

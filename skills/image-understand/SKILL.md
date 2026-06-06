@@ -1,15 +1,6 @@
 ---
 name: image-understand
-description: >
-  Implement specialized image understanding capabilities using the
-  z-ai-web-dev-sdk. Use when: analyzing static images, extracting visual
-  information, performing OCR, detecting objects, classifying images, or
-  understanding visual content. Optimized for PNG, JPEG, GIF, WebP, and BMP
-  formats. Triggers: analyze image, image understanding, OCR, object detection,
-  image classification, visual analysis.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
+description: Implement specialized image understanding capabilities using the z-ai-web-dev-sdk. Use this skill when the user needs to analyze static images, extract visual information, perform OCR, detect objects, classify images, or understand visual content. Optimized for PNG, JPEG, GIF, WebP, and BMP formats.
 license: MIT
 ---
 

@@ -1,18 +1,3 @@
----
-name: gumroad-pipeline
-description: >
-  Full pipeline for creating, launching, and monetizing digital products on
-  Gumroad — from product ideation through post-launch optimization, including
-  email funnels, sales pages, and upsell sequences. Use when: launching a
-  Gumroad product, creating a digital product funnel, writing a Gumroad sales
-  page, building an email nurture sequence. Triggers: Gumroad, digital product,
-  launch, sales funnel, email sequence, lead magnet.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-
 # Gumroad Pipeline
 
 ## Context

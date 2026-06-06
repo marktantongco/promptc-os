@@ -1,18 +1,3 @@
----
-name: skill-finder
-description: >
-  Discover, evaluate, and install AI agent skills from community repositories
-  and platforms. Ensures vetting before installation and prevents duplicate
-  capabilities. Use when: needing a capability not in your skills library,
-  discovering community skills, evaluating a skill before installing, auditing
-  and expanding your skills library. Triggers: find skill, discover skill,
-  search skill, install skill, skills directory.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-
 # Skill Finder - AI Agent Skills Discovery and Evaluation Meta-Skill
 
 > Automates the discovery, evaluation, and installation of AI agent skills from community repositories and platforms. Ensures every new skill is vetted before installation and never duplicates existing capabilities.

@@ -1,14 +1,8 @@
 ---
-name: ppt
-description: >
-  Presentation creation, editing, and analysis for .pptx files including Beamer
-  module for academic/paper-based presentations (PDF output). Use when:
-  creating new presentations, modifying content, working with layouts, adding
-  speaker notes, building academic presentations with LaTeX Beamer. Triggers:
-  PPT, PowerPoint, presentation, slides, Beamer, keynote, deck.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
+name: pptx
+author: Z.AI
+version: "1.0"
+description: "Presentation creation, editing, and analysis for .pptx files: (1) Creating new presentations, (2) Modifying or editing content, (3) Working with layouts, (4) Adding comments or speaker notes. Academic/paper-based presentations use the embedded Beamer module at end of this file (PDF output only)."
 license: Proprietary. LICENSE.txt has complete terms
 ---
 

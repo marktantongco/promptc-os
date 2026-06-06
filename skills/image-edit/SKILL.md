@@ -1,15 +1,6 @@
 ---
 name: image-edit
-description: >
-  Implement AI image editing and modification capabilities using the
-  z-ai-web-dev-sdk. Use when: editing existing images, creating variations,
-  modifying visual content, redesigning assets, or transforming images based on
-  text descriptions. Supports multiple image sizes and includes a CLI tool.
-  Triggers: edit image, modify image, image variation, transform image,
-  redesign, image editing.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
+description: Implement AI image editing and modification capabilities using the z-ai-web-dev-sdk. Use this skill when the user needs to edit existing images, create variations, modify visual content, redesign assets, or transform images based on text descriptions. Supports multiple image sizes and returns base64 encoded results. Also includes CLI tool for quick image editing.
 license: MIT
 ---
 

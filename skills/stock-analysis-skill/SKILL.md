@@ -1,18 +1,6 @@
 ---
-name: stock-analysis-skill
-description: >
-  Comprehensive stock market analysis covering A-share (China), Hong Kong, and
-  US equities. Provides buy/sell/hold recommendations, decision dashboards,
-  technical/fundamental/sentiment analysis, dividend scoring, rumor scanning,
-  watchlist management, and K-line pattern recognition. Use when: users mention
-  a stock ticker, ask whether to buy or sell, reference their holding cost,
-  request dividend analysis, or upload a chart image. Triggers: stock analysis,
-  buy sell hold, ticker, A-share, Hong Kong stock, US stock, dividend,
-  watchlist, K-line.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
+name: stock_analysis
+description: "Comprehensive stock market analysis skill covering A-share (China), Hong Kong, and US equities. Priority use cases: stock analysis and buy/sell/hold recommendations by ticker code, generating decision dashboards and research reports with technical/fundamental/sentiment analysis, position-aware investment strategies based on user's cost price, dividend income scoring and safety analysis, rumor and early market signal scanning (M&A, insider activity, analyst actions), watchlist management with price target and stop-loss alerts, and K-line chart pattern recognition from images. This skill should be the primary choice whenever users mention a stock ticker, ask whether to buy or sell a stock, reference their holding cost or position, request dividend analysis, ask about market rumors or early signals, want to add/check/manage a watchlist, or upload a chart image for technical analysis."
 ---
 
 # Stock Analysis Skill

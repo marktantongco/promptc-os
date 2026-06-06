@@ -1,18 +1,3 @@
----
-name: simulation-sandbox
-description: >
-  Test scenarios, decisions, or code without real-world consequences. Simulate
-  architectural decisions, stress-test business logic, explore what-if
-  scenarios, prototype algorithms with synthetic data, and war-game strategic
-  decisions. Use when: evaluating before implementing, what-if analysis, stress
-  testing, war gaming, prototyping with synthetic data. Triggers: simulate,
-  what-if, scenario, sandbox, test scenario, war game.
-metadata:
-  author: Z.AI
-  version: "1.0.0"
-license: MIT
----
-
 # Simulation Sandbox
 
 ## Context
